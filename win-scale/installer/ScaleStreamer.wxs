@@ -3,13 +3,13 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
     <Package Name="Scale RTSP Streamer"
-             Manufacturer="Scale Systems"
-             Version="1.0.0"
+             Manufacturer="Cloud-Scale"
+             Version="1.1.0"
              UpgradeCode="A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
              Scope="perMachine">
 
         <SummaryInformation Description="Scale RTSP Streamer - Stream scale weight data as RTSP video"
-                            Manufacturer="Scale Systems" />
+                            Manufacturer="Cloud-Scale" />
 
         <MajorUpgrade DowngradeErrorMessage="A newer version of Scale RTSP Streamer is already installed."
                       Schedule="afterInstallInitialize" />
@@ -74,7 +74,7 @@
             <Component Id="AppRegistryKeys" Guid="11111111-1111-1111-1111-111111111116">
                 <RegistryKey Root="HKLM" Key="Software\Cloud-Scale\ScaleStreamer">
                     <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" />
-                    <RegistryValue Name="Version" Type="string" Value="1.0.0" />
+                    <RegistryValue Name="Version" Type="string" Value="1.1.0" />
                     <RegistryValue Name="Vendor" Type="string" Value="Cloud-Scale" />
                     <RegistryValue Name="SupportURL" Type="string" Value="https://cloud-scale.us/support" KeyPath="yes" />
                 </RegistryKey>
@@ -200,5 +200,6 @@
 
     </Package>
 </Wix>
+
 
 

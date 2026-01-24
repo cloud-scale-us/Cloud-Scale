@@ -9,8 +9,8 @@
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
     <AssemblyName>ScaleStreamer</AssemblyName>
     <RootNamespace>ScaleStreamer</RootNamespace>
-    <Version>1.0.0</Version>
-    <Company>Scale Systems</Company>
+    <Version>1.1.0</Version>
+    <Company>Cloud-Scale</Company>
     <Product>Scale RTSP Streamer</Product>
     <Description>Stream scale weight data to RTSP</Description>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
