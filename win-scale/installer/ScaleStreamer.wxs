@@ -177,8 +177,8 @@
                       Return="ignore" />
 
         <InstallExecuteSequence>
-            <Custom Action="AddFirewallRules" After="InstallFiles">NOT Installed</Custom>
-            <Custom Action="RemoveFirewallRules" After="RemoveFiles">Installed AND NOT REINSTALL</Custom>
+            <Custom Action="AddFirewallRules" After="InstallFiles" Condition="NOT Installed" />
+            <Custom Action="RemoveFirewallRules" After="RemoveFiles" Condition="Installed AND NOT REINSTALL" />
         </InstallExecuteSequence>
 
         <!-- User Interface -->
@@ -200,6 +200,7 @@
 
     </Package>
 </Wix>
+
 
 
 
