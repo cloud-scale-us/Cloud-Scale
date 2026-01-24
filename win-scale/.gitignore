@@ -1,0 +1,25 @@
+# Build outputs
+publish/
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+
+# Dependencies (download separately)
+deps/
+
+# Installer outputs
+installer/*.msi
+installer/*.wixobj
+installer/*.wixpdb
+
+# User-specific files
+*.user
+*.suo
+*.cache
+.vs/
+
+# OS files
+Thumbs.db
+.DS_Store

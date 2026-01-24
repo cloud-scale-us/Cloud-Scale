@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+    <Package Name="Scale RTSP Streamer"
+             Manufacturer="Scale Systems"
+             Version="1.0.0"
+             UpgradeCode="A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+             Scope="perMachine">
+
+        <SummaryInformation Description="Scale RTSP Streamer - Stream scale weight data as RTSP video"
+                            Manufacturer="Scale Systems" />
+
+        <MajorUpgrade DowngradeErrorMessage="A newer version of Scale RTSP Streamer is already installed."
+                      Schedule="afterInstallInitialize" />
+
+        <Media Id="1" Cabinet="ScaleStreamer.cab" EmbedCab="yes" CompressionLevel="high" />
+
+        <!-- Properties -->
+        <Property Id="LAUNCHAPPONEXIT" Value="1" />
+
+        <!-- Directory Structure -->
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="INSTALLFOLDER" Name="Scale RTSP Streamer">
+                <Directory Id="DepsFolder" Name="deps">
+                    <Directory Id="FfmpegFolder" Name="ffmpeg" />
+                    <Directory Id="MediamtxFolder" Name="mediamtx" />
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="ApplicationProgramsFolder" Name="Scale RTSP Streamer" />
+        </StandardDirectory>
+
+        <StandardDirectory Id="DesktopFolder" />
+
+        <!-- Main Application Components -->
+        <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+            <Component Id="MainExecutable" Guid="11111111-1111-1111-1111-111111111111">
+                <File Id="ScaleStreamerExe" Source="$(var.PublishDir)\ScaleStreamer.exe" KeyPath="yes">
+                    <Shortcut Id="DesktopShortcut"
+                              Directory="DesktopFolder"
+                              Name="Scale RTSP Streamer"
+                              Description="Stream scale weight data to RTSP"
+                              WorkingDirectory="INSTALLFOLDER"
+                              Advertise="yes" />
+                </File>
+            </Component>
+
+            <Component Id="MainDll" Guid="11111111-1111-1111-1111-111111111112">
+                <File Source="$(var.PublishDir)\ScaleStreamer.dll" KeyPath="yes" />
+            </Component>
+
+            <Component Id="RuntimeConfig" Guid="11111111-1111-1111-1111-111111111113">
+                <File Source="$(var.PublishDir)\ScaleStreamer.runtimeconfig.json" KeyPath="yes" />
+            </Component>
+
+            <Component Id="DefaultConfig" Guid="11111111-1111-1111-1111-111111111114">
+                <File Source="$(var.PublishDir)\appsettings.json" KeyPath="yes" />
+            </Component>
+
+            <!-- Auto-start Registry Entry -->
+            <Component Id="AutoStartRegistry" Guid="11111111-1111-1111-1111-111111111115">
+                <RegistryValue Root="HKCU"
+                               Key="Software\Microsoft\Windows\CurrentVersion\Run"
+                               Name="ScaleStreamer"
+                               Type="string"
+                               Value="[INSTALLFOLDER]ScaleStreamer.exe"
+                               KeyPath="yes" />
+            </Component>
+
+            <!-- Application Registry Keys -->
+            <Component Id="AppRegistryKeys" Guid="11111111-1111-1111-1111-111111111116">
+                <RegistryKey Root="HKLM" Key="Software\Cloud-Scale\ScaleStreamer">
+                    <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" />
+                    <RegistryValue Name="Version" Type="string" Value="1.0.0" />
+                    <RegistryValue Name="Vendor" Type="string" Value="Cloud-Scale" />
+                    <RegistryValue Name="SupportURL" Type="string" Value="https://cloud-scale.us/support" KeyPath="yes" />
+                </RegistryKey>
+            </Component>
+        </ComponentGroup>
+
+        <!-- .NET Runtime DLLs (harvested) -->
+        <ComponentGroup Id="RuntimeComponents" Directory="INSTALLFOLDER">
+            <Files Include="$(var.PublishDir)\*.dll">
+                <Exclude Files="$(var.PublishDir)\ScaleStreamer.dll" />
+            </Files>
+        </ComponentGroup>
+
+        <!-- FFmpeg Components -->
+        <ComponentGroup Id="FfmpegComponents" Directory="FfmpegFolder">
+            <Component Id="FfmpegExe" Guid="33333333-3333-3333-3333-333333333333">
+                <File Source="$(var.PublishDir)\deps\ffmpeg\ffmpeg.exe" KeyPath="yes" />
+            </Component>
+            <Component Id="FfplayExe" Guid="33333333-3333-3333-3333-333333333334">
+                <File Source="$(var.PublishDir)\deps\ffmpeg\ffplay.exe" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- MediaMTX Components -->
+        <ComponentGroup Id="MediamtxComponents" Directory="MediamtxFolder">
+            <Component Id="MediamtxExe" Guid="44444444-4444-4444-4444-444444444444">
+                <File Source="$(var.PublishDir)\deps\mediamtx\mediamtx.exe" KeyPath="yes" />
+            </Component>
+            <Component Id="MediamtxYml" Guid="44444444-4444-4444-4444-444444444445">
+                <File Source="$(var.PublishDir)\deps\mediamtx\mediamtx.yml" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- Firewall Rules -->
+        <ComponentGroup Id="FirewallComponents" Directory="INSTALLFOLDER">
+            <!-- MediaMTX RTSP Port (8554) -->
+            <Component Id="FirewallRTSP" Guid="66666666-6666-6666-6666-666666666666">
+                <RegistryValue Root="HKLM"
+                               Key="Software\Cloud-Scale\ScaleStreamer\Firewall"
+                               Name="RTSP"
+                               Type="integer"
+                               Value="8554"
+                               KeyPath="yes" />
+            </Component>
+
+            <!-- MediaMTX HLS Port (8888) -->
+            <Component Id="FirewallHLS" Guid="66666666-6666-6666-6666-666666666667">
+                <RegistryValue Root="HKLM"
+                               Key="Software\Cloud-Scale\ScaleStreamer\Firewall"
+                               Name="HLS"
+                               Type="integer"
+                               Value="8888"
+                               KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- Start Menu Shortcuts -->
+        <ComponentGroup Id="ShortcutComponents" Directory="ApplicationProgramsFolder">
+            <Component Id="StartMenuShortcut" Guid="55555555-5555-5555-5555-555555555555">
+                <Shortcut Id="StartMenuShortcut"
+                          Name="Scale RTSP Streamer"
+                          Description="Stream scale weight data to RTSP"
+                          Target="[INSTALLFOLDER]ScaleStreamer.exe"
+                          WorkingDirectory="INSTALLFOLDER" />
+                <Shortcut Id="UninstallShortcut"
+                          Name="Uninstall Scale RTSP Streamer"
+                          Description="Uninstall Scale RTSP Streamer"
+                          Target="[System64Folder]msiexec.exe"
+                          Arguments="/x [ProductCode]" />
+                <RemoveFolder Id="CleanUpShortcutFolder" On="uninstall" />
+                <RegistryValue Root="HKCU" Key="Software\ScaleStreamer" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- Features -->
+        <Feature Id="MainFeature" Title="Scale RTSP Streamer" Level="1"
+                 Description="Core application for streaming scale data"
+                 ConfigurableDirectory="INSTALLFOLDER" AllowAbsent="no">
+            <ComponentGroupRef Id="ProductComponents" />
+            <ComponentGroupRef Id="RuntimeComponents" />
+            <ComponentGroupRef Id="FfmpegComponents" />
+            <ComponentGroupRef Id="MediamtxComponents" />
+            <ComponentGroupRef Id="ShortcutComponents" />
+            <ComponentGroupRef Id="FirewallComponents" />
+        </Feature>
+
+        <!-- Custom Actions for Firewall Rules -->
+        <CustomAction Id="AddFirewallRules"
+                      Directory="INSTALLFOLDER"
+                      Execute="deferred"
+                      Impersonate="no"
+                      ExeCommand="cmd.exe /c netsh advfirewall firewall add rule name=&quot;Scale Streamer - RTSP&quot; dir=in action=allow protocol=TCP localport=8554 &amp; netsh advfirewall firewall add rule name=&quot;Scale Streamer - HLS&quot; dir=in action=allow protocol=TCP localport=8888"
+                      Return="ignore" />
+
+        <CustomAction Id="RemoveFirewallRules"
+                      Directory="INSTALLFOLDER"
+                      Execute="deferred"
+                      Impersonate="no"
+                      ExeCommand="cmd.exe /c netsh advfirewall firewall delete rule name=&quot;Scale Streamer - RTSP&quot; &amp; netsh advfirewall firewall delete rule name=&quot;Scale Streamer - HLS&quot;"
+                      Return="ignore" />
+
+        <InstallExecuteSequence>
+            <Custom Action="AddFirewallRules" After="InstallFiles">NOT Installed</Custom>
+            <Custom Action="RemoveFirewallRules" After="RemoveFiles">Installed AND NOT REINSTALL</Custom>
+        </InstallExecuteSequence>
+
+        <!-- User Interface -->
+        <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+        <!-- UI Customization -->
+        <WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+        <WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
+        <WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
+
+        <!-- Icon for Add/Remove Programs -->
+        <Icon Id="ScaleStreamerIcon" SourceFile="$(var.PublishDir)\ScaleStreamer.exe" />
+        <Property Id="ARPPRODUCTICON" Value="ScaleStreamerIcon" />
+        <Property Id="ARPURLINFOABOUT" Value="https://cloud-scale.us" />
+        <Property Id="ARPHELPLINK" Value="https://cloud-scale.us/support" />
+
+        <!-- Enable verbose logging -->
+        <Property Id="MsiLogging" Value="voicewarmup" />
+
+    </Package>
+</Wix>
+
+
