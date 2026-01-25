@@ -5,6 +5,17 @@ using System.Text.Json.Serialization;
 namespace ScaleStreamer.Common.Services;
 
 /// <summary>
+/// Progress info for file download
+/// </summary>
+public class DownloadProgressInfo
+{
+    public long BytesReceived { get; set; }
+    public long TotalBytes { get; set; }
+    public int ProgressPercentage { get; set; }
+    public string Status { get; set; } = "";
+}
+
+/// <summary>
 /// Checks GitHub Releases API for software updates
 /// </summary>
 public class UpdateChecker
@@ -117,6 +128,82 @@ public class UpdateChecker
         catch
         {
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Download MSI installer directly
+    /// </summary>
+    public async Task<string?> DownloadInstallerAsync(
+        string downloadUrl,
+        IProgress<DownloadProgressInfo>? progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Create temp file path
+            var tempPath = Path.Combine(Path.GetTempPath(), "ScaleStreamer-Update.msi");
+
+            // Delete existing file if present
+            if (File.Exists(tempPath))
+            {
+                File.Delete(tempPath);
+            }
+
+            progress?.Report(new DownloadProgressInfo
+            {
+                Status = "Starting download...",
+                ProgressPercentage = 0
+            });
+
+            using var response = await _httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            var totalBytes = response.Content.Headers.ContentLength ?? 0;
+            var bytesReceived = 0L;
+
+            using var contentStream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            using var fileStream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+
+            var buffer = new byte[8192];
+            int bytesRead;
+
+            while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
+            {
+                await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
+                bytesReceived += bytesRead;
+
+                if (totalBytes > 0)
+                {
+                    var percentage = (int)((bytesReceived * 100) / totalBytes);
+                    progress?.Report(new DownloadProgressInfo
+                    {
+                        BytesReceived = bytesReceived,
+                        TotalBytes = totalBytes,
+                        ProgressPercentage = percentage,
+                        Status = $"Downloading... {percentage}%"
+                    });
+                }
+            }
+
+            progress?.Report(new DownloadProgressInfo
+            {
+                BytesReceived = bytesReceived,
+                TotalBytes = totalBytes,
+                ProgressPercentage = 100,
+                Status = "Download complete!"
+            });
+
+            return tempPath;
+        }
+        catch (Exception)
+        {
+            progress?.Report(new DownloadProgressInfo
+            {
+                Status = "Download failed",
+                ProgressPercentage = 0
+            });
+            return null;
         }
     }
 }

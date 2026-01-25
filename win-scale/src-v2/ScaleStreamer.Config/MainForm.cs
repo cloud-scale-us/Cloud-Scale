@@ -10,7 +10,7 @@ namespace ScaleStreamer.Config;
 /// </summary>
 public partial class MainForm : Form
 {
-    private const string APP_VERSION = "2.6.0";
+    private const string APP_VERSION = "2.7.0";
 
     private readonly IpcClient _ipcClient;
     private System.Windows.Forms.Timer _statusTimer;
@@ -29,6 +29,9 @@ public partial class MainForm : Form
     private UpdateChecker? _updateChecker;
     private UpdateInfo? _availableUpdate;
 
+    // System tray
+    private NotifyIcon? _notifyIcon;
+
     public MainForm()
     {
         InitializeComponent();
@@ -40,6 +43,7 @@ public partial class MainForm : Form
         InitializeTabs();
         InitializeStatusBar();
         InitializeUpdateNotification();
+        InitializeSystemTray();
 
         // Timer to check service connection
         _statusTimer = new System.Windows.Forms.Timer
@@ -308,6 +312,230 @@ public partial class MainForm : Form
         _updateNotificationPanel.BringToFront();
     }
 
+    private void InitializeSystemTray()
+    {
+        _notifyIcon = new NotifyIcon
+        {
+            Visible = true,
+            Text = $"Scale Streamer v{APP_VERSION}"
+        };
+
+        // Try to load icon from file
+        try
+        {
+            var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo.ico");
+            if (File.Exists(iconPath))
+            {
+                _notifyIcon.Icon = new Icon(iconPath);
+            }
+            else
+            {
+                // Use default application icon
+                _notifyIcon.Icon = this.Icon ?? SystemIcons.Application;
+            }
+        }
+        catch
+        {
+            _notifyIcon.Icon = SystemIcons.Application;
+        }
+
+        // Create context menu
+        var contextMenu = new ContextMenuStrip();
+
+        var openConfigItem = new ToolStripMenuItem("Open Configuration");
+        openConfigItem.Font = new Font(openConfigItem.Font, FontStyle.Bold);
+        openConfigItem.Click += (s, e) =>
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+            this.BringToFront();
+        };
+
+        var checkUpdatesItem = new ToolStripMenuItem("Check for Updates");
+        checkUpdatesItem.Click += async (s, e) =>
+        {
+            if (_updateChecker != null)
+            {
+                var update = await _updateChecker.CheckForUpdatesAsync(forceCheck: true);
+                if (update != null)
+                {
+                    _availableUpdate = update;
+                    ShowUpdateNotification(update);
+                    this.Show();
+                    this.WindowState = FormWindowState.Normal;
+                }
+                else
+                {
+                    MessageBox.Show(
+                        $"You are running the latest version (v{APP_VERSION}).",
+                        "No Updates Available",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+            }
+        };
+
+        var separator1 = new ToolStripSeparator();
+
+        var stopServiceItem = new ToolStripMenuItem("Stop Service");
+        stopServiceItem.Click += async (s, e) =>
+        {
+            var result = MessageBox.Show(
+                "Are you sure you want to stop the Scale Streamer Service?\n\nThis will disconnect all scales.",
+                "Stop Service",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    var process = new Process
+                    {
+                        StartInfo = new ProcessStartInfo
+                        {
+                            FileName = "sc.exe",
+                            Arguments = "stop ScaleStreamerService",
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            RedirectStandardOutput = true
+                        }
+                    };
+                    process.Start();
+                    await process.WaitForExitAsync();
+
+                    MessageBox.Show("Service stopped successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _serviceConnected = false;
+                    UpdateServiceStatus("Service: Stopped", false);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to stop service:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        };
+
+        var startServiceItem = new ToolStripMenuItem("Start Service");
+        startServiceItem.Click += async (s, e) =>
+        {
+            try
+            {
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "sc.exe",
+                        Arguments = "start ScaleStreamerService",
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true
+                    }
+                };
+                process.Start();
+                await process.WaitForExitAsync();
+
+                MessageBox.Show("Service started successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await Task.Delay(1000);
+                await ConnectToServiceAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to start service:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        };
+
+        var restartServiceItem = new ToolStripMenuItem("Restart Service");
+        restartServiceItem.Click += async (s, e) =>
+        {
+            var result = MessageBox.Show(
+                "Are you sure you want to restart the Scale Streamer Service?",
+                "Restart Service",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    // Stop service
+                    var stopProcess = new Process
+                    {
+                        StartInfo = new ProcessStartInfo
+                        {
+                            FileName = "sc.exe",
+                            Arguments = "stop ScaleStreamerService",
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            RedirectStandardOutput = true
+                        }
+                    };
+                    stopProcess.Start();
+                    await stopProcess.WaitForExitAsync();
+                    await Task.Delay(2000);
+
+                    // Start service
+                    var startProcess = new Process
+                    {
+                        StartInfo = new ProcessStartInfo
+                        {
+                            FileName = "sc.exe",
+                            Arguments = "start ScaleStreamerService",
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            RedirectStandardOutput = true
+                        }
+                    };
+                    startProcess.Start();
+                    await startProcess.WaitForExitAsync();
+
+                    MessageBox.Show("Service restarted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await Task.Delay(1000);
+                    await ConnectToServiceAsync();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to restart service:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        };
+
+        var separator2 = new ToolStripSeparator();
+
+        var exitItem = new ToolStripMenuItem("Exit");
+        exitItem.Click += (s, e) =>
+        {
+            var result = MessageBox.Show(
+                "Are you sure you want to exit the configuration app?\n\nNote: The service will continue running in the background.",
+                "Exit",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                Application.Exit();
+            }
+        };
+
+        contextMenu.Items.Add(openConfigItem);
+        contextMenu.Items.Add(checkUpdatesItem);
+        contextMenu.Items.Add(separator1);
+        contextMenu.Items.Add(startServiceItem);
+        contextMenu.Items.Add(stopServiceItem);
+        contextMenu.Items.Add(restartServiceItem);
+        contextMenu.Items.Add(separator2);
+        contextMenu.Items.Add(exitItem);
+
+        _notifyIcon.ContextMenuStrip = contextMenu;
+
+        // Double-click to open main window
+        _notifyIcon.DoubleClick += (s, e) =>
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+            this.BringToFront();
+        };
+    }
+
     private async Task ConnectToServiceAsync()
     {
         try
@@ -396,8 +624,27 @@ public partial class MainForm : Form
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
+        // If user clicks X, minimize to tray instead of closing
+        if (e.CloseReason == CloseReason.UserClosing)
+        {
+            e.Cancel = true;
+            this.Hide();
+            if (_notifyIcon != null)
+            {
+                _notifyIcon.ShowBalloonTip(2000, "Scale Streamer", "Application minimized to system tray", ToolTipIcon.Info);
+            }
+            return;
+        }
+
+        // Cleanup on actual exit
         _statusTimer.Stop();
         _statusTimer.Dispose();
+
+        if (_notifyIcon != null)
+        {
+            _notifyIcon.Visible = false;
+            _notifyIcon.Dispose();
+        }
 
         _ipcClient.Disconnect();
         _ipcClient.Dispose();
@@ -437,22 +684,109 @@ public partial class MainForm : Form
         }
     }
 
-    private void DownloadButton_Click(object? sender, EventArgs e)
+    private async void DownloadButton_Click(object? sender, EventArgs e)
     {
-        if (_availableUpdate != null && !string.IsNullOrEmpty(_availableUpdate.DownloadUrl))
+        if (_availableUpdate != null && !string.IsNullOrEmpty(_availableUpdate.DownloadUrl) && _updateChecker != null)
         {
+            // Create progress form
+            var progressForm = new Form
+            {
+                Text = "Downloading Update",
+                Size = new Size(500, 150),
+                StartPosition = FormStartPosition.CenterParent,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                MaximizeBox = false,
+                MinimizeBox = false,
+                ControlBox = false
+            };
+
+            var progressBar = new ProgressBar
+            {
+                Location = new Point(20, 20),
+                Size = new Size(440, 30),
+                Style = ProgressBarStyle.Continuous
+            };
+
+            var statusLabel = new Label
+            {
+                Location = new Point(20, 60),
+                Size = new Size(440, 20),
+                Text = "Starting download..."
+            };
+
+            var cancelButton = new Button
+            {
+                Text = "Cancel",
+                Location = new Point(200, 90),
+                Size = new Size(100, 30)
+            };
+
+            var cts = new CancellationTokenSource();
+            cancelButton.Click += (s, ev) => { cts.Cancel(); progressForm.Close(); };
+
+            progressForm.Controls.Add(progressBar);
+            progressForm.Controls.Add(statusLabel);
+            progressForm.Controls.Add(cancelButton);
+
+            progressForm.Show(this);
+
             try
             {
-                Process.Start(new ProcessStartInfo
+                var progress = new Progress<DownloadProgressInfo>(info =>
                 {
-                    FileName = _availableUpdate.DownloadUrl,
-                    UseShellExecute = true
+                    if (progressForm.IsDisposed) return;
+                    progressBar.Value = info.ProgressPercentage;
+                    statusLabel.Text = info.Status;
                 });
+
+                var tempPath = await _updateChecker.DownloadInstallerAsync(
+                    _availableUpdate.DownloadUrl,
+                    progress,
+                    cts.Token);
+
+                progressForm.Close();
+
+                if (tempPath != null && File.Exists(tempPath))
+                {
+                    var result = MessageBox.Show(
+                        $"Update downloaded successfully!\n\nWould you like to install it now?\n\nNote: This will close the configuration app.",
+                        "Update Ready",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        // Launch installer
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = "msiexec.exe",
+                            Arguments = $"/i \"{tempPath}\" /passive",
+                            UseShellExecute = true
+                        });
+
+                        // Close the app
+                        Application.Exit();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Download failed. Please try again or download manually from GitHub.",
+                        "Download Failed",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                progressForm.Close();
+                MessageBox.Show("Download cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
+                progressForm.Close();
                 MessageBox.Show(
-                    $"Failed to open download page:\n{ex.Message}",
+                    $"Failed to download update:\n{ex.Message}",
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);

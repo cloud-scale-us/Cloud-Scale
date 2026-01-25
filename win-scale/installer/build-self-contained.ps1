@@ -52,6 +52,25 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
+Write-Host "[3/3] Copying logo files to Config publish directory..." -ForegroundColor Yellow
+$AssetsDir = Join-Path $RootDir "assets"
+$LogoPng = Join-Path $AssetsDir "logo.png"
+$LogoIco = Join-Path $AssetsDir "logo.ico"
+
+if (Test-Path $LogoPng) {
+    Copy-Item $LogoPng -Destination $ConfigPublishDir -Force
+    Write-Host "  Copied logo.png" -ForegroundColor White
+} else {
+    Write-Warning "  logo.png not found in assets directory"
+}
+
+if (Test-Path $LogoIco) {
+    Copy-Item $LogoIco -Destination $ConfigPublishDir -Force
+    Write-Host "  Copied logo.ico" -ForegroundColor White
+} else {
+    Write-Warning "  logo.ico not found in assets directory"
+}
+
 Write-Host ""
 Write-Host "Self-contained binaries created!" -ForegroundColor Green
 Write-Host "  Service: $ServicePublishDir" -ForegroundColor Cyan
@@ -61,6 +80,6 @@ Write-Host "File counts:" -ForegroundColor Yellow
 Write-Host "  Service DLLs: $((Get-ChildItem $ServicePublishDir -Filter *.dll).Count)" -ForegroundColor White
 Write-Host "  Config DLLs:  $((Get-ChildItem $ConfigPublishDir -Filter *.dll).Count)" -ForegroundColor White
 Write-Host ""
-Write-Host "[3/3] Now run: .\build-installer-v2.ps1 -SkipBuild" -ForegroundColor Yellow
+Write-Host "Next: Run .\build-installer-selfcontained.ps1" -ForegroundColor Yellow
 Write-Host "This will create an installer with ALL dependencies included." -ForegroundColor Green
 Write-Host ""
