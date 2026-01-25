@@ -1,52 +1,99 @@
-# Scale RTSP Streamer
+# Scale Streamer v2.0
 
-A Windows system tray application that reads weight data from a Fairbanks 6011 scale (via TCP/IP or RS232) and streams it as an RTSP video feed.
+**Universal Industrial Scale Data Acquisition Platform**
 
-## Features
+<p align="center">
+  <img src="assets/logo.png" alt="Cloud Scale Logo" width="200"/>
+</p>
 
-- **TCP/IP and RS232 Support**: Connect to your scale via network or serial port
-- **Real-time RTSP Streaming**: Stream weight display as H.264 video
-- **System Tray Application**: Runs quietly in the background
-- **Configurable Display**: Customize title, unit, colors, and overlays
-- **Date/Time Overlay**: Real-time timestamp (toggle on/off)
-- **Stream Rate Display**: Shows current bitrate in KB/s
-- **Transmit Indicator**: Green blinking [TX] indicator
-- **Custom Label**: Add your own on-screen label
-- **Auto-reconnect**: Automatically reconnects if connection is lost
-- **HLS Support**: View stream in web browser
+A professional Windows service that connects to industrial scales using any protocol and streams weight data to your systems in real-time.
 
-## Requirements
+## 📥 Download
 
-- Windows 10/11 (64-bit)
-- .NET 8.0 Runtime (included in installer)
-- Fairbanks 6011 scale (or compatible)
+**[Download Latest Release (v2.0.1)](../../releases/latest)**
 
-## Installation
+**Quick Install:**
+1. Download `ScaleStreamer-v2.0.1-xxxxxxxx-xxxxxx.msi`
+2. Run the installer (no .NET installation required - everything included!)
+3. Launch "Scale Streamer Configuration" from Start Menu
+4. Configure your scale connection
+5. Service starts automatically
 
-### Option 1: MSI Installer (Recommended)
-1. Download `ScaleStreamer-Setup.msi`
-2. Run the installer
-3. Launch from Start Menu
+**File Size:** ~55 MB (self-contained, includes all .NET dependencies)
 
-### Option 2: One-Click Setup (Recommended for Development)
-1. Install .NET 8.0 SDK
-2. Run the setup script (auto-downloads dependencies and builds):
-   ```powershell
-   .\setup.ps1
-   ```
-   The application will launch automatically after setup.
+## ✨ Features
 
-### Option 3: Manual Build
-1. Install .NET 8.0 SDK
-2. Run the build script:
-   ```powershell
-   cd scripts
-   .\build.ps1 -Release
-   ```
+### Universal Protocol Support
+- **Pre-built Protocol Templates**: Fairbanks, Toledo, Mettler Toledo, Rice Lake, and more
+- **XML-Based Protocol Engine**: Create custom protocols without coding
+- **Connection Types**: TCP/IP, Serial (RS232), UDP
+- **Auto-Reconnect**: Robust connection handling with automatic recovery
 
-## Configuration
+### Professional Architecture
+- **Windows Service**: Runs in background, starts automatically with Windows
+- **Configuration GUI**: Modern WinForms interface for easy setup
+- **Named Pipe IPC**: Secure communication between service and GUI
+- **SQLite Database**: Persistent configuration storage
+- **Real-time Monitoring**: Live weight data display and connection status
 
-Right-click the system tray icon and select "Configure..." to open the settings dialog.
+### Developer-Friendly
+- **Protocol Templates**: Easy XML-based protocol definitions
+- **Structured Logging**: Serilog with file and console output
+- **Extensible Design**: Clean architecture for custom integrations
+- **Self-Contained Deployment**: No runtime dependencies to install
+
+## 🎯 Supported Scales
+
+The universal protocol engine supports any scale with:
+- TCP/IP, Serial (RS232), or UDP connectivity
+- ASCII or binary data output
+- Custom or standard protocols
+
+**Pre-configured templates included for:**
+- Fairbanks scales (all models)
+- Toledo scales
+- Mettler Toledo scales
+- Rice Lake scales
+- Avery Weigh-Tronix scales
+- Generic ASCII weight output
+
+**Don't see your scale?** Create a custom protocol template in minutes using our XML format (see documentation).
+
+## 💻 System Requirements
+
+- **OS**: Windows 10/11 or Windows Server 2016+ (64-bit)
+- **.NET Runtime**: Not required (self-contained installer includes everything)
+- **Disk Space**: ~200 MB
+- **Permissions**: Administrator rights for installation (service runs as Local System)
+
+## 🚀 Quick Start
+
+### 1. Install
+Download and run the MSI installer from the [Releases](../../releases) page.
+
+### 2. Configure
+Launch **Scale Streamer Configuration** from the Start Menu:
+- Select **Connection** tab: Choose TCP/IP or Serial, enter scale IP/port or COM port
+- Select **Protocol** tab: Choose your scale manufacturer or create custom protocol
+- Click **Save Configuration**
+
+### 3. Start Service
+The service starts automatically after installation. You can also:
+- Use Services (`services.msc`) to manage "Scale Streamer Service"
+- Check **Status** tab in Configuration GUI for live connection status
+
+### 4. Monitor
+Use the **Monitoring** tab to see real-time weight data from your scale.
+
+## 📖 Documentation
+
+- **[Quick Start Guide](QUICK-START-V2.md)** - Get started in 5 minutes
+- **[Build Instructions](BUILD-AND-TEST-V2.md)** - Build from source
+- **[Architecture Overview](V2-UNIVERSAL-ARCHITECTURE.md)** - Technical architecture
+- **[Protocol Templates](protocols/)** - XML protocol definitions
+- **[Master Restoration Guide](CLAUDE.md)** - Complete project documentation
+
+## 🔧 Configuration
 
 ### Connection Settings
 
@@ -55,104 +102,130 @@ Right-click the system tray icon and select "Configure..." to open the settings 
 - **Port**: TCP port (default: `5001`)
 
 #### Serial Mode
-- **Port**: COM port (e.g., `COM1`)
-- **Baud Rate**: Communication speed (default: `9600`)
+- **Port**: COM port (e.g., `COM1`, `COM2`)
+- **Baud Rate**: Communication speed (9600, 19200, 38400, 57600, 115200)
+- **Data Bits**: Usually 8
+- **Parity**: None, Even, Odd
+- **Stop Bits**: 1 or 2
 
-### Stream Settings
-- **RTSP Port**: Port for RTSP streaming (default: `8554`)
-- **Resolution**: Video resolution (default: `640x480`)
-- **Frame Rate**: Frames per second (default: `30`)
+### Protocol Configuration
 
-### Display Settings
-- **Title**: Text shown at top of stream (default: `FAIRBANKS 6011`)
-- **Unit**: Weight unit label (LB, KG, OZ, G)
-- **Custom Label**: Optional text shown at bottom of stream
-- **Show Date/Time**: Enable/disable timestamp overlay (top right)
-- **Show Stream Rate**: Enable/disable bitrate display in KB/s (top left)
-- **Show Transmit Indicator**: Enable/disable blinking [TX] indicator (bottom right)
+Choose from built-in templates or create custom XML protocol definitions. See `protocols/` directory for examples.
 
-## Usage
-
-### Starting the Stream
-1. Right-click the tray icon
-2. Select "Start Stream"
-
-### Viewing the Stream
-
-#### In VLC Player
-```
-rtsp://127.0.0.1:8554/scale
+**Example Protocol Template (Fairbanks):**
+```xml
+<ScaleProtocol name="Fairbanks Standard">
+  <Manufacturer>Fairbanks</Manufacturer>
+  <ConnectionType>TcpIp</ConnectionType>
+  <DataFormat>
+    <Encoding>ASCII</Encoding>
+    <LineEnding>CRLF</LineEnding>
+  </DataFormat>
+  <WeightParser>
+    <Pattern>STATUS\s+WEIGHT\s+TARE</Pattern>
+    <WeightGroup>2</WeightGroup>
+  </WeightParser>
+</ScaleProtocol>
 ```
 
-#### In Web Browser (HLS)
-```
-http://127.0.0.1:8888/scale/
-```
+## 🏗️ Building from Source
 
-#### Copy URL
-Right-click tray icon → "Copy RTSP URL"
+### Prerequisites
+- .NET 8.0 SDK
+- WiX Toolset v4 (for installer builds)
+- Git
 
-### Connecting NVR
-Use the RTSP URL in your NVR software:
-```
-rtsp://<computer-ip>:8554/scale
-```
+### Build Steps
 
-## Scale Protocol
-
-The application supports the Fairbanks 6011 scale protocol:
-- Data format: `STATUS  WEIGHT  TARE`
-- Example: `1   44140    00`
-- Line endings: CR, LF, or CRLF
-- May include STX/ETX control characters
-
-## Troubleshooting
-
-### "Connection failed"
-- Verify scale IP address and port
-- Check firewall settings
-- Ensure scale is powered on and connected
-
-### "No weight data received"
-- Check scale is transmitting data
-- Verify baud rate (for serial connection)
-- Try the "Test Connection" button in settings
-
-### Stream not visible in VLC
-- Ensure RTSP port is not blocked by firewall
-- Try TCP transport: `rtsp-tcp://127.0.0.1:8554/scale`
-
-## Building the Installer
-
-1. Install WiX Toolset:
+1. **Clone the repository:**
    ```powershell
-   dotnet tool install -g wix
+   git clone https://github.com/CNesbitt2025/Cloud-Scale.git
+   cd Cloud-Scale
    ```
 
-2. Build with installer:
+2. **Build self-contained binaries:**
    ```powershell
-   .\scripts\build.ps1 -Release -CreateInstaller
+   cd installer
+   .\build-self-contained.ps1
    ```
 
-## Project Structure
+3. **Build installer:**
+   ```powershell
+   .\build-installer-selfcontained.ps1
+   ```
+
+The MSI installer will be created in `installer/bin/` directory.
+
+See **[BUILD-AND-TEST-V2.md](BUILD-AND-TEST-V2.md)** for detailed build instructions.
+
+## 📂 Project Structure
 
 ```
 win-scale/
-├── src/ScaleStreamer/     # Main application source
-│   ├── App/               # UI components
-│   ├── Core/              # Business logic
-│   └── Config/            # Configuration
-├── deps/                  # Dependencies (ffmpeg, MediaMTX)
-├── installer/             # WiX installer files
-├── scripts/               # Build scripts
-└── publish/               # Build output
+├── src-v2/                           # v2.0 source code
+│   ├── ScaleStreamer.Service/        # Windows Service (background process)
+│   ├── ScaleStreamer.Config/         # Configuration GUI (WinForms)
+│   ├── ScaleStreamer.Common/         # Shared library (protocol engine)
+│   └── ScaleStreamer.Tests/          # Unit tests
+├── protocols/                        # Protocol template XML files
+├── installer/                        # WiX installer scripts and assets
+├── assets/                           # Logo, icons, branding
+└── CLAUDE.md                         # Master restoration guide
+
 ```
 
-## License
+## 🐛 Troubleshooting
 
-MIT License - See LICENSE file
+### Service won't start
+- Check Windows Event Viewer for error details
+- Verify administrator rights during installation
+- Check `C:\ProgramData\ScaleStreamer\logs\` for service logs
 
-## Credits
+### Can't connect to scale
+- **TCP/IP**: Verify scale IP address and port, check firewall, ping scale
+- **Serial**: Verify COM port number in Device Manager, check baud rate matches scale
+- Use **Test Connection** button in Configuration GUI
+- Check logs in **Logs** tab
 
-- [ffmpeg](https://ffmpeg.org/) - Video encoding
-- [MediaMTX](https://github.com/bluenviron/mediamtx) - RTSP server
+### No weight data received
+- Verify scale is configured to transmit data continuously
+- Check protocol template matches your scale's output format
+- View raw data in **Monitoring** tab to verify data is being received
+- Compare with protocol template regex patterns
+
+### Configuration GUI won't launch
+- Ensure service is running (`services.msc`)
+- Check named pipe is available (may need reboot if Windows updates installed)
+- Run as Administrator if IPC connection fails
+
+## 🚀 Roadmap
+
+- [ ] RTSP video streaming (weight display as video feed)
+- [ ] REST API for weight data access
+- [ ] Cloud synchronization
+- [ ] Data analytics and reporting
+- [ ] Mobile app (iOS/Android)
+- [ ] Web dashboard
+- [ ] Multi-scale support (connect multiple scales)
+
+## 📄 License
+
+MIT License - See [LICENSE](LICENSE) file for details
+
+## 🙏 Credits
+
+Built with:
+- .NET 8.0
+- Serilog (logging)
+- SQLite (database)
+- WiX Toolset (installer)
+
+## 💬 Support
+
+- **Issues**: [GitHub Issues](../../issues)
+- **Documentation**: See `docs/` directory
+- **Email**: support@cloud-scale.us
+
+---
+
+**Made with ❤️ for industrial automation**
