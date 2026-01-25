@@ -5,7 +5,7 @@
 
     <Package Name="Scale Streamer v2.0 (Self-Contained)"
              Manufacturer="Cloud-Scale"
-             Version="2.0.0"
+             Version="2.5.0"
              UpgradeCode="B2C3D4E5-F6A7-8901-BCDE-FA2345678902"
              Scope="perMachine">
 
@@ -164,7 +164,7 @@
             <Component Id="AppRegistryKeys" Guid="F6666666-6666-6666-6666-666666666661">
                 <RegistryKey Root="HKLM" Key="Software\Cloud-Scale\ScaleStreamer">
                     <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" />
-                    <RegistryValue Name="Version" Type="string" Value="2.0.0" />
+                    <RegistryValue Name="Version" Type="string" Value="2.5.0" />
                     <RegistryValue Name="Vendor" Type="string" Value="Cloud-Scale" />
                     <RegistryValue Name="SupportURL" Type="string" Value="https://cloud-scale.us/support" />
                     <RegistryValue Name="ServicePath" Type="string" Value="[ServiceFolder]" />
