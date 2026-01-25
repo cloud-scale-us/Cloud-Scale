@@ -10,7 +10,7 @@ namespace ScaleStreamer.Config;
 /// </summary>
 public partial class MainForm : Form
 {
-    private const string APP_VERSION = "2.7.0";
+    private const string APP_VERSION = "3.0.0";
 
     private readonly IpcClient _ipcClient;
     private System.Windows.Forms.Timer _statusTimer;
@@ -41,7 +41,6 @@ public partial class MainForm : Form
         _ipcClient.ErrorOccurred += OnIpcError;
 
         InitializeTabs();
-        InitializeStatusBar();
         InitializeUpdateNotification();
         InitializeSystemTray();
 
@@ -216,31 +215,6 @@ public partial class MainForm : Form
         _mainTabControl.TabPages.Add(loggingPage);
     }
 
-    private void InitializeStatusBar()
-    {
-        var statusStrip = new StatusStrip();
-
-        var serviceStatusLabel = new ToolStripStatusLabel
-        {
-            Name = "serviceStatus",
-            Text = "Service: Connecting...",
-            ForeColor = Color.DarkOrange,
-            BorderSides = ToolStripStatusLabelBorderSides.Right
-        };
-
-        var versionLabel = new ToolStripStatusLabel
-        {
-            Name = "versionLabel",
-            Text = $"v{APP_VERSION}",
-            Spring = true,
-            TextAlign = ContentAlignment.MiddleRight
-        };
-
-        statusStrip.Items.Add(serviceStatusLabel);
-        statusStrip.Items.Add(versionLabel);
-
-        this.Controls.Add(statusStrip);
-    }
 
     private void InitializeUpdateNotification()
     {
@@ -406,7 +380,6 @@ public partial class MainForm : Form
 
                     MessageBox.Show("Service stopped successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     _serviceConnected = false;
-                    UpdateServiceStatus("Service: Stopped", false);
                 }
                 catch (Exception ex)
                 {
@@ -548,43 +521,21 @@ public partial class MainForm : Form
             if (connected && _ipcClient.IsConnected)
             {
                 _serviceConnected = true;
-                UpdateServiceStatus("Service: Connected", true);
                 Log.Information("Connected to Scale Streamer Service");
             }
             else
             {
                 _serviceConnected = false;
-                UpdateServiceStatus("Service: Not Running (retrying...)", false);
                 Log.Warning("Failed to connect to Scale Streamer Service - will retry");
             }
         }
         catch (Exception ex)
         {
             _serviceConnected = false;
-            UpdateServiceStatus("Service: Error", false);
             Log.Error(ex, "Error connecting to service");
         }
     }
 
-    private void UpdateServiceStatus(string text, bool connected)
-    {
-        if (InvokeRequired)
-        {
-            Invoke(() => UpdateServiceStatus(text, connected));
-            return;
-        }
-
-        var statusStrip = this.Controls.OfType<StatusStrip>().FirstOrDefault();
-        if (statusStrip != null)
-        {
-            var statusLabel = statusStrip.Items["serviceStatus"] as ToolStripStatusLabel;
-            if (statusLabel != null)
-            {
-                statusLabel.Text = text;
-                statusLabel.ForeColor = connected ? Color.Green : Color.Red;
-            }
-        }
-    }
 
     private async void StatusTimer_Tick(object? sender, EventArgs e)
     {
@@ -619,7 +570,6 @@ public partial class MainForm : Form
     {
         Log.Error("IPC Error: {Error}", error);
         _serviceConnected = false;
-        UpdateServiceStatus("Service: Error", false);
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)
@@ -669,18 +619,6 @@ public partial class MainForm : Form
             }
 
             _updateNotificationPanel.Visible = true;
-
-            // Update version label in status bar
-            var statusStrip = this.Controls.OfType<StatusStrip>().FirstOrDefault();
-            if (statusStrip != null)
-            {
-                var versionLabel = statusStrip.Items["versionLabel"] as ToolStripStatusLabel;
-                if (versionLabel != null)
-                {
-                    versionLabel.Text = $"v{APP_VERSION} (Update available)";
-                    versionLabel.ForeColor = Color.DarkOrange;
-                }
-            }
         }
     }
 

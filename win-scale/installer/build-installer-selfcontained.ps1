@@ -20,9 +20,11 @@ $RootDir = Split-Path $PSScriptRoot -Parent
 $InstallerDir = $PSScriptRoot
 $ServiceProjectDir = Join-Path $RootDir "src-v2\ScaleStreamer.Service"
 $ConfigProjectDir = Join-Path $RootDir "src-v2\ScaleStreamer.Config"
-# Service targets net8.0 (not net8.0-windows), Config targets net8.0-windows
+$LauncherProjectDir = Join-Path $RootDir "src-v2\ScaleStreamer.Launcher"
+# Service targets net8.0 (not net8.0-windows), Config and Launcher target net8.0-windows
 $ServicePublishDir = Join-Path $ServiceProjectDir "bin\$Configuration\net8.0\win-x64\publish"
 $ConfigPublishDir = Join-Path $ConfigProjectDir "bin\$Configuration\net8.0-windows\win-x64\publish"
+$LauncherPublishDir = Join-Path $LauncherProjectDir "bin\$Configuration\net8.0-windows\win-x64\publish"
 $OutputDir = Join-Path $InstallerDir "bin"
 
 # Create output directory
@@ -30,9 +32,10 @@ if (-not (Test-Path $OutputDir)) {
     New-Item -ItemType Directory -Path $OutputDir | Out-Null
 }
 
-Write-Host "[1/3] Using self-contained binaries:" -ForegroundColor Yellow
-Write-Host "  Service: $ServicePublishDir" -ForegroundColor White
-Write-Host "  Config:  $ConfigPublishDir" -ForegroundColor White
+Write-Host "[1/4] Using self-contained binaries:" -ForegroundColor Yellow
+Write-Host "  Service:  $ServicePublishDir" -ForegroundColor White
+Write-Host "  Config:   $ConfigPublishDir" -ForegroundColor White
+Write-Host "  Launcher: $LauncherPublishDir" -ForegroundColor White
 Write-Host ""
 
 if (-not (Test-Path $ServicePublishDir)) {
@@ -45,20 +48,28 @@ if (-not (Test-Path $ConfigPublishDir)) {
     exit 1
 }
 
+if (-not (Test-Path $LauncherPublishDir)) {
+    Write-Error "Launcher publish directory not found! Run build-self-contained.ps1 first."
+    exit 1
+}
+
 # Count files
 $serviceDllCount = (Get-ChildItem $ServicePublishDir -Filter *.dll).Count
 $configDllCount = (Get-ChildItem $ConfigPublishDir -Filter *.dll).Count
+$launcherDllCount = (Get-ChildItem $LauncherPublishDir -Filter *.dll).Count
 
-Write-Host "  Service DLLs: $serviceDllCount" -ForegroundColor Cyan
-Write-Host "  Config DLLs:  $configDllCount" -ForegroundColor Cyan
+Write-Host "  Service DLLs:  $serviceDllCount" -ForegroundColor Cyan
+Write-Host "  Config DLLs:   $configDllCount" -ForegroundColor Cyan
+Write-Host "  Launcher DLLs: $launcherDllCount" -ForegroundColor Cyan
 Write-Host ""
 
 # Step 2: Generate component definitions
-Write-Host "[2/3] Generating WiX component definitions..." -ForegroundColor Yellow
+Write-Host "[2/4] Generating WiX component definitions..." -ForegroundColor Yellow
 
 & powershell.exe -File "$InstallerDir\generate-components.ps1" `
     -ServicePublishDir $ServicePublishDir `
     -ConfigPublishDir $ConfigPublishDir `
+    -LauncherPublishDir $LauncherPublishDir `
     -OutputFile "GeneratedComponents.wxs"
 
 if ($LASTEXITCODE -ne 0) {
@@ -71,11 +82,11 @@ Write-Host "Component definitions generated!" -ForegroundColor Green
 Write-Host ""
 
 # Step 3: Build installer
-Write-Host "[3/3] Building MSI installer..." -ForegroundColor Yellow
+Write-Host "[3/4] Building MSI installer..." -ForegroundColor Yellow
 
 $wixFile = Join-Path $InstallerDir "ScaleStreamerV2-SelfContained.wxs"
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-$outputMsi = Join-Path $OutputDir "ScaleStreamer-v2.7.0-$timestamp.msi"
+$outputMsi = Join-Path $OutputDir "ScaleStreamer-v3.0.0-$timestamp.msi"
 
 # Install extensions if not already present
 & wix extension add -g WixToolset.UI.wixext/4.0.5 2>$null
@@ -88,6 +99,7 @@ wix build $wixFile `
     -ext WixToolset.Util.wixext/4.0.5 `
     -d ServicePublishDir=$ServicePublishDir `
     -d ConfigPublishDir=$ConfigPublishDir `
+    -d LauncherPublishDir=$LauncherPublishDir `
     -arch x64
 
 if ($LASTEXITCODE -ne 0) {

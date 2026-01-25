@@ -20,9 +20,11 @@ $RootDir = Split-Path $PSScriptRoot -Parent
 $InstallerDir = $PSScriptRoot
 $ServiceProjectDir = Join-Path $RootDir "src-v2\ScaleStreamer.Service"
 $ConfigProjectDir = Join-Path $RootDir "src-v2\ScaleStreamer.Config"
-# Service targets net8.0 (not net8.0-windows), Config targets net8.0-windows
+$LauncherProjectDir = Join-Path $RootDir "src-v2\ScaleStreamer.Launcher"
+# Service targets net8.0 (not net8.0-windows), Config and Launcher target net8.0-windows
 $ServicePublishDir = Join-Path $ServiceProjectDir "bin\$Configuration\net8.0\win-x64\publish"
 $ConfigPublishDir = Join-Path $ConfigProjectDir "bin\$Configuration\net8.0-windows\win-x64\publish"
+$LauncherPublishDir = Join-Path $LauncherProjectDir "bin\$Configuration\net8.0-windows\win-x64\publish"
 
 Write-Host "[1/3] Publishing Service as self-contained..." -ForegroundColor Yellow
 dotnet publish $ServiceProjectDir `
@@ -38,7 +40,7 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Host "[2/3] Publishing Config GUI as self-contained..." -ForegroundColor Yellow
+Write-Host "[2/4] Publishing Config GUI as self-contained..." -ForegroundColor Yellow
 dotnet publish $ConfigProjectDir `
     -c $Configuration `
     -r win-x64 `
@@ -52,7 +54,21 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Host "[3/3] Copying logo files to Config publish directory..." -ForegroundColor Yellow
+Write-Host "[3/4] Publishing Launcher as self-contained..." -ForegroundColor Yellow
+dotnet publish $LauncherProjectDir `
+    -c $Configuration `
+    -r win-x64 `
+    --self-contained true `
+    -p:PublishSingleFile=false `
+    -p:PublishReadyToRun=false `
+    -p:IncludeNativeLibrariesForSelfExtract=true
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Launcher publish failed!"
+    exit 1
+}
+
+Write-Host "[4/4] Copying logo files to Config and Launcher publish directories..." -ForegroundColor Yellow
 $AssetsDir = Join-Path $RootDir "assets"
 $LogoPng = Join-Path $AssetsDir "logo.png"
 $LogoIco = Join-Path $AssetsDir "logo.ico"
@@ -66,19 +82,27 @@ if (Test-Path $LogoPng) {
 
 if (Test-Path $LogoIco) {
     Copy-Item $LogoIco -Destination $ConfigPublishDir -Force
-    Write-Host "  Copied logo.ico" -ForegroundColor White
+    Copy-Item $LogoIco -Destination $LauncherPublishDir -Force
+    Write-Host "  Copied logo.ico to Config and Launcher" -ForegroundColor White
 } else {
     Write-Warning "  logo.ico not found in assets directory"
 }
 
+if (Test-Path $LogoPng) {
+    Copy-Item $LogoPng -Destination $LauncherPublishDir -Force
+    Write-Host "  Copied logo.png to Launcher" -ForegroundColor White
+}
+
 Write-Host ""
 Write-Host "Self-contained binaries created!" -ForegroundColor Green
-Write-Host "  Service: $ServicePublishDir" -ForegroundColor Cyan
-Write-Host "  Config:  $ConfigPublishDir" -ForegroundColor Cyan
+Write-Host "  Service:  $ServicePublishDir" -ForegroundColor Cyan
+Write-Host "  Config:   $ConfigPublishDir" -ForegroundColor Cyan
+Write-Host "  Launcher: $LauncherPublishDir" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "File counts:" -ForegroundColor Yellow
-Write-Host "  Service DLLs: $((Get-ChildItem $ServicePublishDir -Filter *.dll).Count)" -ForegroundColor White
-Write-Host "  Config DLLs:  $((Get-ChildItem $ConfigPublishDir -Filter *.dll).Count)" -ForegroundColor White
+Write-Host "  Service DLLs:  $((Get-ChildItem $ServicePublishDir -Filter *.dll).Count)" -ForegroundColor White
+Write-Host "  Config DLLs:   $((Get-ChildItem $ConfigPublishDir -Filter *.dll).Count)" -ForegroundColor White
+Write-Host "  Launcher DLLs: $((Get-ChildItem $LauncherPublishDir -Filter *.dll).Count)" -ForegroundColor White
 Write-Host ""
 Write-Host "Next: Run .\build-installer-selfcontained.ps1" -ForegroundColor Yellow
 Write-Host "This will create an installer with ALL dependencies included." -ForegroundColor Green

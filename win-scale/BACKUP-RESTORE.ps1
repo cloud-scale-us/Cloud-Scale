@@ -106,7 +106,7 @@ function Create-Backup {
     # Create manifest file
     $manifest = @{
         BackupDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        Version = "2.7.0"
+        Version = "3.0.0"
         TotalFiles = $totalFiles
         TotalSizeMB = [math]::Round($totalSize / 1MB, 2)
         Categories = $CriticalPaths.Keys

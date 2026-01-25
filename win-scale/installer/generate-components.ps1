@@ -2,6 +2,7 @@
 param(
     [string]$ServicePublishDir,
     [string]$ConfigPublishDir,
+    [string]$LauncherPublishDir,
     [string]$OutputFile = "GeneratedComponents.wxs"
 )
 
@@ -88,6 +89,35 @@ $xml += @"
 
         </ComponentGroup>
     </Fragment>
+
+    <!-- ===================================================================== -->
+    <!-- LAUNCHER RUNTIME COMPONENTS -->
+    <!-- ===================================================================== -->
+    <Fragment>
+        <ComponentGroup Id="LauncherRuntimeComponents" Directory="LauncherFolder">
+"@
+
+# Get all Launcher files
+$launcherFiles = Get-ChildItem $LauncherPublishDir -File
+$componentId = 3000
+
+foreach ($file in $launcherFiles) {
+    $safeFileName = $file.Name -replace '[\.-]', '_'
+    $guid = [System.Guid]::NewGuid().ToString().ToUpper()
+
+    $xml += @"
+
+            <Component Id="LauncherFile_$safeFileName" Guid="$guid">
+                <File Source="`$(var.LauncherPublishDir)\$($file.Name)" />
+            </Component>
+"@
+    $componentId++
+}
+
+$xml += @"
+
+        </ComponentGroup>
+    </Fragment>
 </Wix>
 "@
 
@@ -97,4 +127,5 @@ Set-Content -Path $outputPath -Value $xml -Encoding UTF8
 
 Write-Host "Generated $($serviceFiles.Count) service components" -ForegroundColor Green
 Write-Host "Generated $($configFiles.Count) config components" -ForegroundColor Green
+Write-Host "Generated $($launcherFiles.Count) launcher components" -ForegroundColor Green
 Write-Host "Output: $outputPath" -ForegroundColor Cyan
