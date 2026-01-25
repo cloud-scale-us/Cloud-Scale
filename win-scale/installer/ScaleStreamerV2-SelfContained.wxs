@@ -3,13 +3,13 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
      xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
-    <Package Name="Scale Streamer v3.1 (Self-Contained)"
+    <Package Name="Scale Streamer v3.2 (Self-Contained)"
              Manufacturer="Cloud-Scale"
-             Version="3.1.0"
+             Version="3.2.0"
              UpgradeCode="B2C3D4E5-F6A7-8901-BCDE-FA2345678902"
              Scope="perMachine">
 
-        <SummaryInformation Description="Scale Streamer v3.1 - Universal scale data acquisition with comprehensive settings and RTSP monitoring"
+        <SummaryInformation Description="Scale Streamer v3.2 - Unified launcher with live scale monitoring dashboard"
                             Manufacturer="Cloud-Scale" />
 
         <MajorUpgrade DowngradeErrorMessage="A newer version of Scale Streamer is already installed."
@@ -173,7 +173,7 @@
             <Component Id="AppRegistryKeys" Guid="F6666666-6666-6666-6666-666666666661">
                 <RegistryKey Root="HKLM" Key="Software\Cloud-Scale\ScaleStreamer">
                     <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" />
-                    <RegistryValue Name="Version" Type="string" Value="3.1.0" />
+                    <RegistryValue Name="Version" Type="string" Value="3.2.0" />
                     <RegistryValue Name="Vendor" Type="string" Value="Cloud-Scale" />
                     <RegistryValue Name="SupportURL" Type="string" Value="https://cloud-scale.us/support" />
                     <RegistryValue Name="ServicePath" Type="string" Value="[ServiceFolder]" />
@@ -197,10 +197,10 @@
         <ComponentGroup Id="ShortcutComponents" Directory="ApplicationProgramsFolder">
             <Component Id="StartMenuShortcuts" Guid="77777777-7777-7777-7777-777777777771">
                 <Shortcut Id="ConfigShortcut"
-                          Name="Scale Streamer Configuration"
-                          Description="Configure and monitor scale connections"
-                          Target="[ConfigFolder]ScaleStreamer.Config.exe"
-                          WorkingDirectory="ConfigFolder"
+                          Name="Scale Streamer"
+                          Description="Start service and open Scale Streamer configuration"
+                          Target="[LauncherFolder]ScaleStreamer.Launcher.exe"
+                          WorkingDirectory="LauncherFolder"
                           Icon="ScaleStreamerIcon" />
 
                 <Shortcut Id="ServiceControlShortcut"
