@@ -169,11 +169,11 @@ public partial class LoggingTab : UserControl
     {
         // Level Filter
         _levelFilterCombo.Items.Add("All");
-        _levelFilterCombo.Items.Add("DEBUG");
-        _levelFilterCombo.Items.Add("INFO");
-        _levelFilterCombo.Items.Add("WARN");
-        _levelFilterCombo.Items.Add("ERROR");
-        _levelFilterCombo.Items.Add("CRITICAL");
+        _levelFilterCombo.Items.Add("DBG");
+        _levelFilterCombo.Items.Add("INF");
+        _levelFilterCombo.Items.Add("WRN");
+        _levelFilterCombo.Items.Add("ERR");
+        _levelFilterCombo.Items.Add("FTL");
         _levelFilterCombo.SelectedIndex = 0;
 
         // Category Filter
@@ -186,10 +186,109 @@ public partial class LoggingTab : UserControl
         _categoryFilterCombo.Items.Add("Database");
         _categoryFilterCombo.SelectedIndex = 0;
 
-        // Add sample events
-        AddEvent(DateTime.Now, "INFO", "Service", "Scale Streamer Service started");
-        AddEvent(DateTime.Now, "INFO", "Database", "Database initialized successfully");
-        AddEvent(DateTime.Now, "INFO", "ScaleConnection", "Protocol templates loaded: 3");
+        // Load actual service logs
+        Task.Run(() => LoadServiceLogs());
+    }
+
+    private void LoadServiceLogs()
+    {
+        try
+        {
+            var logsPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                "ScaleStreamer", "logs");
+
+            if (!Directory.Exists(logsPath))
+            {
+                Invoke(() => AddEvent(DateTime.Now, "WRN", "GUI",
+                    $"Service logs directory not found: {logsPath}"));
+                return;
+            }
+
+            // Get today's log file
+            var today = DateTime.Now.ToString("yyyyMMdd");
+            var logFile = Path.Combine(logsPath, $"service-{today}.log");
+
+            if (!File.Exists(logFile))
+            {
+                // Try to find the most recent log file
+                var logFiles = Directory.GetFiles(logsPath, "service-*.log")
+                    .OrderByDescending(f => new FileInfo(f).LastWriteTime)
+                    .ToArray();
+
+                if (logFiles.Length > 0)
+                {
+                    logFile = logFiles[0];
+                }
+                else
+                {
+                    Invoke(() => AddEvent(DateTime.Now, "WRN", "GUI",
+                        "No service log files found"));
+                    return;
+                }
+            }
+
+            // Read last 100 lines from log file
+            var lines = File.ReadLines(logFile).TakeLast(100).ToList();
+
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                ParseLogLine(line);
+            }
+
+            Invoke(() => _eventCountLabel.Text = $"Events: {_eventsListView.Items.Count} (from {Path.GetFileName(logFile)})");
+        }
+        catch (Exception ex)
+        {
+            Invoke(() => AddEvent(DateTime.Now, "ERR", "GUI",
+                $"Failed to load service logs: {ex.Message}"));
+        }
+    }
+
+    private void ParseLogLine(string line)
+    {
+        try
+        {
+            // Serilog format: "2026-01-24 21:12:07.159 -05:00 [INF] Scale Streamer Service starting..."
+            // Extract: timestamp, level, message
+
+            if (line.Length < 40)
+                return;
+
+            var timestampEnd = line.IndexOf('[');
+            if (timestampEnd < 0)
+                return;
+
+            var timestampStr = line.Substring(0, timestampEnd).Trim();
+            if (!DateTime.TryParse(timestampStr, out var timestamp))
+                return;
+
+            var levelStart = timestampEnd + 1;
+            var levelEnd = line.IndexOf(']', levelStart);
+            if (levelEnd < 0)
+                return;
+
+            var level = line.Substring(levelStart, levelEnd - levelStart).Trim();
+            var message = line.Substring(levelEnd + 1).Trim();
+
+            // Categorize based on message content
+            var category = "Service";
+            if (message.Contains("Scale") || message.Contains("Protocol"))
+                category = "ScaleConnection";
+            else if (message.Contains("Database") || message.Contains("db"))
+                category = "Database";
+            else if (message.Contains("IPC") || message.Contains("pipe"))
+                category = "IPC";
+
+            Invoke(() => AddEvent(timestamp, level, category, message));
+        }
+        catch
+        {
+            // Skip malformed lines
+        }
     }
 
     private void AddEvent(DateTime timestamp, string level, string category, string message)
@@ -205,18 +304,18 @@ public partial class LoggingTab : UserControl
         item.SubItems.Add(category);
         item.SubItems.Add(message);
 
-        // Color code by level
+        // Color code by level (Serilog levels: DBG, INF, WRN, ERR, FTL)
         item.ForeColor = level switch
         {
-            "DEBUG" => Color.Gray,
-            "INFO" => Color.Black,
-            "WARN" => Color.Orange,
-            "ERROR" => Color.Red,
-            "CRITICAL" => Color.DarkRed,
+            "DBG" or "DEBUG" => Color.Gray,
+            "INF" or "INFO" => Color.Black,
+            "WRN" or "WARN" => Color.Orange,
+            "ERR" or "ERROR" => Color.Red,
+            "FTL" or "FATAL" or "CRITICAL" => Color.DarkRed,
             _ => Color.Black
         };
 
-        if (level == "CRITICAL")
+        if (level == "FTL" || level == "FATAL" || level == "CRITICAL")
             item.BackColor = Color.LightYellow;
 
         _eventsListView.Items.Insert(0, item);
@@ -256,8 +355,8 @@ public partial class LoggingTab : UserControl
         _refreshButton.Enabled = false;
         try
         {
-            // TODO: Request recent events from service via IPC
-            await Task.Delay(500); // Simulate refresh
+            _eventsListView.Items.Clear();
+            await Task.Run(() => LoadServiceLogs());
         }
         finally
         {
