@@ -10,7 +10,7 @@ namespace ScaleStreamer.Config;
 /// </summary>
 public partial class MainForm : Form
 {
-    private const string APP_VERSION = "2.5.0";
+    private const string APP_VERSION = "2.6.0";
 
     private readonly IpcClient _ipcClient;
     private System.Windows.Forms.Timer _statusTimer;
@@ -76,10 +76,62 @@ public partial class MainForm : Form
 
     private void InitializeComponent()
     {
-        this.Text = "Scale Streamer Configuration";
+        this.Text = $"Scale Streamer Configuration - v{APP_VERSION}";
         this.Size = new Size(1200, 800);
         this.StartPosition = FormStartPosition.CenterScreen;
         this.MinimumSize = new Size(1000, 600);
+        this.Icon = LoadAppIcon();
+
+        // Create header panel with logo
+        var headerPanel = new Panel
+        {
+            Dock = DockStyle.Top,
+            Height = 60,
+            BackColor = Color.FromArgb(240, 240, 240),
+            Padding = new Padding(10)
+        };
+
+        // Logo box
+        var logoPictureBox = new PictureBox
+        {
+            Size = new Size(48, 48),
+            Location = new Point(10, 6),
+            SizeMode = PictureBoxSizeMode.Zoom,
+            BackColor = Color.White,
+            BorderStyle = BorderStyle.FixedSingle
+        };
+
+        try
+        {
+            var logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo.png");
+            if (File.Exists(logoPath))
+            {
+                logoPictureBox.Image = Image.FromFile(logoPath);
+            }
+        }
+        catch { /* Logo not critical */ }
+
+        var titleLabel = new Label
+        {
+            Text = "Scale Streamer",
+            Font = new Font("Segoe UI", 16F, FontStyle.Bold),
+            Location = new Point(68, 8),
+            AutoSize = true,
+            ForeColor = Color.FromArgb(0, 120, 215)
+        };
+
+        var versionLabel = new Label
+        {
+            Text = $"Version {APP_VERSION}",
+            Font = new Font("Segoe UI", 9F),
+            Location = new Point(68, 35),
+            AutoSize = true,
+            ForeColor = Color.Gray
+        };
+
+        headerPanel.Controls.Add(logoPictureBox);
+        headerPanel.Controls.Add(titleLabel);
+        headerPanel.Controls.Add(versionLabel);
 
         // Create main tab control
         _mainTabControl = new TabControl
@@ -88,7 +140,23 @@ public partial class MainForm : Form
             Font = new Font("Segoe UI", 9F)
         };
 
+        this.Controls.Add(headerPanel);
         this.Controls.Add(_mainTabControl);
+        headerPanel.BringToFront();
+    }
+
+    private Icon? LoadAppIcon()
+    {
+        try
+        {
+            var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logo.ico");
+            if (File.Exists(iconPath))
+            {
+                return new Icon(iconPath);
+            }
+        }
+        catch { /* Icon not critical */ }
+        return null;
     }
 
     private void InitializeTabs()

@@ -3,13 +3,13 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
      xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
-    <Package Name="Scale Streamer v2.0 (Self-Contained)"
+    <Package Name="Scale Streamer v2.6 (Self-Contained)"
              Manufacturer="Cloud-Scale"
-             Version="2.5.0"
+             Version="2.6.0"
              UpgradeCode="B2C3D4E5-F6A7-8901-BCDE-FA2345678902"
              Scope="perMachine">
 
-        <SummaryInformation Description="Scale Streamer v2.0 - Universal scale data acquisition and streaming platform"
+        <SummaryInformation Description="Scale Streamer v2.6 - Universal scale data acquisition and streaming platform with auto-update notifications"
                             Manufacturer="Cloud-Scale" />
 
         <MajorUpgrade DowngradeErrorMessage="A newer version of Scale Streamer is already installed."
@@ -164,7 +164,7 @@
             <Component Id="AppRegistryKeys" Guid="F6666666-6666-6666-6666-666666666661">
                 <RegistryKey Root="HKLM" Key="Software\Cloud-Scale\ScaleStreamer">
                     <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" />
-                    <RegistryValue Name="Version" Type="string" Value="2.5.0" />
+                    <RegistryValue Name="Version" Type="string" Value="2.6.0" />
                     <RegistryValue Name="Vendor" Type="string" Value="Cloud-Scale" />
                     <RegistryValue Name="SupportURL" Type="string" Value="https://cloud-scale.us/support" />
                     <RegistryValue Name="ServicePath" Type="string" Value="[ServiceFolder]" />
@@ -191,7 +191,8 @@
                           Name="Scale Streamer Configuration"
                           Description="Configure and monitor scale connections"
                           Target="[ConfigFolder]ScaleStreamer.Config.exe"
-                          WorkingDirectory="ConfigFolder" />
+                          WorkingDirectory="ConfigFolder"
+                          Icon="ScaleStreamerIcon" />
 
                 <Shortcut Id="ServiceControlShortcut"
                           Name="Service Control Panel"
@@ -216,6 +217,21 @@
         </ComponentGroup>
 
         <!-- ================================================================ -->
+        <!-- DESKTOP SHORTCUT -->
+        <!-- ================================================================ -->
+        <ComponentGroup Id="DesktopShortcutComponents" Directory="DesktopFolder">
+            <Component Id="DesktopShortcut" Guid="88888888-8888-8888-8888-888888888881">
+                <Shortcut Id="DesktopConfigShortcut"
+                          Name="Scale Streamer"
+                          Description="Configure and monitor scale connections"
+                          Target="[ConfigFolder]ScaleStreamer.Config.exe"
+                          WorkingDirectory="ConfigFolder"
+                          Icon="ScaleStreamerIcon" />
+                <RegistryValue Root="HKCU" Key="Software\ScaleStreamer" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- ================================================================ -->
         <!-- CUSTOM ACTIONS -->
         <!-- ================================================================ -->
 
@@ -235,13 +251,7 @@
                       ExeCommand='cmd.exe /c netsh advfirewall firewall delete rule name="Scale Streamer - RTSP" &amp; netsh advfirewall firewall delete rule name="Scale Streamer - HLS"'
                       Return="ignore" />
 
-        <!-- Initialize Database -->
-        <CustomAction Id="InitializeDatabase"
-                      Directory="ServiceFolder"
-                      Execute="deferred"
-                      Impersonate="no"
-                      ExeCommand='"[ServiceFolder]ScaleStreamer.Service.exe" --init-db'
-                      Return="ignore" />
+        <!-- Initialize Database no longer needed, service auto-creates on first run -->
 
         <!-- Launch Configuration App -->
         <CustomAction Id="LaunchConfigApp"
@@ -257,8 +267,7 @@
             <Custom Action="AddFirewallRules" After="InstallFiles" Condition="NOT Installed" />
             <Custom Action="RemoveFirewallRules" After="RemoveFiles" Condition="Installed AND NOT REINSTALL" />
 
-            <!-- Database initialization -->
-            <Custom Action="InitializeDatabase" After="AddFirewallRules" Condition="NOT Installed" />
+            <!-- Database initialization removed, service auto-creates on first run -->
 
             <!-- Launch config app after install -->
             <Custom Action="LaunchConfigApp" After="InstallFinalize" Condition="LAUNCHCONFIGONEXIT AND NOT Installed" />
@@ -277,6 +286,7 @@
             <ComponentGroupRef Id="AppDataComponents" />
             <ComponentGroupRef Id="RegistryComponents" />
             <ComponentGroupRef Id="ShortcutComponents" />
+            <ComponentGroupRef Id="DesktopShortcutComponents" />
         </Feature>
 
         <Feature Id="DocumentationFeature" Title="Documentation" Level="1"

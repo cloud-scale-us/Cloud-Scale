@@ -7,700 +7,700 @@
     <!-- ===================================================================== -->
     <Fragment>
         <ComponentGroup Id="ServiceRuntimeComponents" Directory="ServiceFolder">
-            <Component Id="ServiceFile_appsettings_json" Guid="0B372876-7100-497A-8DBE-7D7527C3B510">
+            <Component Id="ServiceFile_appsettings_json" Guid="038A3AB5-344C-482D-9AC2-8D2D8875C55D">
                 <File Source="$(var.ServicePublishDir)\appsettings.json" />
             </Component>
-            <Component Id="ServiceFile_clretwrc_dll" Guid="849B69CF-B9D2-4C49-B766-7FF485751B7A">
+            <Component Id="ServiceFile_clretwrc_dll" Guid="5944F7B6-3FE3-4B72-8A70-29078871C069">
                 <File Source="$(var.ServicePublishDir)\clretwrc.dll" />
             </Component>
-            <Component Id="ServiceFile_clrgc_dll" Guid="47FDF3C0-7B08-40AF-9608-14B51E0A7619">
+            <Component Id="ServiceFile_clrgc_dll" Guid="2E415128-668A-4223-AF28-F24DDFC6C2D2">
                 <File Source="$(var.ServicePublishDir)\clrgc.dll" />
             </Component>
-            <Component Id="ServiceFile_clrjit_dll" Guid="A409D319-051C-4663-BBAE-322B98D9658A">
+            <Component Id="ServiceFile_clrjit_dll" Guid="91E53A4A-A288-4669-BB8A-90822E32EAB8">
                 <File Source="$(var.ServicePublishDir)\clrjit.dll" />
             </Component>
-            <Component Id="ServiceFile_coreclr_dll" Guid="96419C60-8EF4-4CC3-BEFD-072B68455F02">
+            <Component Id="ServiceFile_coreclr_dll" Guid="5B79B406-BB39-45D6-B7A6-2BE17D9F92A3">
                 <File Source="$(var.ServicePublishDir)\coreclr.dll" />
             </Component>
-            <Component Id="ServiceFile_createdump_exe" Guid="ADA2EC02-8D0F-475C-8D4D-1EA35203AF73">
+            <Component Id="ServiceFile_createdump_exe" Guid="34DACA9C-3EF2-4314-8904-4CC4D93681C6">
                 <File Source="$(var.ServicePublishDir)\createdump.exe" />
             </Component>
-            <Component Id="ServiceFile_e_sqlite3_dll" Guid="0DBF9924-1F8D-4C42-A92D-74B01E997B12">
+            <Component Id="ServiceFile_e_sqlite3_dll" Guid="7C748F7F-2CC2-4BEC-94E7-241CDDCD0A76">
                 <File Source="$(var.ServicePublishDir)\e_sqlite3.dll" />
             </Component>
-            <Component Id="ServiceFile_hostfxr_dll" Guid="BB0A5438-4127-48E5-A788-F0C4E1D47926">
+            <Component Id="ServiceFile_hostfxr_dll" Guid="EC842AFC-1859-425A-9E38-3483A86B846D">
                 <File Source="$(var.ServicePublishDir)\hostfxr.dll" />
             </Component>
-            <Component Id="ServiceFile_hostpolicy_dll" Guid="E5017271-03F4-4D28-BEAC-4432B279DD3E">
+            <Component Id="ServiceFile_hostpolicy_dll" Guid="500412FF-801A-4AE5-B1AA-AE3257EBF2E3">
                 <File Source="$(var.ServicePublishDir)\hostpolicy.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_CSharp_dll" Guid="582DBBE5-BA35-41CB-A4BD-474833B92107">
+            <Component Id="ServiceFile_Microsoft_CSharp_dll" Guid="3315AC66-C01E-42B6-B82E-024C44A7BE9A">
                 <File Source="$(var.ServicePublishDir)\Microsoft.CSharp.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Data_Sqlite_dll" Guid="24153DB3-63C4-429A-92E6-A1EAC3D71B1A">
+            <Component Id="ServiceFile_Microsoft_Data_Sqlite_dll" Guid="2117F759-3B80-4DDE-BEE9-72D160767510">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Data.Sqlite.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_DiaSymReader_Native_amd64_dll" Guid="91C91159-11DD-4CA5-916D-0659ACB3C52A">
+            <Component Id="ServiceFile_Microsoft_DiaSymReader_Native_amd64_dll" Guid="50E26B71-0571-4BA6-9760-FF08411307FA">
                 <File Source="$(var.ServicePublishDir)\Microsoft.DiaSymReader.Native.amd64.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_Abstractions_dll" Guid="C86E1784-AE2D-428C-859E-644939FEB609">
+            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_Abstractions_dll" Guid="EEA7E0C4-2349-4D98-B74D-8A941212A2BB">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Configuration.Abstractions.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_Binder_dll" Guid="7CE90218-DC62-45F6-93ED-D63F71867FCE">
+            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_Binder_dll" Guid="D2898D0D-C70A-49C1-A9E4-7FD9959F670C">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Configuration.Binder.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_CommandLine_dll" Guid="C10A294C-77B2-47EC-B2E6-AD90AF15D69C">
+            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_CommandLine_dll" Guid="9D13DE3D-6153-427C-AF90-4D2E3FA648E8">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Configuration.CommandLine.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_dll" Guid="C97AE453-2835-4926-AEDC-2D26EE1D7602">
+            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_dll" Guid="C47F9083-0A4E-4F9D-AEA0-AC8A0A0D45F3">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Configuration.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_EnvironmentVariables_dll" Guid="A5003E4A-49B4-455E-B584-CB97702716E0">
+            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_EnvironmentVariables_dll" Guid="A726E28C-B5F8-47F4-9B22-937FA808AFDD">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Configuration.EnvironmentVariables.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_FileExtensions_dll" Guid="6E434DC5-527D-454A-8488-0BEFF8BCF9ED">
+            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_FileExtensions_dll" Guid="CC0273AC-DC41-4FD4-95A8-C452A655FC36">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Configuration.FileExtensions.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_Json_dll" Guid="ADCA8BA0-E999-4AA5-91D5-CF15CE077DAD">
+            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_Json_dll" Guid="5414577A-FE46-4611-B143-26A9FF0A3B6E">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Configuration.Json.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_UserSecrets_dll" Guid="405DB835-ADED-4112-97A6-CE688FE88C7D">
+            <Component Id="ServiceFile_Microsoft_Extensions_Configuration_UserSecrets_dll" Guid="3D4032CF-526F-4EC2-8B1F-B875E9576D2E">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Configuration.UserSecrets.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_DependencyInjection_Abstractions_dll" Guid="8FBD5485-7221-40FF-86F6-A1775A852D5B">
+            <Component Id="ServiceFile_Microsoft_Extensions_DependencyInjection_Abstractions_dll" Guid="EFD5B939-4ECA-4B38-A48D-5C4067A38520">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_DependencyInjection_dll" Guid="D5AC3644-67C1-4DB2-9440-A70051504C19">
+            <Component Id="ServiceFile_Microsoft_Extensions_DependencyInjection_dll" Guid="4B144B44-B151-429D-B999-EC2346102675">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.DependencyInjection.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Diagnostics_Abstractions_dll" Guid="3A1A620A-1AFC-49BC-90F2-50FC6EBC3230">
+            <Component Id="ServiceFile_Microsoft_Extensions_Diagnostics_Abstractions_dll" Guid="E8EA8BB5-6777-41C7-9133-625DF45729D4">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Diagnostics.Abstractions.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Diagnostics_dll" Guid="A481480F-624D-4B80-A1D7-795720C91210">
+            <Component Id="ServiceFile_Microsoft_Extensions_Diagnostics_dll" Guid="60B411B6-7187-4611-A7A5-E3797D70250E">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Diagnostics.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_FileProviders_Abstractions_dll" Guid="FDCDAB50-816A-4451-B909-4C478DEF3F7D">
+            <Component Id="ServiceFile_Microsoft_Extensions_FileProviders_Abstractions_dll" Guid="D81C21E7-1EAC-4974-81AA-76B40622EE23">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.FileProviders.Abstractions.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_FileProviders_Physical_dll" Guid="E313D389-AF7C-42A8-A7D2-58C113629C7B">
+            <Component Id="ServiceFile_Microsoft_Extensions_FileProviders_Physical_dll" Guid="478D3762-0AC1-4FA8-B0E4-D8DAD30452E2">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.FileProviders.Physical.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_FileSystemGlobbing_dll" Guid="C8E3840C-1DE5-4E10-87A5-BAEC3E82C0A8">
+            <Component Id="ServiceFile_Microsoft_Extensions_FileSystemGlobbing_dll" Guid="907CA443-A513-44F8-A4E8-F72811A219E8">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.FileSystemGlobbing.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Hosting_Abstractions_dll" Guid="4B0CB07A-14A5-44E5-9FA4-D831FBF9FD5D">
+            <Component Id="ServiceFile_Microsoft_Extensions_Hosting_Abstractions_dll" Guid="95F9DB6E-DD09-406F-A878-4F81E01D081B">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Hosting.Abstractions.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Hosting_dll" Guid="B72FFEAC-5571-44E4-B4C1-7D85A5D130B4">
+            <Component Id="ServiceFile_Microsoft_Extensions_Hosting_dll" Guid="D778B6DA-44EE-428F-B08B-2D0B15DD67D3">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Hosting.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Hosting_WindowsServices_dll" Guid="6BD599BD-328B-4641-A341-FD8F1F99CA98">
+            <Component Id="ServiceFile_Microsoft_Extensions_Hosting_WindowsServices_dll" Guid="6B6D2D1C-65D6-45F5-8041-32F41D55AF9D">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Hosting.WindowsServices.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Logging_Abstractions_dll" Guid="A4DE0DDC-B530-4EC3-AA2E-6C9CE99BD6C1">
+            <Component Id="ServiceFile_Microsoft_Extensions_Logging_Abstractions_dll" Guid="584F3C49-5902-48B2-A3CB-6643B56F47AE">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Logging.Abstractions.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Logging_Configuration_dll" Guid="DDC14A5C-9959-4DC7-BE19-540AB23DF03B">
+            <Component Id="ServiceFile_Microsoft_Extensions_Logging_Configuration_dll" Guid="914585E8-C333-45FE-AEFF-AF85CF84AB02">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Logging.Configuration.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Logging_Console_dll" Guid="3E2D107E-FC2F-4F87-826D-755157EADF27">
+            <Component Id="ServiceFile_Microsoft_Extensions_Logging_Console_dll" Guid="C0AAA6B9-4E06-4351-A87F-C8086645E1D7">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Logging.Console.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Logging_Debug_dll" Guid="1868B528-2690-4003-A808-0602B91F0F4B">
+            <Component Id="ServiceFile_Microsoft_Extensions_Logging_Debug_dll" Guid="B6A9A48A-AE0C-4B83-B987-A9C108DFC08E">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Logging.Debug.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Logging_dll" Guid="082372D8-E4CE-43E6-84C5-918A3A511018">
+            <Component Id="ServiceFile_Microsoft_Extensions_Logging_dll" Guid="B7E78BD4-CF37-4E67-B925-774F74394A50">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Logging.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Logging_EventLog_dll" Guid="D7C0E9C5-2157-47AD-913F-47BAAEA40F5C">
+            <Component Id="ServiceFile_Microsoft_Extensions_Logging_EventLog_dll" Guid="78345725-A634-438B-876C-E3850FF73FEB">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Logging.EventLog.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Logging_EventSource_dll" Guid="3534DE3F-D2B7-4DC3-BE8C-2908390E8E4B">
+            <Component Id="ServiceFile_Microsoft_Extensions_Logging_EventSource_dll" Guid="686A3B33-1EE2-49D9-9E06-0F8FD6F42F56">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Logging.EventSource.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Options_ConfigurationExtensions_dll" Guid="86AEDE85-92EB-4CAB-8EE4-3A85A4B60EAB">
+            <Component Id="ServiceFile_Microsoft_Extensions_Options_ConfigurationExtensions_dll" Guid="EC729E03-B026-4653-A65E-ABB9AAB3A738">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Options.ConfigurationExtensions.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Options_dll" Guid="F4CC0E50-3CEC-434B-971A-C98BCF6D9A11">
+            <Component Id="ServiceFile_Microsoft_Extensions_Options_dll" Guid="E9420D9C-0D99-4719-8A89-4231CB4C7E0F">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Options.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Extensions_Primitives_dll" Guid="47A3F592-2C88-436B-AB5D-675EE1E72E3D">
+            <Component Id="ServiceFile_Microsoft_Extensions_Primitives_dll" Guid="41C62C69-9630-47DD-B8CA-409359900032">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Extensions.Primitives.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_VisualBasic_Core_dll" Guid="713750B5-0465-4220-A658-E7D17DCD8E4D">
+            <Component Id="ServiceFile_Microsoft_VisualBasic_Core_dll" Guid="6234B4E7-105D-4304-A4F1-05AEF952C908">
                 <File Source="$(var.ServicePublishDir)\Microsoft.VisualBasic.Core.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_VisualBasic_dll" Guid="CFC44BF9-2B04-48F3-9149-D904BC49CCB7">
+            <Component Id="ServiceFile_Microsoft_VisualBasic_dll" Guid="4CEF476B-E202-4919-80C3-0F1CAF40EE8E">
                 <File Source="$(var.ServicePublishDir)\Microsoft.VisualBasic.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Win32_Primitives_dll" Guid="D80FEB02-4AB6-4351-A10C-62E7C213F194">
+            <Component Id="ServiceFile_Microsoft_Win32_Primitives_dll" Guid="A36A071D-2AF8-490D-865E-C0665AABEB32">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Win32.Primitives.dll" />
             </Component>
-            <Component Id="ServiceFile_Microsoft_Win32_Registry_dll" Guid="2A595727-6026-44FB-8A44-F83AF420980E">
+            <Component Id="ServiceFile_Microsoft_Win32_Registry_dll" Guid="44D1F218-6709-4590-BDF3-A69FCD1BCECE">
                 <File Source="$(var.ServicePublishDir)\Microsoft.Win32.Registry.dll" />
             </Component>
-            <Component Id="ServiceFile_mscordaccore_dll" Guid="590D2FBE-FBE1-467C-92D1-638855A728B2">
+            <Component Id="ServiceFile_mscordaccore_dll" Guid="1377CFA2-4095-4F97-8146-17E726433010">
                 <File Source="$(var.ServicePublishDir)\mscordaccore.dll" />
             </Component>
-            <Component Id="ServiceFile_mscordaccore_amd64_amd64_8_0_2325_60607_dll" Guid="77A96738-D37C-4905-B0DC-5D3811E2E4D7">
+            <Component Id="ServiceFile_mscordaccore_amd64_amd64_8_0_2325_60607_dll" Guid="F8DF5310-CCE1-4CCC-9D39-80D1B07191B2">
                 <File Source="$(var.ServicePublishDir)\mscordaccore_amd64_amd64_8.0.2325.60607.dll" />
             </Component>
-            <Component Id="ServiceFile_mscordbi_dll" Guid="645971C1-4EAF-4538-9E1F-3FD6E8D77614">
+            <Component Id="ServiceFile_mscordbi_dll" Guid="9E15C8AC-5BA2-4636-876E-48FC1EB07016">
                 <File Source="$(var.ServicePublishDir)\mscordbi.dll" />
             </Component>
-            <Component Id="ServiceFile_mscorlib_dll" Guid="49ECFA45-0B39-4D64-BDDF-24708B2D784E">
+            <Component Id="ServiceFile_mscorlib_dll" Guid="24BF8D75-FFC7-4D0C-A779-D7C60629E848">
                 <File Source="$(var.ServicePublishDir)\mscorlib.dll" />
             </Component>
-            <Component Id="ServiceFile_mscorrc_dll" Guid="DCDC2301-7255-47F3-85B7-EC0F4D3BB097">
+            <Component Id="ServiceFile_mscorrc_dll" Guid="46BD680B-A240-4EE3-9796-E8536B4DB208">
                 <File Source="$(var.ServicePublishDir)\mscorrc.dll" />
             </Component>
-            <Component Id="ServiceFile_msquic_dll" Guid="DCE9D664-08D3-4342-AEF9-47DAF313B87A">
+            <Component Id="ServiceFile_msquic_dll" Guid="A11EC749-70E2-4C20-8547-CC924F4F835B">
                 <File Source="$(var.ServicePublishDir)\msquic.dll" />
             </Component>
-            <Component Id="ServiceFile_netstandard_dll" Guid="022B267F-BCCD-4A59-98BF-548588875910">
+            <Component Id="ServiceFile_netstandard_dll" Guid="4F973CFA-17B4-4484-A838-2F8EAE3524EA">
                 <File Source="$(var.ServicePublishDir)\netstandard.dll" />
             </Component>
-            <Component Id="ServiceFile_ScaleStreamer_Common_dll" Guid="86320A9E-62AD-464A-8A98-E5B28FD531A3">
+            <Component Id="ServiceFile_ScaleStreamer_Common_dll" Guid="9450C742-3C83-47CD-9272-BCEF9C2D4E10">
                 <File Source="$(var.ServicePublishDir)\ScaleStreamer.Common.dll" />
             </Component>
-            <Component Id="ServiceFile_ScaleStreamer_Common_pdb" Guid="874E1FA9-500C-425B-A8C5-AD18E1A0FE1C">
+            <Component Id="ServiceFile_ScaleStreamer_Common_pdb" Guid="BBCD05E1-D6F5-46CE-B639-7E94C84C4029">
                 <File Source="$(var.ServicePublishDir)\ScaleStreamer.Common.pdb" />
             </Component>
-            <Component Id="ServiceFile_ScaleStreamer_Service_deps_json" Guid="059C2EB0-9D2D-44B5-B6D1-09A86C168AB7">
+            <Component Id="ServiceFile_ScaleStreamer_Service_deps_json" Guid="A8450120-73F8-4311-9202-6CFB8528C0EB">
                 <File Source="$(var.ServicePublishDir)\ScaleStreamer.Service.deps.json" />
             </Component>
-            <Component Id="ServiceFile_ScaleStreamer_Service_dll" Guid="8A1F5458-D788-4E5E-A2C3-81649E821619">
+            <Component Id="ServiceFile_ScaleStreamer_Service_dll" Guid="B481782E-A9C6-4B21-B56C-F4C0271A8375">
                 <File Source="$(var.ServicePublishDir)\ScaleStreamer.Service.dll" />
             </Component>
-            <Component Id="ServiceFile_ScaleStreamer_Service_pdb" Guid="5DC8D483-04EB-4533-A0B8-907FA42D4925">
+            <Component Id="ServiceFile_ScaleStreamer_Service_pdb" Guid="E0F33618-98A6-4B90-A811-34E6EBF64B7F">
                 <File Source="$(var.ServicePublishDir)\ScaleStreamer.Service.pdb" />
             </Component>
-            <Component Id="ServiceFile_ScaleStreamer_Service_runtimeconfig_json" Guid="8EFB78CA-6B0D-40FA-84C1-AD367EFFAC2F">
+            <Component Id="ServiceFile_ScaleStreamer_Service_runtimeconfig_json" Guid="836220BD-F27E-41A6-8174-17453747EE07">
                 <File Source="$(var.ServicePublishDir)\ScaleStreamer.Service.runtimeconfig.json" />
             </Component>
-            <Component Id="ServiceFile_Serilog_dll" Guid="DD9364B4-B046-454D-949A-BFC7E2807B57">
+            <Component Id="ServiceFile_Serilog_dll" Guid="48E20B83-6ADB-48F1-9E81-0535BA206F33">
                 <File Source="$(var.ServicePublishDir)\Serilog.dll" />
             </Component>
-            <Component Id="ServiceFile_Serilog_Extensions_Hosting_dll" Guid="1ED86EBF-0711-45E4-BF23-7F045BC7FD74">
+            <Component Id="ServiceFile_Serilog_Extensions_Hosting_dll" Guid="6FA73D78-F358-4EAE-8985-C84C94FA18A3">
                 <File Source="$(var.ServicePublishDir)\Serilog.Extensions.Hosting.dll" />
             </Component>
-            <Component Id="ServiceFile_Serilog_Extensions_Logging_dll" Guid="3B854C4C-40A4-47DD-874A-343FDD0FE35E">
+            <Component Id="ServiceFile_Serilog_Extensions_Logging_dll" Guid="0E3508F0-990C-4FEB-8568-353C9C1C95FE">
                 <File Source="$(var.ServicePublishDir)\Serilog.Extensions.Logging.dll" />
             </Component>
-            <Component Id="ServiceFile_Serilog_Sinks_Console_dll" Guid="6A6A94BE-1586-435D-8045-2CAA0A56E9ED">
+            <Component Id="ServiceFile_Serilog_Sinks_Console_dll" Guid="ADBA0293-1CC4-4466-994F-DC00A0239C3C">
                 <File Source="$(var.ServicePublishDir)\Serilog.Sinks.Console.dll" />
             </Component>
-            <Component Id="ServiceFile_Serilog_Sinks_File_dll" Guid="13E22988-F74E-48C3-824B-253F9649909F">
+            <Component Id="ServiceFile_Serilog_Sinks_File_dll" Guid="93A5A0A2-F916-4561-AA01-DCF8C4394B34">
                 <File Source="$(var.ServicePublishDir)\Serilog.Sinks.File.dll" />
             </Component>
-            <Component Id="ServiceFile_SQLitePCLRaw_batteries_v2_dll" Guid="6B2BD956-55A2-4617-8721-A1734A3188D1">
+            <Component Id="ServiceFile_SQLitePCLRaw_batteries_v2_dll" Guid="E9AB45A1-CAEF-40FE-9A23-1D944865B19E">
                 <File Source="$(var.ServicePublishDir)\SQLitePCLRaw.batteries_v2.dll" />
             </Component>
-            <Component Id="ServiceFile_SQLitePCLRaw_core_dll" Guid="55EDE6D1-EAE1-4E45-8531-71D34917C367">
+            <Component Id="ServiceFile_SQLitePCLRaw_core_dll" Guid="1234F352-E934-4799-9F88-D58D22750600">
                 <File Source="$(var.ServicePublishDir)\SQLitePCLRaw.core.dll" />
             </Component>
-            <Component Id="ServiceFile_SQLitePCLRaw_provider_e_sqlite3_dll" Guid="D630520D-3A88-4E02-8C38-BDDD10E5E410">
+            <Component Id="ServiceFile_SQLitePCLRaw_provider_e_sqlite3_dll" Guid="771ED5E7-1131-417F-954E-71BB41F6C15D">
                 <File Source="$(var.ServicePublishDir)\SQLitePCLRaw.provider.e_sqlite3.dll" />
             </Component>
-            <Component Id="ServiceFile_System_AppContext_dll" Guid="6E6E3E14-C071-4DD1-B791-D058ADE96BD8">
+            <Component Id="ServiceFile_System_AppContext_dll" Guid="9129C460-1722-426B-82A4-0CC2FE45C7B5">
                 <File Source="$(var.ServicePublishDir)\System.AppContext.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Buffers_dll" Guid="EAAB5BB0-BEAA-4196-AE05-13E5A24E1DD7">
+            <Component Id="ServiceFile_System_Buffers_dll" Guid="1FB313F1-32C4-4684-8279-C723AA71191E">
                 <File Source="$(var.ServicePublishDir)\System.Buffers.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Collections_Concurrent_dll" Guid="01C3A9B9-81D5-4F24-9F21-3D4DD961D501">
+            <Component Id="ServiceFile_System_Collections_Concurrent_dll" Guid="EEAEC512-1E85-4A87-BC37-0C6E3C185541">
                 <File Source="$(var.ServicePublishDir)\System.Collections.Concurrent.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Collections_dll" Guid="F385B844-5DE4-45A9-B453-C2CE052440E6">
+            <Component Id="ServiceFile_System_Collections_dll" Guid="FBFA8387-56FB-4E9C-B2A8-936EEFFF7461">
                 <File Source="$(var.ServicePublishDir)\System.Collections.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Collections_Immutable_dll" Guid="8B151BB6-5328-4B8F-8697-DF732369031C">
+            <Component Id="ServiceFile_System_Collections_Immutable_dll" Guid="32A27934-EF6E-4266-B4A3-D2268A0426DC">
                 <File Source="$(var.ServicePublishDir)\System.Collections.Immutable.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Collections_NonGeneric_dll" Guid="955F8B8E-2E3F-44C3-9BBC-7A7D4AB45918">
+            <Component Id="ServiceFile_System_Collections_NonGeneric_dll" Guid="FB0129CC-C6B2-444D-86B8-911E3BBFE85F">
                 <File Source="$(var.ServicePublishDir)\System.Collections.NonGeneric.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Collections_Specialized_dll" Guid="25A0E340-2C92-4848-BE38-090303DAA38D">
+            <Component Id="ServiceFile_System_Collections_Specialized_dll" Guid="5EEE8046-2B1E-4F02-8A25-2393CDFC345A">
                 <File Source="$(var.ServicePublishDir)\System.Collections.Specialized.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ComponentModel_Annotations_dll" Guid="D7950E4F-9AC8-44A1-B132-63E6E3DFAEC4">
+            <Component Id="ServiceFile_System_ComponentModel_Annotations_dll" Guid="B5878C50-5A10-47B0-A250-956A5BB298ED">
                 <File Source="$(var.ServicePublishDir)\System.ComponentModel.Annotations.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ComponentModel_DataAnnotations_dll" Guid="D4E58056-4511-4585-80B6-D443D2E63B5C">
+            <Component Id="ServiceFile_System_ComponentModel_DataAnnotations_dll" Guid="54C77423-5629-41F5-840A-F41DA8894F69">
                 <File Source="$(var.ServicePublishDir)\System.ComponentModel.DataAnnotations.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ComponentModel_dll" Guid="5B562C58-1F6F-4718-9504-504C28D09B97">
+            <Component Id="ServiceFile_System_ComponentModel_dll" Guid="48F5F0ED-122C-49F5-BF1C-618FFB14438C">
                 <File Source="$(var.ServicePublishDir)\System.ComponentModel.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ComponentModel_EventBasedAsync_dll" Guid="775B98C0-9CDF-4960-9CC0-38E4E71DBD2B">
+            <Component Id="ServiceFile_System_ComponentModel_EventBasedAsync_dll" Guid="95C734BF-2305-42D7-834F-1939920689F6">
                 <File Source="$(var.ServicePublishDir)\System.ComponentModel.EventBasedAsync.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ComponentModel_Primitives_dll" Guid="CA0E3357-ACB3-4C55-9BDE-57D2D507C879">
+            <Component Id="ServiceFile_System_ComponentModel_Primitives_dll" Guid="D7E7D80D-E361-48CD-A9C7-DD8E9840862B">
                 <File Source="$(var.ServicePublishDir)\System.ComponentModel.Primitives.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ComponentModel_TypeConverter_dll" Guid="408E93DA-02BA-4BB3-914A-3A80890CBB27">
+            <Component Id="ServiceFile_System_ComponentModel_TypeConverter_dll" Guid="EDF01A0C-DE49-4C31-8E34-0D089BE243DC">
                 <File Source="$(var.ServicePublishDir)\System.ComponentModel.TypeConverter.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Configuration_dll" Guid="08721272-AE43-4BA5-95CF-169D783FF5E6">
+            <Component Id="ServiceFile_System_Configuration_dll" Guid="109FAD9B-40AA-4F63-8773-BDF028CDF574">
                 <File Source="$(var.ServicePublishDir)\System.Configuration.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Console_dll" Guid="8347E2FA-FBBF-4A10-9CBE-C55A3F700BE7">
+            <Component Id="ServiceFile_System_Console_dll" Guid="7A657155-067E-4D75-993F-E54CB2A869E8">
                 <File Source="$(var.ServicePublishDir)\System.Console.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Core_dll" Guid="7638FDFF-215B-41AD-A4CB-4750FCA4EBC6">
+            <Component Id="ServiceFile_System_Core_dll" Guid="37D05F38-2932-4060-94A3-438C08B3B40D">
                 <File Source="$(var.ServicePublishDir)\System.Core.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Data_Common_dll" Guid="0C58F294-8497-451B-B339-1DA8203E09C8">
+            <Component Id="ServiceFile_System_Data_Common_dll" Guid="18C5CC4D-0397-4FBB-A5AD-2F790D987137">
                 <File Source="$(var.ServicePublishDir)\System.Data.Common.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Data_DataSetExtensions_dll" Guid="12592D04-CC5E-4DFC-BD60-A718AFB79078">
+            <Component Id="ServiceFile_System_Data_DataSetExtensions_dll" Guid="15375821-1E4E-4CDB-B9A8-4EAC5D156322">
                 <File Source="$(var.ServicePublishDir)\System.Data.DataSetExtensions.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Data_dll" Guid="05E36775-7348-4637-883F-74EB3372A16D">
+            <Component Id="ServiceFile_System_Data_dll" Guid="AE936A6D-CFBD-413A-B5A9-F9C27C66767A">
                 <File Source="$(var.ServicePublishDir)\System.Data.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_Contracts_dll" Guid="32233676-5FCA-4928-9195-6EA5010EC78C">
+            <Component Id="ServiceFile_System_Diagnostics_Contracts_dll" Guid="8246B1BF-0ED2-421E-9050-6670288EA199">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.Contracts.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_Debug_dll" Guid="63E61F58-249F-461A-9406-13F6D4C7C65C">
+            <Component Id="ServiceFile_System_Diagnostics_Debug_dll" Guid="BAF29264-7703-413C-899F-003E2FA7E017">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.Debug.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_DiagnosticSource_dll" Guid="DB79BD03-529D-42F3-AB54-9E8A5511C6AE">
+            <Component Id="ServiceFile_System_Diagnostics_DiagnosticSource_dll" Guid="28BFA698-3467-4812-B11B-1E691231920E">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.DiagnosticSource.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_EventLog_dll" Guid="A091F236-3D8E-4BA2-80F2-69DCA970B3BC">
+            <Component Id="ServiceFile_System_Diagnostics_EventLog_dll" Guid="C58B78A9-BD61-427C-B6A7-8B9BC8FA73B8">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.EventLog.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_EventLog_Messages_dll" Guid="3F33BFC6-CBC3-4D26-94E4-D68DE679A1A5">
+            <Component Id="ServiceFile_System_Diagnostics_EventLog_Messages_dll" Guid="F98289ED-2711-4549-9BD2-67C1D2C73BD0">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.EventLog.Messages.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_FileVersionInfo_dll" Guid="65B84EED-7B24-4893-B4AE-9620D3C250D2">
+            <Component Id="ServiceFile_System_Diagnostics_FileVersionInfo_dll" Guid="5ED97004-1C75-47C5-A8C1-DBF92A57741E">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.FileVersionInfo.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_Process_dll" Guid="4ED86AD2-D811-4653-8087-0980E315D18F">
+            <Component Id="ServiceFile_System_Diagnostics_Process_dll" Guid="81C17162-1760-4836-9DB2-623E5ACFC8BC">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.Process.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_StackTrace_dll" Guid="2391ABCF-5D9F-4C62-BE1B-7840D8AB590C">
+            <Component Id="ServiceFile_System_Diagnostics_StackTrace_dll" Guid="7DD5A771-A4DB-47C6-807C-5EA121597DCB">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.StackTrace.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_TextWriterTraceListener_dll" Guid="54B2357B-3107-428D-BEFA-7E965070FCAA">
+            <Component Id="ServiceFile_System_Diagnostics_TextWriterTraceListener_dll" Guid="30F4A2C9-A6A1-44EC-93E7-0882904F4140">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.TextWriterTraceListener.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_Tools_dll" Guid="D9129550-BF2D-4B67-87C0-2D748DCA0974">
+            <Component Id="ServiceFile_System_Diagnostics_Tools_dll" Guid="6EC8B490-26AE-4974-94C7-FBC44555A59B">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.Tools.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_TraceSource_dll" Guid="A2B2E43F-BADE-4240-937A-0C1D62B02B56">
+            <Component Id="ServiceFile_System_Diagnostics_TraceSource_dll" Guid="2AEDADDE-F0C1-4BF1-99EC-EBFECD0B0A01">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.TraceSource.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Diagnostics_Tracing_dll" Guid="43494DC8-E86F-4C3E-B3F1-749B8DB450C6">
+            <Component Id="ServiceFile_System_Diagnostics_Tracing_dll" Guid="F5743BEA-E07B-44D7-9DAE-68421F1EC611">
                 <File Source="$(var.ServicePublishDir)\System.Diagnostics.Tracing.dll" />
             </Component>
-            <Component Id="ServiceFile_System_dll" Guid="FD685EC5-3D0B-445B-BE14-9CF869DA6162">
+            <Component Id="ServiceFile_System_dll" Guid="FA36EF1B-CD80-48B3-822C-6267F62B5F86">
                 <File Source="$(var.ServicePublishDir)\System.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Drawing_dll" Guid="4CB16394-939C-4A57-B7ED-9E0AEA9B1999">
+            <Component Id="ServiceFile_System_Drawing_dll" Guid="5DCE5FD2-CBAB-437C-AB3D-2D1E36796A3E">
                 <File Source="$(var.ServicePublishDir)\System.Drawing.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Drawing_Primitives_dll" Guid="35FF8547-865F-4FF5-973B-E73A153AD348">
+            <Component Id="ServiceFile_System_Drawing_Primitives_dll" Guid="E70016CE-B96C-4BDE-BA7E-9644D0C6C5CB">
                 <File Source="$(var.ServicePublishDir)\System.Drawing.Primitives.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Dynamic_Runtime_dll" Guid="AC5A2731-FB3A-41CF-8222-0F7512887FFB">
+            <Component Id="ServiceFile_System_Dynamic_Runtime_dll" Guid="1315DDDD-C82B-47C7-AAC6-942E4BC7A41C">
                 <File Source="$(var.ServicePublishDir)\System.Dynamic.Runtime.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Formats_Asn1_dll" Guid="DF2A421B-D099-4D90-A1CF-A76FF01D9E1F">
+            <Component Id="ServiceFile_System_Formats_Asn1_dll" Guid="BB47E6AA-5155-4380-B5A1-0559C0784209">
                 <File Source="$(var.ServicePublishDir)\System.Formats.Asn1.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Formats_Tar_dll" Guid="E47F23C0-0A20-4B33-BAD2-34D3F3C6ACED">
+            <Component Id="ServiceFile_System_Formats_Tar_dll" Guid="C2002A30-D022-4B3F-9D81-335069451717">
                 <File Source="$(var.ServicePublishDir)\System.Formats.Tar.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Globalization_Calendars_dll" Guid="FE909A64-12E0-4426-B8FD-92CA1E474EE5">
+            <Component Id="ServiceFile_System_Globalization_Calendars_dll" Guid="B2DFCE94-CE7C-4B56-B1D7-A5E0E39FE43A">
                 <File Source="$(var.ServicePublishDir)\System.Globalization.Calendars.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Globalization_dll" Guid="002BF9BD-0C5C-44EB-9440-EFEF6392C338">
+            <Component Id="ServiceFile_System_Globalization_dll" Guid="019A2643-D4BC-41AE-B211-A53424312B8D">
                 <File Source="$(var.ServicePublishDir)\System.Globalization.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Globalization_Extensions_dll" Guid="FDF723B0-AC3D-4D5D-BD80-D7A82B79930D">
+            <Component Id="ServiceFile_System_Globalization_Extensions_dll" Guid="FDDD54B5-CC25-475F-B80B-8FF287F1EF95">
                 <File Source="$(var.ServicePublishDir)\System.Globalization.Extensions.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_Compression_Brotli_dll" Guid="73A24689-FCE8-44B2-BDEF-9B3CA516E96E">
+            <Component Id="ServiceFile_System_IO_Compression_Brotli_dll" Guid="1E7BABC3-75A4-43E7-8D34-1F05DF8228C5">
                 <File Source="$(var.ServicePublishDir)\System.IO.Compression.Brotli.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_Compression_dll" Guid="2A5B81EB-B62E-40D7-8C74-E0D1FA43DEEE">
+            <Component Id="ServiceFile_System_IO_Compression_dll" Guid="6E935C55-CAC9-476D-B80A-BF9CBE0A5D89">
                 <File Source="$(var.ServicePublishDir)\System.IO.Compression.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_Compression_FileSystem_dll" Guid="5713F32B-175B-482F-8E14-767C17BBB030">
+            <Component Id="ServiceFile_System_IO_Compression_FileSystem_dll" Guid="28EA347A-9286-4CBB-B248-E5B6703A9E2B">
                 <File Source="$(var.ServicePublishDir)\System.IO.Compression.FileSystem.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_Compression_Native_dll" Guid="487EC29F-EC99-4DFE-AE9A-A7AAF5324195">
+            <Component Id="ServiceFile_System_IO_Compression_Native_dll" Guid="51789027-44B6-4FDB-87F0-8156C4BA44ED">
                 <File Source="$(var.ServicePublishDir)\System.IO.Compression.Native.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_Compression_ZipFile_dll" Guid="83FD5672-6A8C-48A6-98DF-F20A93534ACB">
+            <Component Id="ServiceFile_System_IO_Compression_ZipFile_dll" Guid="C2BE4FEC-AAE0-444A-81F3-A77248F5D326">
                 <File Source="$(var.ServicePublishDir)\System.IO.Compression.ZipFile.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_dll" Guid="13AF3F9C-9313-41BE-A418-B638B625B27E">
+            <Component Id="ServiceFile_System_IO_dll" Guid="B1888DE1-C6B0-40EC-93C1-6208693F47F0">
                 <File Source="$(var.ServicePublishDir)\System.IO.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_FileSystem_AccessControl_dll" Guid="27E52A8D-5C85-4F11-BF34-17B708FFA7C8">
+            <Component Id="ServiceFile_System_IO_FileSystem_AccessControl_dll" Guid="459E9137-0426-4021-96C0-E22B4E527D7C">
                 <File Source="$(var.ServicePublishDir)\System.IO.FileSystem.AccessControl.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_FileSystem_dll" Guid="2E897994-8CC4-40F2-9CFA-E11EF7A6DD6C">
+            <Component Id="ServiceFile_System_IO_FileSystem_dll" Guid="F21BCB43-B52A-48CF-8F15-D88A4C2DCA84">
                 <File Source="$(var.ServicePublishDir)\System.IO.FileSystem.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_FileSystem_DriveInfo_dll" Guid="E852788A-112C-4F34-AC02-78DF50365DB6">
+            <Component Id="ServiceFile_System_IO_FileSystem_DriveInfo_dll" Guid="9733E84C-0D4E-4900-AB46-A6CB60BA443F">
                 <File Source="$(var.ServicePublishDir)\System.IO.FileSystem.DriveInfo.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_FileSystem_Primitives_dll" Guid="A8544B04-EFA0-4624-B1D7-4F7B92B2E4B7">
+            <Component Id="ServiceFile_System_IO_FileSystem_Primitives_dll" Guid="45681662-4FEB-4415-B664-AF001D80AD70">
                 <File Source="$(var.ServicePublishDir)\System.IO.FileSystem.Primitives.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_FileSystem_Watcher_dll" Guid="97A08546-C4F0-4293-B719-730EC225AED5">
+            <Component Id="ServiceFile_System_IO_FileSystem_Watcher_dll" Guid="B945092A-F1CC-4DFB-BBB7-983395D67831">
                 <File Source="$(var.ServicePublishDir)\System.IO.FileSystem.Watcher.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_IsolatedStorage_dll" Guid="66BD49C0-DB10-45AB-984D-EA8A4BA94C61">
+            <Component Id="ServiceFile_System_IO_IsolatedStorage_dll" Guid="297999F0-49FE-47ED-B38C-6E8B5E6E6834">
                 <File Source="$(var.ServicePublishDir)\System.IO.IsolatedStorage.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_MemoryMappedFiles_dll" Guid="DB190585-9D00-4D08-A563-2BF54650E13F">
+            <Component Id="ServiceFile_System_IO_MemoryMappedFiles_dll" Guid="99873EBB-217A-4EEF-A3F5-51E6F1AEE99B">
                 <File Source="$(var.ServicePublishDir)\System.IO.MemoryMappedFiles.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_Pipelines_dll" Guid="52ABEEEC-A7FD-461C-AD9D-B6679F14B1C3">
+            <Component Id="ServiceFile_System_IO_Pipelines_dll" Guid="88D54CB1-DF5B-4350-8A89-32368D30503A">
                 <File Source="$(var.ServicePublishDir)\System.IO.Pipelines.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_Pipes_AccessControl_dll" Guid="4215C028-5B17-41F0-BF79-274D298D5B2E">
+            <Component Id="ServiceFile_System_IO_Pipes_AccessControl_dll" Guid="AC3F6AEA-575F-49D0-B8A1-C889CB1964EA">
                 <File Source="$(var.ServicePublishDir)\System.IO.Pipes.AccessControl.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_Pipes_dll" Guid="53F00A9F-1307-4FC2-8837-2094BDD91B37">
+            <Component Id="ServiceFile_System_IO_Pipes_dll" Guid="CC81B822-7B35-407D-9B96-67F5DB100833">
                 <File Source="$(var.ServicePublishDir)\System.IO.Pipes.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_Ports_dll" Guid="14334592-BACF-468F-8C1C-9626CBBA1570">
+            <Component Id="ServiceFile_System_IO_Ports_dll" Guid="9C0E81FE-159E-4A03-AE74-5CE63238D0D0">
                 <File Source="$(var.ServicePublishDir)\System.IO.Ports.dll" />
             </Component>
-            <Component Id="ServiceFile_System_IO_UnmanagedMemoryStream_dll" Guid="8F6B6B99-E52C-4DF4-AE86-33992C94ECF1">
+            <Component Id="ServiceFile_System_IO_UnmanagedMemoryStream_dll" Guid="794AE3E8-5A6A-4D72-B4DD-28D6651C0C4A">
                 <File Source="$(var.ServicePublishDir)\System.IO.UnmanagedMemoryStream.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Linq_dll" Guid="E5169821-A79E-459E-AACE-35F58E0D094E">
+            <Component Id="ServiceFile_System_Linq_dll" Guid="EEAD3F17-B962-425D-8B96-2C84501713DB">
                 <File Source="$(var.ServicePublishDir)\System.Linq.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Linq_Expressions_dll" Guid="B35130DF-9766-413E-9E14-5FEFC151A70B">
+            <Component Id="ServiceFile_System_Linq_Expressions_dll" Guid="8EB5A0BE-AAB9-49C3-A113-14931C361F92">
                 <File Source="$(var.ServicePublishDir)\System.Linq.Expressions.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Linq_Parallel_dll" Guid="507BB0D3-BBDC-43E5-A2A5-E6F7B860AB72">
+            <Component Id="ServiceFile_System_Linq_Parallel_dll" Guid="043DC5CE-67A5-42BB-921C-E7C5041F23AF">
                 <File Source="$(var.ServicePublishDir)\System.Linq.Parallel.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Linq_Queryable_dll" Guid="9EA486F4-8068-4958-8C85-A9B997D0AD40">
+            <Component Id="ServiceFile_System_Linq_Queryable_dll" Guid="143194D9-A7C8-4AD0-AD15-350D88E4E4D7">
                 <File Source="$(var.ServicePublishDir)\System.Linq.Queryable.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Memory_dll" Guid="1C98012A-8953-45A5-9990-0E067E06559C">
+            <Component Id="ServiceFile_System_Memory_dll" Guid="DD518CF2-F7EA-460E-9AEA-01B46E5F4DEC">
                 <File Source="$(var.ServicePublishDir)\System.Memory.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_dll" Guid="666D2E59-10D6-46B0-A063-EB7591576CD0">
+            <Component Id="ServiceFile_System_Net_dll" Guid="96CB013C-A196-4DC7-A81D-F811A1AB134F">
                 <File Source="$(var.ServicePublishDir)\System.Net.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_Http_dll" Guid="8916B4FC-86C8-42B4-ACC9-DE22E544684A">
+            <Component Id="ServiceFile_System_Net_Http_dll" Guid="57860E3C-1415-490C-B498-24077C7E2E88">
                 <File Source="$(var.ServicePublishDir)\System.Net.Http.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_Http_Json_dll" Guid="CA1B6E18-F3FB-4A10-B60B-756C5ED19FCD">
+            <Component Id="ServiceFile_System_Net_Http_Json_dll" Guid="15B35CED-5A02-4E3E-88E5-DE29417C2555">
                 <File Source="$(var.ServicePublishDir)\System.Net.Http.Json.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_HttpListener_dll" Guid="A1F786C6-FFA6-48E3-9C2D-D2D944B0FE2A">
+            <Component Id="ServiceFile_System_Net_HttpListener_dll" Guid="1654A948-814D-490B-B295-3AE55862B52E">
                 <File Source="$(var.ServicePublishDir)\System.Net.HttpListener.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_Mail_dll" Guid="06125053-95B6-4C03-9C81-F37D89B0B502">
+            <Component Id="ServiceFile_System_Net_Mail_dll" Guid="23C2A5AB-9C7B-4160-AAF6-5024C0186319">
                 <File Source="$(var.ServicePublishDir)\System.Net.Mail.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_NameResolution_dll" Guid="94DFA090-972F-4310-8C58-9AB6AAEE3E87">
+            <Component Id="ServiceFile_System_Net_NameResolution_dll" Guid="156E8F3B-59E2-4CF8-8D51-44061B57F72F">
                 <File Source="$(var.ServicePublishDir)\System.Net.NameResolution.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_NetworkInformation_dll" Guid="47E08777-9FF5-46FA-88D7-7F037CAFDBA1">
+            <Component Id="ServiceFile_System_Net_NetworkInformation_dll" Guid="D167D037-3FB3-4EEF-9B76-C9F3CB29B36E">
                 <File Source="$(var.ServicePublishDir)\System.Net.NetworkInformation.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_Ping_dll" Guid="9EF2268E-EF95-415A-84FA-7D527AD67744">
+            <Component Id="ServiceFile_System_Net_Ping_dll" Guid="CF511A32-EDA6-437A-867F-EDED5E4E437C">
                 <File Source="$(var.ServicePublishDir)\System.Net.Ping.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_Primitives_dll" Guid="11E7B863-CE08-4F48-8BD1-CE519E209AB3">
+            <Component Id="ServiceFile_System_Net_Primitives_dll" Guid="8BFF305D-2B53-478F-930E-B01A31C24C70">
                 <File Source="$(var.ServicePublishDir)\System.Net.Primitives.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_Quic_dll" Guid="74331806-E453-4959-BF28-F691D69CBA0E">
+            <Component Id="ServiceFile_System_Net_Quic_dll" Guid="8AF84821-5A46-4EFA-B38A-DBF089CE5D33">
                 <File Source="$(var.ServicePublishDir)\System.Net.Quic.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_Requests_dll" Guid="7C0001AE-804C-46CA-B04D-461E28D4E469">
+            <Component Id="ServiceFile_System_Net_Requests_dll" Guid="D192C9BD-8A47-479F-86D8-EB8BB9176404">
                 <File Source="$(var.ServicePublishDir)\System.Net.Requests.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_Security_dll" Guid="53F7D271-0D30-401E-9B83-D42320D29ED4">
+            <Component Id="ServiceFile_System_Net_Security_dll" Guid="E5E150F0-E2BC-4C40-A09B-513AC9BB6260">
                 <File Source="$(var.ServicePublishDir)\System.Net.Security.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_ServicePoint_dll" Guid="86930F15-B562-40B9-AC9E-80344B2848A7">
+            <Component Id="ServiceFile_System_Net_ServicePoint_dll" Guid="35DC8045-BFC3-48F0-8DB6-F4FCB72B3AAB">
                 <File Source="$(var.ServicePublishDir)\System.Net.ServicePoint.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_Sockets_dll" Guid="D5383375-05CE-41D8-8C19-9F89C04E0F06">
+            <Component Id="ServiceFile_System_Net_Sockets_dll" Guid="50695CED-4215-41B2-830A-D61AFAF173AD">
                 <File Source="$(var.ServicePublishDir)\System.Net.Sockets.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_WebClient_dll" Guid="E4776A40-3136-40CC-8F2C-61AAA2AFEA7E">
+            <Component Id="ServiceFile_System_Net_WebClient_dll" Guid="9899A26B-0E73-42C0-B0B2-9248FF5EE966">
                 <File Source="$(var.ServicePublishDir)\System.Net.WebClient.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_WebHeaderCollection_dll" Guid="0843FB6C-E2C1-4167-88C8-28FA0806FFF2">
+            <Component Id="ServiceFile_System_Net_WebHeaderCollection_dll" Guid="7C354EAE-A0B4-471C-8E68-88EFB032CEA6">
                 <File Source="$(var.ServicePublishDir)\System.Net.WebHeaderCollection.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_WebProxy_dll" Guid="630E2136-B560-4612-823D-A3F6CA957AA9">
+            <Component Id="ServiceFile_System_Net_WebProxy_dll" Guid="A9ABF38A-F900-4BB8-8965-02CD0A1718AF">
                 <File Source="$(var.ServicePublishDir)\System.Net.WebProxy.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_WebSockets_Client_dll" Guid="29E71EC7-FD20-4B2A-96E4-FFB4E03761BC">
+            <Component Id="ServiceFile_System_Net_WebSockets_Client_dll" Guid="08B8423E-DE60-4BB0-AB5B-9D49D9E7D0A2">
                 <File Source="$(var.ServicePublishDir)\System.Net.WebSockets.Client.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Net_WebSockets_dll" Guid="97577B4D-665A-40D4-ACEE-18EE8F17B256">
+            <Component Id="ServiceFile_System_Net_WebSockets_dll" Guid="9300F5F6-231D-4F4F-AF03-74ADD75947C8">
                 <File Source="$(var.ServicePublishDir)\System.Net.WebSockets.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Numerics_dll" Guid="FE1D6A7B-FF53-4E71-9043-EB8106E76787">
+            <Component Id="ServiceFile_System_Numerics_dll" Guid="F1954683-440A-4347-8321-B4624C657C61">
                 <File Source="$(var.ServicePublishDir)\System.Numerics.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Numerics_Vectors_dll" Guid="E2A8DCBA-5845-458E-B36F-6830095A8FE8">
+            <Component Id="ServiceFile_System_Numerics_Vectors_dll" Guid="96605890-A3B4-496E-AC2D-063DA2B60826">
                 <File Source="$(var.ServicePublishDir)\System.Numerics.Vectors.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ObjectModel_dll" Guid="B95BBA1C-E52E-4FE7-AA88-C9B4008CC775">
+            <Component Id="ServiceFile_System_ObjectModel_dll" Guid="4811786D-3CFC-4D51-B89E-7BBA040B8873">
                 <File Source="$(var.ServicePublishDir)\System.ObjectModel.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Private_CoreLib_dll" Guid="1679E475-6BD7-44D3-9EF0-88455DE27A6F">
+            <Component Id="ServiceFile_System_Private_CoreLib_dll" Guid="9B360E4C-A083-4D26-9F52-A8B046F07BE7">
                 <File Source="$(var.ServicePublishDir)\System.Private.CoreLib.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Private_DataContractSerialization_dll" Guid="6D00FCAB-53FC-4658-A0D3-41049324AD0D">
+            <Component Id="ServiceFile_System_Private_DataContractSerialization_dll" Guid="039EB1B9-1972-4CDB-BAE9-AC28689022D0">
                 <File Source="$(var.ServicePublishDir)\System.Private.DataContractSerialization.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Private_Uri_dll" Guid="3CD78AB1-2394-44E9-9F79-D775A8EA0C4D">
+            <Component Id="ServiceFile_System_Private_Uri_dll" Guid="CADBE3BF-D717-4E27-A33A-4A313DF08B1F">
                 <File Source="$(var.ServicePublishDir)\System.Private.Uri.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Private_Xml_dll" Guid="93EBDDFF-A08F-43AE-85ED-D2B5C8139DBC">
+            <Component Id="ServiceFile_System_Private_Xml_dll" Guid="2A817C18-A0F8-4356-BC7D-05C96C430869">
                 <File Source="$(var.ServicePublishDir)\System.Private.Xml.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Private_Xml_Linq_dll" Guid="2393B396-C554-48B9-95C1-2E98FA07AF92">
+            <Component Id="ServiceFile_System_Private_Xml_Linq_dll" Guid="5B029DF7-4B26-4FE4-A1B7-9856234DEC7B">
                 <File Source="$(var.ServicePublishDir)\System.Private.Xml.Linq.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Reflection_DispatchProxy_dll" Guid="F113EA28-1BC2-4CB9-AC99-4D47364CB87C">
+            <Component Id="ServiceFile_System_Reflection_DispatchProxy_dll" Guid="23EBB74D-F3D6-40A0-A72A-2A4DBFF4A841">
                 <File Source="$(var.ServicePublishDir)\System.Reflection.DispatchProxy.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Reflection_dll" Guid="DE611C9C-E380-4FCC-930D-7BF02AE2CF24">
+            <Component Id="ServiceFile_System_Reflection_dll" Guid="BFF79C5B-A1AC-4AD0-A86A-43101B6F8FFE">
                 <File Source="$(var.ServicePublishDir)\System.Reflection.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Reflection_Emit_dll" Guid="E50A43E2-9851-42DF-BECF-594CDC8A537A">
+            <Component Id="ServiceFile_System_Reflection_Emit_dll" Guid="14BAA350-6DD8-4CF1-A035-3AD92B3EAE59">
                 <File Source="$(var.ServicePublishDir)\System.Reflection.Emit.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Reflection_Emit_ILGeneration_dll" Guid="6A67B764-DD61-4019-91B7-7C44BAB8D4FF">
+            <Component Id="ServiceFile_System_Reflection_Emit_ILGeneration_dll" Guid="4640AE0F-6C2F-46FB-8E6D-2E00A1A07F38">
                 <File Source="$(var.ServicePublishDir)\System.Reflection.Emit.ILGeneration.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Reflection_Emit_Lightweight_dll" Guid="0A920627-8D5C-4E5B-9518-DEE0E766C8A5">
+            <Component Id="ServiceFile_System_Reflection_Emit_Lightweight_dll" Guid="88E40926-23F1-40F0-AB7F-EF6DAE8B1319">
                 <File Source="$(var.ServicePublishDir)\System.Reflection.Emit.Lightweight.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Reflection_Extensions_dll" Guid="D52BC41F-763F-4CCE-BD1C-6AF60060DE5D">
+            <Component Id="ServiceFile_System_Reflection_Extensions_dll" Guid="4453F2B2-905D-430A-AD59-3F8E05664CB9">
                 <File Source="$(var.ServicePublishDir)\System.Reflection.Extensions.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Reflection_Metadata_dll" Guid="5C10CC7A-6F1F-4A25-8304-23E920A8DA04">
+            <Component Id="ServiceFile_System_Reflection_Metadata_dll" Guid="4D615392-B6E2-4CA0-8DC5-68E7FB371DFB">
                 <File Source="$(var.ServicePublishDir)\System.Reflection.Metadata.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Reflection_Primitives_dll" Guid="91331D9C-7AD3-483A-BA10-ABA5ABBA6B23">
+            <Component Id="ServiceFile_System_Reflection_Primitives_dll" Guid="150FA402-8EEC-4D7A-A234-F7B29BB8A962">
                 <File Source="$(var.ServicePublishDir)\System.Reflection.Primitives.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Reflection_TypeExtensions_dll" Guid="BE99B146-CB21-4D95-9A9D-FEBADA1D0137">
+            <Component Id="ServiceFile_System_Reflection_TypeExtensions_dll" Guid="BB63D07E-F41B-4DDC-A32D-935089CE292C">
                 <File Source="$(var.ServicePublishDir)\System.Reflection.TypeExtensions.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Resources_Reader_dll" Guid="6BFE8C75-38E3-4572-85A5-1B1513D8605E">
+            <Component Id="ServiceFile_System_Resources_Reader_dll" Guid="59C78813-BA10-4E43-B5F0-04D64AB0F128">
                 <File Source="$(var.ServicePublishDir)\System.Resources.Reader.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Resources_ResourceManager_dll" Guid="214997D4-B42E-49E4-8298-84D7BBBFF8D2">
+            <Component Id="ServiceFile_System_Resources_ResourceManager_dll" Guid="351BBB2B-325F-40A8-A16E-351950B09383">
                 <File Source="$(var.ServicePublishDir)\System.Resources.ResourceManager.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Resources_Writer_dll" Guid="E1EE052B-FCB9-4501-A70C-AAF86BADC96D">
+            <Component Id="ServiceFile_System_Resources_Writer_dll" Guid="43DC7FFB-DA01-4228-A9A3-5017BBF051CC">
                 <File Source="$(var.ServicePublishDir)\System.Resources.Writer.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_CompilerServices_Unsafe_dll" Guid="A2C99AE4-0AD6-4235-857F-4257D70D3861">
+            <Component Id="ServiceFile_System_Runtime_CompilerServices_Unsafe_dll" Guid="F5E89719-8B4B-47D2-87FF-F510A3E3214B">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.CompilerServices.Unsafe.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_CompilerServices_VisualC_dll" Guid="25007C4B-F2FA-43A7-8050-6CD383E44CA6">
+            <Component Id="ServiceFile_System_Runtime_CompilerServices_VisualC_dll" Guid="7B27E422-2365-40A7-BCEC-DF239E6F9FF6">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.CompilerServices.VisualC.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_dll" Guid="2659E7A1-D9B6-48A5-A1B9-338C1F5AC0BE">
+            <Component Id="ServiceFile_System_Runtime_dll" Guid="E4FB529C-6ED5-47C4-9A2B-EFB4B4058735">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_Extensions_dll" Guid="0BB3A5C9-73BB-4D99-BF18-517FACB647EF">
+            <Component Id="ServiceFile_System_Runtime_Extensions_dll" Guid="B041B5ED-207D-4CCC-BAAC-94E3710BE5BD">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.Extensions.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_Handles_dll" Guid="3532E122-543F-4031-A84C-992E2ADD5175">
+            <Component Id="ServiceFile_System_Runtime_Handles_dll" Guid="18F03039-8439-4644-B09F-D57B3BC2BBD2">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.Handles.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_InteropServices_dll" Guid="22265FB3-CC3F-4E4E-A41B-BF57F8E56640">
+            <Component Id="ServiceFile_System_Runtime_InteropServices_dll" Guid="CAB8A668-7D93-4F23-BC26-503756B51B95">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.InteropServices.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_InteropServices_JavaScript_dll" Guid="35CF3B14-736A-4301-9431-A9A25F45B3C8">
+            <Component Id="ServiceFile_System_Runtime_InteropServices_JavaScript_dll" Guid="795E03CF-B07E-4CF2-83C5-E0C48FD4CBDD">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.InteropServices.JavaScript.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_InteropServices_RuntimeInformation_dll" Guid="516BC627-B9AE-4E4C-8ECA-E571D90AED16">
+            <Component Id="ServiceFile_System_Runtime_InteropServices_RuntimeInformation_dll" Guid="981FA5B1-B4DD-4EAA-8197-C2F39D8F65A6">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.InteropServices.RuntimeInformation.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_Intrinsics_dll" Guid="AC3CE207-063D-4607-8DCA-693C42353E95">
+            <Component Id="ServiceFile_System_Runtime_Intrinsics_dll" Guid="7D619BFF-A269-44B8-ADDB-9876B45E4D01">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.Intrinsics.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_Loader_dll" Guid="DF7FEC9F-AEB1-4B73-B982-281193AF3F42">
+            <Component Id="ServiceFile_System_Runtime_Loader_dll" Guid="16AF9750-6907-4AB7-A87D-0FD5BAD49C56">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.Loader.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_Numerics_dll" Guid="3BB75C3C-E217-4E0A-90E5-CFA2949B4B7C">
+            <Component Id="ServiceFile_System_Runtime_Numerics_dll" Guid="6F4F2BAE-DF9A-480A-B1CF-DB99850D8DAF">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.Numerics.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_Serialization_dll" Guid="A06D980E-14E3-425E-A4A3-2152AE288828">
+            <Component Id="ServiceFile_System_Runtime_Serialization_dll" Guid="A88CE885-D31A-4334-AE8E-5C639CDC9AE0">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.Serialization.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_Serialization_Formatters_dll" Guid="0B131830-CC1C-43BA-98E7-03556F087667">
+            <Component Id="ServiceFile_System_Runtime_Serialization_Formatters_dll" Guid="2246BA86-A09A-4265-B5C8-A8D5945BD41B">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.Serialization.Formatters.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_Serialization_Json_dll" Guid="928ADB11-C104-4EA0-9610-52EFEC23E0DF">
+            <Component Id="ServiceFile_System_Runtime_Serialization_Json_dll" Guid="B7A6F59E-BDED-4C1C-A132-B14CCCB345D4">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.Serialization.Json.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_Serialization_Primitives_dll" Guid="4B32C519-48B7-402C-8BF6-F2C659C0F186">
+            <Component Id="ServiceFile_System_Runtime_Serialization_Primitives_dll" Guid="75260E09-15B9-43B1-AD31-7D356E40C84E">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.Serialization.Primitives.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Runtime_Serialization_Xml_dll" Guid="B11E416C-06BA-4BFA-9514-5CFF2FF439A3">
+            <Component Id="ServiceFile_System_Runtime_Serialization_Xml_dll" Guid="920B72AF-266C-4240-8381-880356C5911F">
                 <File Source="$(var.ServicePublishDir)\System.Runtime.Serialization.Xml.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_AccessControl_dll" Guid="9AB892AB-E49E-49B1-9CC3-A770A6C9AD0D">
+            <Component Id="ServiceFile_System_Security_AccessControl_dll" Guid="72343206-9157-471B-B9BD-4DFF97F589E3">
                 <File Source="$(var.ServicePublishDir)\System.Security.AccessControl.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Claims_dll" Guid="608A5C33-6F68-4BB8-AEB1-9F08A67D0D8F">
+            <Component Id="ServiceFile_System_Security_Claims_dll" Guid="E8E924B4-310E-4BB7-8BAE-C7F2873EB52E">
                 <File Source="$(var.ServicePublishDir)\System.Security.Claims.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Cryptography_Algorithms_dll" Guid="44EB0E24-D364-4E3B-BB20-F75652809829">
+            <Component Id="ServiceFile_System_Security_Cryptography_Algorithms_dll" Guid="C3668DB5-F71C-4A6E-A604-3D98F4150F5C">
                 <File Source="$(var.ServicePublishDir)\System.Security.Cryptography.Algorithms.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Cryptography_Cng_dll" Guid="30B4A224-F605-4BE8-A9B9-B16150D34E22">
+            <Component Id="ServiceFile_System_Security_Cryptography_Cng_dll" Guid="C810DF57-398D-408C-8953-6DE57BD6CC6E">
                 <File Source="$(var.ServicePublishDir)\System.Security.Cryptography.Cng.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Cryptography_Csp_dll" Guid="097A3821-D0ED-441B-9D73-8C9C451E9F4E">
+            <Component Id="ServiceFile_System_Security_Cryptography_Csp_dll" Guid="72C56816-7B06-4475-87F0-C35E79E91E64">
                 <File Source="$(var.ServicePublishDir)\System.Security.Cryptography.Csp.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Cryptography_dll" Guid="D4160F47-2EAA-4607-92B3-0D746009BA13">
+            <Component Id="ServiceFile_System_Security_Cryptography_dll" Guid="6A024EDC-38C5-4E1D-9994-90FC35DD446B">
                 <File Source="$(var.ServicePublishDir)\System.Security.Cryptography.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Cryptography_Encoding_dll" Guid="B00EBECA-F187-4EE4-9302-9D8FC5B6F44A">
+            <Component Id="ServiceFile_System_Security_Cryptography_Encoding_dll" Guid="81EA2034-A28E-47E2-A197-46E06360BD4E">
                 <File Source="$(var.ServicePublishDir)\System.Security.Cryptography.Encoding.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Cryptography_OpenSsl_dll" Guid="64B5511D-C9B8-4B92-A50D-F612722EE3CE">
+            <Component Id="ServiceFile_System_Security_Cryptography_OpenSsl_dll" Guid="A12104A2-82F1-4508-AB93-BFC9EEC69F48">
                 <File Source="$(var.ServicePublishDir)\System.Security.Cryptography.OpenSsl.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Cryptography_Primitives_dll" Guid="C819769E-7441-456F-B3B6-2F19E41FA064">
+            <Component Id="ServiceFile_System_Security_Cryptography_Primitives_dll" Guid="1487CD00-2425-41AB-9F58-BA636DAEF80E">
                 <File Source="$(var.ServicePublishDir)\System.Security.Cryptography.Primitives.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Cryptography_X509Certificates_dll" Guid="6289C417-96B0-4DA5-B3D7-D177191AEE09">
+            <Component Id="ServiceFile_System_Security_Cryptography_X509Certificates_dll" Guid="BCC82AC1-DFC4-41A3-9473-D9C05251D9C2">
                 <File Source="$(var.ServicePublishDir)\System.Security.Cryptography.X509Certificates.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_dll" Guid="619DF3B4-E2C9-4636-8F06-9A66DD7D5D25">
+            <Component Id="ServiceFile_System_Security_dll" Guid="31907EC1-C548-4CFA-B82B-9B540DCFA261">
                 <File Source="$(var.ServicePublishDir)\System.Security.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Principal_dll" Guid="D800B212-E54D-4DA7-BECD-84062598FE81">
+            <Component Id="ServiceFile_System_Security_Principal_dll" Guid="6ED5C1CC-A2C2-4C95-920F-4B95902D6399">
                 <File Source="$(var.ServicePublishDir)\System.Security.Principal.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_Principal_Windows_dll" Guid="1F77DE6D-201B-4DC1-9F6B-1FD37C73C30F">
+            <Component Id="ServiceFile_System_Security_Principal_Windows_dll" Guid="929811D7-9D3A-47EF-95EB-10F91ECD7C60">
                 <File Source="$(var.ServicePublishDir)\System.Security.Principal.Windows.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Security_SecureString_dll" Guid="11DF2657-BBA9-41E6-8E7A-11EB37AFF69C">
+            <Component Id="ServiceFile_System_Security_SecureString_dll" Guid="59749789-E557-4A46-9C9E-99E42C9D75EA">
                 <File Source="$(var.ServicePublishDir)\System.Security.SecureString.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ServiceModel_Web_dll" Guid="7928A2DD-C475-480E-B7D6-D33072344632">
+            <Component Id="ServiceFile_System_ServiceModel_Web_dll" Guid="1C38300C-FF5B-4D94-8B98-FD742E7F1079">
                 <File Source="$(var.ServicePublishDir)\System.ServiceModel.Web.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ServiceProcess_dll" Guid="58513806-9600-412C-87EF-C11B1FF3A482">
+            <Component Id="ServiceFile_System_ServiceProcess_dll" Guid="BC9BF326-BAE4-45DB-8466-EE5D54F3F187">
                 <File Source="$(var.ServicePublishDir)\System.ServiceProcess.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ServiceProcess_ServiceController_dll" Guid="571B7524-B3EF-44AF-8EEA-20A672B309BA">
+            <Component Id="ServiceFile_System_ServiceProcess_ServiceController_dll" Guid="ED3BC0B7-CBEF-46B6-8F7C-8F8166C83D1E">
                 <File Source="$(var.ServicePublishDir)\System.ServiceProcess.ServiceController.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Text_Encoding_CodePages_dll" Guid="736C5CF0-30CE-4C1E-BE5F-B3BB6201EDD0">
+            <Component Id="ServiceFile_System_Text_Encoding_CodePages_dll" Guid="EB8A39E8-8B46-49BE-8437-2426C8BE5EF9">
                 <File Source="$(var.ServicePublishDir)\System.Text.Encoding.CodePages.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Text_Encoding_dll" Guid="CDD27AD8-CB32-4FDB-BEAB-1B4D4BE8374B">
+            <Component Id="ServiceFile_System_Text_Encoding_dll" Guid="617ACEC8-89DC-43E1-AA7E-79C9D4ADDFBD">
                 <File Source="$(var.ServicePublishDir)\System.Text.Encoding.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Text_Encoding_Extensions_dll" Guid="776B5B6C-BC66-480C-9673-8A29B2AF39DE">
+            <Component Id="ServiceFile_System_Text_Encoding_Extensions_dll" Guid="70B56CB9-0764-4F95-B4B1-314F23333376">
                 <File Source="$(var.ServicePublishDir)\System.Text.Encoding.Extensions.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Text_Encodings_Web_dll" Guid="A00529A8-C242-4098-8800-63EECA41D13F">
+            <Component Id="ServiceFile_System_Text_Encodings_Web_dll" Guid="99F6E3B5-6D3A-45F5-BCAA-69CE38D209A4">
                 <File Source="$(var.ServicePublishDir)\System.Text.Encodings.Web.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Text_Json_dll" Guid="13C593B4-DCF9-44B7-82E0-8EDD8B767648">
+            <Component Id="ServiceFile_System_Text_Json_dll" Guid="4EFBF719-DB04-4AB8-A677-7B622EEB73F1">
                 <File Source="$(var.ServicePublishDir)\System.Text.Json.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Text_RegularExpressions_dll" Guid="AD448508-E2F6-44CF-90B3-42FBC2EB037F">
+            <Component Id="ServiceFile_System_Text_RegularExpressions_dll" Guid="55855BDD-9A8A-4193-A07F-F6A95E8CF5A5">
                 <File Source="$(var.ServicePublishDir)\System.Text.RegularExpressions.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Threading_Channels_dll" Guid="8229F3A8-0FC6-4856-BADD-3D1B03736238">
+            <Component Id="ServiceFile_System_Threading_Channels_dll" Guid="DF8BF8AE-BE11-4ACB-AEB3-58470D051353">
                 <File Source="$(var.ServicePublishDir)\System.Threading.Channels.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Threading_dll" Guid="08D1DBF1-A04E-4718-9819-F4A831E05357">
+            <Component Id="ServiceFile_System_Threading_dll" Guid="A158617F-B430-42D9-B3C4-6402645102BE">
                 <File Source="$(var.ServicePublishDir)\System.Threading.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Threading_Overlapped_dll" Guid="1F268DD0-AB06-4BE5-B75B-AE70910C5106">
+            <Component Id="ServiceFile_System_Threading_Overlapped_dll" Guid="11E67860-04F0-46CE-A4C4-70127DAEAB8A">
                 <File Source="$(var.ServicePublishDir)\System.Threading.Overlapped.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Threading_Tasks_Dataflow_dll" Guid="0A4204D6-6BFA-4896-AE69-577C12F23570">
+            <Component Id="ServiceFile_System_Threading_Tasks_Dataflow_dll" Guid="44889AE2-5B77-41DE-8D47-000C96CF0150">
                 <File Source="$(var.ServicePublishDir)\System.Threading.Tasks.Dataflow.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Threading_Tasks_dll" Guid="EDAD5787-BE28-4908-9B14-20E56414D76A">
+            <Component Id="ServiceFile_System_Threading_Tasks_dll" Guid="666896C8-655D-410A-9073-B35F4CCF6A48">
                 <File Source="$(var.ServicePublishDir)\System.Threading.Tasks.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Threading_Tasks_Extensions_dll" Guid="6C7EC6D2-81CB-4AB1-983B-6BB82EE0E74D">
+            <Component Id="ServiceFile_System_Threading_Tasks_Extensions_dll" Guid="D0044BEA-C44F-4DB2-A321-6F90486107D4">
                 <File Source="$(var.ServicePublishDir)\System.Threading.Tasks.Extensions.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Threading_Tasks_Parallel_dll" Guid="20471E07-C036-4CB4-A071-C264EC1151DF">
+            <Component Id="ServiceFile_System_Threading_Tasks_Parallel_dll" Guid="F64E24D2-81D3-4DD1-921F-3A7096E92AC7">
                 <File Source="$(var.ServicePublishDir)\System.Threading.Tasks.Parallel.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Threading_Thread_dll" Guid="87951558-7767-4DCC-9981-AFBFF6849E2D">
+            <Component Id="ServiceFile_System_Threading_Thread_dll" Guid="0EE5FD6A-B833-4A51-BD92-D4C9B07057A0">
                 <File Source="$(var.ServicePublishDir)\System.Threading.Thread.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Threading_ThreadPool_dll" Guid="BE012EE0-46E3-47F5-B6B1-E986A6D80096">
+            <Component Id="ServiceFile_System_Threading_ThreadPool_dll" Guid="EED6B902-4084-4444-8D95-822B27468141">
                 <File Source="$(var.ServicePublishDir)\System.Threading.ThreadPool.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Threading_Timer_dll" Guid="19F9CB81-BF0B-4666-B928-63BDAD1B01F6">
+            <Component Id="ServiceFile_System_Threading_Timer_dll" Guid="01F83816-CC91-4F63-8219-E74DB7EEE61C">
                 <File Source="$(var.ServicePublishDir)\System.Threading.Timer.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Transactions_dll" Guid="6E13C66B-E10B-4C34-B91A-5AA30089E6D0">
+            <Component Id="ServiceFile_System_Transactions_dll" Guid="6D74EADD-AFA1-49D9-89A8-015B4FF34ED5">
                 <File Source="$(var.ServicePublishDir)\System.Transactions.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Transactions_Local_dll" Guid="4976254A-122C-4E7A-95BB-8EF7D13A7DD4">
+            <Component Id="ServiceFile_System_Transactions_Local_dll" Guid="68D293C6-3481-4BA1-AB44-25D77BD19B75">
                 <File Source="$(var.ServicePublishDir)\System.Transactions.Local.dll" />
             </Component>
-            <Component Id="ServiceFile_System_ValueTuple_dll" Guid="57F57D30-68EE-4EA7-8FDF-A295019CB7E1">
+            <Component Id="ServiceFile_System_ValueTuple_dll" Guid="36E6EC70-C6E4-4FDA-BC68-A4B394FB615D">
                 <File Source="$(var.ServicePublishDir)\System.ValueTuple.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Web_dll" Guid="3A23323C-C79D-4FB5-970F-E89CCC0986CD">
+            <Component Id="ServiceFile_System_Web_dll" Guid="FC175E5D-EADF-4809-8D0D-F476CA3CCF55">
                 <File Source="$(var.ServicePublishDir)\System.Web.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Web_HttpUtility_dll" Guid="1FFA467B-F5CD-4787-92B9-8E1DDB6AB327">
+            <Component Id="ServiceFile_System_Web_HttpUtility_dll" Guid="2A0C841B-33B3-4545-8303-538148B35762">
                 <File Source="$(var.ServicePublishDir)\System.Web.HttpUtility.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Windows_dll" Guid="CE8A2EB2-4EB5-4148-A0D2-79F45D49CA14">
+            <Component Id="ServiceFile_System_Windows_dll" Guid="D0D38559-CE36-4108-9F07-BFA2676DC164">
                 <File Source="$(var.ServicePublishDir)\System.Windows.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Xml_dll" Guid="7C2E3683-DF72-47D7-B1AE-4E7A09470742">
+            <Component Id="ServiceFile_System_Xml_dll" Guid="BEB50E10-0A89-4B1F-BD3E-E3CD36176DE2">
                 <File Source="$(var.ServicePublishDir)\System.Xml.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Xml_Linq_dll" Guid="73D5127C-1F35-45B3-8C41-6B536637D6EA">
+            <Component Id="ServiceFile_System_Xml_Linq_dll" Guid="68DC7116-DD2C-4145-8287-B2B075A9C7E2">
                 <File Source="$(var.ServicePublishDir)\System.Xml.Linq.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Xml_ReaderWriter_dll" Guid="FA7D8EA2-6083-45A0-8E92-37E296CFF831">
+            <Component Id="ServiceFile_System_Xml_ReaderWriter_dll" Guid="440A5ABD-B93F-44F9-93BB-F2DA35074683">
                 <File Source="$(var.ServicePublishDir)\System.Xml.ReaderWriter.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Xml_Serialization_dll" Guid="B9CEE472-0662-4496-AF02-6FF737932701">
+            <Component Id="ServiceFile_System_Xml_Serialization_dll" Guid="22F9A2A4-003C-4393-B790-9D3314974BFF">
                 <File Source="$(var.ServicePublishDir)\System.Xml.Serialization.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Xml_XDocument_dll" Guid="C94EA1CF-45CA-4A20-A2AF-9C1BC3306392">
+            <Component Id="ServiceFile_System_Xml_XDocument_dll" Guid="3C7CA2CF-EAAA-4082-8A77-2F5D88FB0494">
                 <File Source="$(var.ServicePublishDir)\System.Xml.XDocument.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Xml_XmlDocument_dll" Guid="BA4A712C-92A2-44B6-A37E-0475A27F7D3C">
+            <Component Id="ServiceFile_System_Xml_XmlDocument_dll" Guid="C2A0FDB3-EF74-486E-9A4F-B17D9318C70F">
                 <File Source="$(var.ServicePublishDir)\System.Xml.XmlDocument.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Xml_XmlSerializer_dll" Guid="18E26CDE-8C21-42A7-BBA6-F52EDE23D534">
+            <Component Id="ServiceFile_System_Xml_XmlSerializer_dll" Guid="536FD012-3C8C-495D-969D-58AFBFACFAED">
                 <File Source="$(var.ServicePublishDir)\System.Xml.XmlSerializer.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Xml_XPath_dll" Guid="C9BE2544-1593-49BE-82B4-864DC167C7C2">
+            <Component Id="ServiceFile_System_Xml_XPath_dll" Guid="5A1F30EA-EC52-4991-9E39-CEBC752AE844">
                 <File Source="$(var.ServicePublishDir)\System.Xml.XPath.dll" />
             </Component>
-            <Component Id="ServiceFile_System_Xml_XPath_XDocument_dll" Guid="C951D74F-857F-4749-9DC6-24EF507D93FA">
+            <Component Id="ServiceFile_System_Xml_XPath_XDocument_dll" Guid="ED479C8A-0387-4E43-8FA9-0BC2D8862037">
                 <File Source="$(var.ServicePublishDir)\System.Xml.XPath.XDocument.dll" />
             </Component>
-            <Component Id="ServiceFile_WindowsBase_dll" Guid="9245E9BD-5D63-40B5-8881-68475064DF25">
+            <Component Id="ServiceFile_WindowsBase_dll" Guid="1AD8A5F7-1599-46EC-B59E-7F23CEBE24B7">
                 <File Source="$(var.ServicePublishDir)\WindowsBase.dll" />
             </Component>
         </ComponentGroup>
@@ -711,154 +711,154 @@
     <!-- ===================================================================== -->
     <Fragment>
         <ComponentGroup Id="ConfigRuntimeComponents" Directory="ConfigFolder">
-            <Component Id="ConfigFile_Accessibility_dll" Guid="7F8A74B2-B85C-4F59-AEAD-EE668E608026">
+            <Component Id="ConfigFile_Accessibility_dll" Guid="0E626DEB-EB6E-43F6-BE7C-393D02C5ED61">
                 <File Source="$(var.ConfigPublishDir)\Accessibility.dll" />
             </Component>
-            <Component Id="ConfigFile_clretwrc_dll" Guid="8252FEE7-B8A2-495A-B4D7-A92E00BF31E4">
+            <Component Id="ConfigFile_clretwrc_dll" Guid="D362A839-4C03-4013-9B4B-4F52D1421805">
                 <File Source="$(var.ConfigPublishDir)\clretwrc.dll" />
             </Component>
-            <Component Id="ConfigFile_clrgc_dll" Guid="127D39E4-6D60-4519-BC49-206B10113515">
+            <Component Id="ConfigFile_clrgc_dll" Guid="B70312D1-6A2D-4FF7-A6F5-15B75B02876C">
                 <File Source="$(var.ConfigPublishDir)\clrgc.dll" />
             </Component>
-            <Component Id="ConfigFile_clrjit_dll" Guid="16BA50F2-2F82-4BF6-8286-EFE409C63DF7">
+            <Component Id="ConfigFile_clrjit_dll" Guid="174D6A82-A209-4F7A-B5A0-13018378545E">
                 <File Source="$(var.ConfigPublishDir)\clrjit.dll" />
             </Component>
-            <Component Id="ConfigFile_coreclr_dll" Guid="2D58E6A1-5508-4434-A36D-BD13B89E4593">
+            <Component Id="ConfigFile_coreclr_dll" Guid="3548D63B-2FAF-449C-990C-31E60753F9FF">
                 <File Source="$(var.ConfigPublishDir)\coreclr.dll" />
             </Component>
-            <Component Id="ConfigFile_createdump_exe" Guid="51D701C4-BA53-421E-8906-02AFFC0CF5D5">
+            <Component Id="ConfigFile_createdump_exe" Guid="ABB4DE93-B886-4AFD-8C43-E7BC81CA5CB9">
                 <File Source="$(var.ConfigPublishDir)\createdump.exe" />
             </Component>
-            <Component Id="ConfigFile_D3DCompiler_47_cor3_dll" Guid="FCB9550D-F435-4296-85D9-7D788D8ACBC5">
+            <Component Id="ConfigFile_D3DCompiler_47_cor3_dll" Guid="3EF1B481-66DE-4DBA-9BB9-DD8659F07217">
                 <File Source="$(var.ConfigPublishDir)\D3DCompiler_47_cor3.dll" />
             </Component>
-            <Component Id="ConfigFile_DirectWriteForwarder_dll" Guid="84861B22-3548-40D5-9FA7-86336BF861E9">
+            <Component Id="ConfigFile_DirectWriteForwarder_dll" Guid="17ECEA61-8F72-4661-8E39-83D085EAD626">
                 <File Source="$(var.ConfigPublishDir)\DirectWriteForwarder.dll" />
             </Component>
-            <Component Id="ConfigFile_e_sqlite3_dll" Guid="7C7BC3E1-7719-4523-959B-F4989D437B1A">
+            <Component Id="ConfigFile_e_sqlite3_dll" Guid="BF78E788-CA09-420D-B7EA-43E3B8AF51C2">
                 <File Source="$(var.ConfigPublishDir)\e_sqlite3.dll" />
             </Component>
-            <Component Id="ConfigFile_hostfxr_dll" Guid="1CA2BEC5-E99E-4F1D-B70D-A05FD0FB1CB8">
+            <Component Id="ConfigFile_hostfxr_dll" Guid="E1E92075-6529-4604-AC9A-2EE964D0B175">
                 <File Source="$(var.ConfigPublishDir)\hostfxr.dll" />
             </Component>
-            <Component Id="ConfigFile_hostpolicy_dll" Guid="A2FCC989-6890-44CC-A4CE-07DB82459995">
+            <Component Id="ConfigFile_hostpolicy_dll" Guid="63BC1063-9501-4E63-9CA2-8278B04E4B4F">
                 <File Source="$(var.ConfigPublishDir)\hostpolicy.dll" />
             </Component>
-            <Component Id="ConfigFile_Microsoft_CSharp_dll" Guid="5129DD77-16B9-4879-9B4B-36A1A664908A">
+            <Component Id="ConfigFile_Microsoft_CSharp_dll" Guid="437BB5B7-8AC1-48EB-A4BD-2895127E51D1">
                 <File Source="$(var.ConfigPublishDir)\Microsoft.CSharp.dll" />
             </Component>
-            <Component Id="ConfigFile_Microsoft_Data_Sqlite_dll" Guid="41CD7B1C-418A-45C8-9B41-115274D64F52">
+            <Component Id="ConfigFile_Microsoft_Data_Sqlite_dll" Guid="B1464DDA-EA90-4BEC-BC3A-FB30B23647FB">
                 <File Source="$(var.ConfigPublishDir)\Microsoft.Data.Sqlite.dll" />
             </Component>
-            <Component Id="ConfigFile_Microsoft_DiaSymReader_Native_amd64_dll" Guid="608C65DC-E603-4283-AE64-BA264316E907">
+            <Component Id="ConfigFile_Microsoft_DiaSymReader_Native_amd64_dll" Guid="53F2DCD5-DA16-453E-BE88-1D63885E3DB4">
                 <File Source="$(var.ConfigPublishDir)\Microsoft.DiaSymReader.Native.amd64.dll" />
             </Component>
-            <Component Id="ConfigFile_Microsoft_VisualBasic_Core_dll" Guid="7D50E6CC-E1C3-4EE3-95FE-8738C92AF206">
+            <Component Id="ConfigFile_Microsoft_VisualBasic_Core_dll" Guid="5FD88244-53EB-489F-A172-58142E8D32A5">
                 <File Source="$(var.ConfigPublishDir)\Microsoft.VisualBasic.Core.dll" />
             </Component>
-            <Component Id="ConfigFile_Microsoft_VisualBasic_dll" Guid="8A8A30D4-B1E2-442D-B1B4-C415B225C9F5">
+            <Component Id="ConfigFile_Microsoft_VisualBasic_dll" Guid="0C905A05-367B-4421-8F77-BDBEB17149AD">
                 <File Source="$(var.ConfigPublishDir)\Microsoft.VisualBasic.dll" />
             </Component>
-            <Component Id="ConfigFile_Microsoft_VisualBasic_Forms_dll" Guid="6497848E-F9D2-4776-8061-D40D90621F4D">
+            <Component Id="ConfigFile_Microsoft_VisualBasic_Forms_dll" Guid="5C7F2A3C-1E53-42E7-86F7-8B42505BD28E">
                 <File Source="$(var.ConfigPublishDir)\Microsoft.VisualBasic.Forms.dll" />
             </Component>
-            <Component Id="ConfigFile_Microsoft_Win32_Primitives_dll" Guid="2815CD28-9D2A-4448-8898-6B503A865007">
+            <Component Id="ConfigFile_Microsoft_Win32_Primitives_dll" Guid="2DFF8224-4AC9-4261-8C00-F214EB8C3757">
                 <File Source="$(var.ConfigPublishDir)\Microsoft.Win32.Primitives.dll" />
             </Component>
-            <Component Id="ConfigFile_Microsoft_Win32_Registry_AccessControl_dll" Guid="25B5EEE4-1EF7-42A5-928C-2C553D2C7E13">
+            <Component Id="ConfigFile_Microsoft_Win32_Registry_AccessControl_dll" Guid="96E776E1-F3CA-4DCC-A5C7-14FD89DCE614">
                 <File Source="$(var.ConfigPublishDir)\Microsoft.Win32.Registry.AccessControl.dll" />
             </Component>
-            <Component Id="ConfigFile_Microsoft_Win32_Registry_dll" Guid="B737EE4B-0352-4F44-9180-66F7DF94D084">
+            <Component Id="ConfigFile_Microsoft_Win32_Registry_dll" Guid="B5099496-C174-4B9F-A22A-39433CC09EBA">
                 <File Source="$(var.ConfigPublishDir)\Microsoft.Win32.Registry.dll" />
             </Component>
-            <Component Id="ConfigFile_Microsoft_Win32_SystemEvents_dll" Guid="4DE62253-3D42-48A6-AEB2-C823E66A88B5">
+            <Component Id="ConfigFile_Microsoft_Win32_SystemEvents_dll" Guid="10D740AF-098C-440E-A2DA-C0623FF1389D">
                 <File Source="$(var.ConfigPublishDir)\Microsoft.Win32.SystemEvents.dll" />
             </Component>
-            <Component Id="ConfigFile_mscordaccore_dll" Guid="4DA80F82-7245-4F38-84A9-77DED28E3196">
+            <Component Id="ConfigFile_mscordaccore_dll" Guid="30A29B6C-06CE-4721-9388-6DDB5573EDF5">
                 <File Source="$(var.ConfigPublishDir)\mscordaccore.dll" />
             </Component>
-            <Component Id="ConfigFile_mscordaccore_amd64_amd64_8_0_2325_60607_dll" Guid="E2167BF2-DF12-45E1-A3D8-E40A62050522">
+            <Component Id="ConfigFile_mscordaccore_amd64_amd64_8_0_2325_60607_dll" Guid="0F781F22-CC0A-4C15-897A-020C582F86CD">
                 <File Source="$(var.ConfigPublishDir)\mscordaccore_amd64_amd64_8.0.2325.60607.dll" />
             </Component>
-            <Component Id="ConfigFile_mscordbi_dll" Guid="9835982E-D79C-4D22-9472-FE75899F3AFF">
+            <Component Id="ConfigFile_mscordbi_dll" Guid="BF53368F-2F4F-4219-86F9-545A4F7E99C2">
                 <File Source="$(var.ConfigPublishDir)\mscordbi.dll" />
             </Component>
-            <Component Id="ConfigFile_mscorlib_dll" Guid="E2F1CEE4-A10C-4CA5-9837-50FB65F9A2C6">
+            <Component Id="ConfigFile_mscorlib_dll" Guid="D4F2A40C-E2BF-490D-AD9D-4F708B3399C1">
                 <File Source="$(var.ConfigPublishDir)\mscorlib.dll" />
             </Component>
-            <Component Id="ConfigFile_mscorrc_dll" Guid="C566AC4D-2AC1-4A67-94CD-D32F1DA6C271">
+            <Component Id="ConfigFile_mscorrc_dll" Guid="C79BDBF4-C8C8-4B6D-B455-CB3C4BBDAD41">
                 <File Source="$(var.ConfigPublishDir)\mscorrc.dll" />
             </Component>
-            <Component Id="ConfigFile_msquic_dll" Guid="C395FD77-A812-462D-ABEA-55F290DD926F">
+            <Component Id="ConfigFile_msquic_dll" Guid="992300B9-7054-4DF4-B0B8-92243E4D3F32">
                 <File Source="$(var.ConfigPublishDir)\msquic.dll" />
             </Component>
-            <Component Id="ConfigFile_netstandard_dll" Guid="912357C3-E79E-483E-BC2F-08B32CBC82E1">
+            <Component Id="ConfigFile_netstandard_dll" Guid="F6BBABF8-EE39-47A3-97C6-EEDDCFF5B19A">
                 <File Source="$(var.ConfigPublishDir)\netstandard.dll" />
             </Component>
-            <Component Id="ConfigFile_PenImc_cor3_dll" Guid="660F0D3C-DFC9-4B07-AE7F-FD026640171F">
+            <Component Id="ConfigFile_PenImc_cor3_dll" Guid="A10C33FC-6444-450A-81C8-15A300945D8F">
                 <File Source="$(var.ConfigPublishDir)\PenImc_cor3.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationCore_dll" Guid="4AC83514-4F10-4D3C-A2C3-5BF353254744">
+            <Component Id="ConfigFile_PresentationCore_dll" Guid="85674905-CCA5-4F5D-B68A-AE6E46648094">
                 <File Source="$(var.ConfigPublishDir)\PresentationCore.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_SystemCore_dll" Guid="8078243F-EFF0-4CEA-8BE5-F98BC732A768">
+            <Component Id="ConfigFile_PresentationFramework_SystemCore_dll" Guid="CF22722F-0D2F-406E-AACE-1618A470D1C1">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework-SystemCore.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_SystemData_dll" Guid="D1752435-2030-4A2C-950F-031C754E93A3">
+            <Component Id="ConfigFile_PresentationFramework_SystemData_dll" Guid="6374CDD2-1255-426C-B6BF-CF8DA27E0812">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework-SystemData.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_SystemDrawing_dll" Guid="61BD56E3-C34F-47FF-AB95-47AC905CAA8C">
+            <Component Id="ConfigFile_PresentationFramework_SystemDrawing_dll" Guid="3DCB4B28-F2A3-43E4-B9B6-B93799AEBADB">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework-SystemDrawing.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_SystemXml_dll" Guid="69863A79-9C4D-4C75-8698-AB5A3CFCD553">
+            <Component Id="ConfigFile_PresentationFramework_SystemXml_dll" Guid="D5DCA3D9-062C-4CC0-BA14-FC701A5A172C">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework-SystemXml.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_SystemXmlLinq_dll" Guid="E3ABCFD0-BC61-4811-BFFF-258AC772AE70">
+            <Component Id="ConfigFile_PresentationFramework_SystemXmlLinq_dll" Guid="4577E202-C862-451E-B1D2-4740F0A5E810">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework-SystemXmlLinq.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_Aero_dll" Guid="88CB11EF-B5CA-4F51-BB27-59D2DFAF6861">
+            <Component Id="ConfigFile_PresentationFramework_Aero_dll" Guid="CFC65A1D-5260-4078-B79C-58F1E6D762C4">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework.Aero.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_Aero2_dll" Guid="DFF94ADF-D59B-4EAE-8B13-D8FB00987806">
+            <Component Id="ConfigFile_PresentationFramework_Aero2_dll" Guid="1DE99696-2B52-442F-88DC-CD5F757606E4">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework.Aero2.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_AeroLite_dll" Guid="4FB73DBF-0913-44B8-8BB4-68B5CAE4C9D4">
+            <Component Id="ConfigFile_PresentationFramework_AeroLite_dll" Guid="80EACBE4-E9A1-45F6-BDC2-739114263676">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework.AeroLite.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_Classic_dll" Guid="39D6E1B4-7945-4A5B-A12B-39C5924F6BE6">
+            <Component Id="ConfigFile_PresentationFramework_Classic_dll" Guid="7639729F-7656-476D-8187-AF43A39CDA4A">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework.Classic.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_dll" Guid="54C413F4-24CE-4D67-88F7-6E389202C5D3">
+            <Component Id="ConfigFile_PresentationFramework_dll" Guid="F9FCA3FF-9D74-4988-A9CC-4D9225DF2176">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_Luna_dll" Guid="0C2F7813-D518-4ACC-B641-A3A49F7C7F4F">
+            <Component Id="ConfigFile_PresentationFramework_Luna_dll" Guid="E15ABE2E-FBB7-43CD-8845-2B5DAEC1D792">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework.Luna.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationFramework_Royale_dll" Guid="97D0E337-1CAE-4119-A193-6FE722935207">
+            <Component Id="ConfigFile_PresentationFramework_Royale_dll" Guid="44A38DDD-133D-4E83-8C92-4ED35C764459">
                 <File Source="$(var.ConfigPublishDir)\PresentationFramework.Royale.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationNative_cor3_dll" Guid="00C75BAC-6A15-49D3-97C2-44A0BB2F21FE">
+            <Component Id="ConfigFile_PresentationNative_cor3_dll" Guid="FD25E35E-5533-4BF4-96DD-87C2D28CA2A3">
                 <File Source="$(var.ConfigPublishDir)\PresentationNative_cor3.dll" />
             </Component>
-            <Component Id="ConfigFile_PresentationUI_dll" Guid="4227BE7B-51FE-4E1E-A9F1-11E83B95D5EF">
+            <Component Id="ConfigFile_PresentationUI_dll" Guid="0F7E125F-5172-45FD-ABC5-595B206D748A">
                 <File Source="$(var.ConfigPublishDir)\PresentationUI.dll" />
             </Component>
-            <Component Id="ConfigFile_ReachFramework_dll" Guid="8227C7B7-EA82-4F89-8936-B60F757A3678">
+            <Component Id="ConfigFile_ReachFramework_dll" Guid="679588E9-B1ED-4167-911F-7CBC5CC135A3">
                 <File Source="$(var.ConfigPublishDir)\ReachFramework.dll" />
             </Component>
-            <Component Id="ConfigFile_ScaleStreamer_Common_dll" Guid="D5984C92-612E-4981-924F-CBA6F752A917">
+            <Component Id="ConfigFile_ScaleStreamer_Common_dll" Guid="B089CE27-BABA-48CA-8271-4BD0B761DC25">
                 <File Source="$(var.ConfigPublishDir)\ScaleStreamer.Common.dll" />
             </Component>
-            <Component Id="ConfigFile_ScaleStreamer_Common_pdb" Guid="344A078C-78BA-48EF-971B-882C5E483F89">
+            <Component Id="ConfigFile_ScaleStreamer_Common_pdb" Guid="AA734CE1-24D3-471B-BC89-B3774305846F">
                 <File Source="$(var.ConfigPublishDir)\ScaleStreamer.Common.pdb" />
             </Component>
-            <Component Id="ConfigFile_ScaleStreamer_Config_deps_json" Guid="29078BBB-836D-4488-8D0E-40C6CA2806E0">
+            <Component Id="ConfigFile_ScaleStreamer_Config_deps_json" Guid="6B94B513-EA58-4176-A0AE-88FB42A03520">
                 <File Source="$(var.ConfigPublishDir)\ScaleStreamer.Config.deps.json" />
             </Component>
-            <Component Id="ConfigFile_ScaleStreamer_Config_dll" Guid="48C3B94B-2967-4951-A5E7-E9F93B42E511">
+            <Component Id="ConfigFile_ScaleStreamer_Config_dll" Guid="0E46B425-75B6-4F73-B950-4271A330A7FD">
                 <File Source="$(var.ConfigPublishDir)\ScaleStreamer.Config.dll" />
             </Component>
-            <Component Id="ConfigFile_ScaleStreamer_Config_exe" Guid="6FBB2650-494B-47C9-807B-FF2296B15098">
+            <Component Id="ConfigFile_ScaleStreamer_Config_exe" Guid="CD89804D-D784-4A06-9CFF-17D2C3E455CD">
                 <File Id="ConfigExe" Source="$(var.ConfigPublishDir)\ScaleStreamer.Config.exe">
                     <Shortcut Id="DesktopShortcut"
                               Directory="DesktopFolder"
@@ -868,616 +868,616 @@
                               Advertise="yes" />
                 </File>
             </Component>
-            <Component Id="ConfigFile_ScaleStreamer_Config_pdb" Guid="D7639F30-AFB6-45E5-BD2B-A813CA58A92F">
+            <Component Id="ConfigFile_ScaleStreamer_Config_pdb" Guid="7AA73B1E-3D48-40CD-A887-454BECD64356">
                 <File Source="$(var.ConfigPublishDir)\ScaleStreamer.Config.pdb" />
             </Component>
-            <Component Id="ConfigFile_ScaleStreamer_Config_runtimeconfig_json" Guid="A84CFC4F-EAD4-4F9A-B032-77C7B862F0A8">
+            <Component Id="ConfigFile_ScaleStreamer_Config_runtimeconfig_json" Guid="EEA247FC-42C9-459C-9D73-FA6B1B3D95DA">
                 <File Source="$(var.ConfigPublishDir)\ScaleStreamer.Config.runtimeconfig.json" />
             </Component>
-            <Component Id="ConfigFile_Serilog_dll" Guid="11A56942-FDE9-49FC-82CE-90FA6EA850B0">
+            <Component Id="ConfigFile_Serilog_dll" Guid="8D5ABCE9-CCFF-42CA-8BA5-9FD11EC9ACC6">
                 <File Source="$(var.ConfigPublishDir)\Serilog.dll" />
             </Component>
-            <Component Id="ConfigFile_Serilog_Sinks_File_dll" Guid="63D17DA5-03CA-4917-A50E-556BD2B3E7C7">
+            <Component Id="ConfigFile_Serilog_Sinks_File_dll" Guid="6C09A561-F95F-44E6-AD7C-97A148D374DD">
                 <File Source="$(var.ConfigPublishDir)\Serilog.Sinks.File.dll" />
             </Component>
-            <Component Id="ConfigFile_SQLitePCLRaw_batteries_v2_dll" Guid="A6C272E8-8164-4FEC-B392-60C63B7C1631">
+            <Component Id="ConfigFile_SQLitePCLRaw_batteries_v2_dll" Guid="1AB8405A-86A1-4231-B74B-CD25DDD67797">
                 <File Source="$(var.ConfigPublishDir)\SQLitePCLRaw.batteries_v2.dll" />
             </Component>
-            <Component Id="ConfigFile_SQLitePCLRaw_core_dll" Guid="ECA1E480-688B-491A-98EB-F7A0E9C6E878">
+            <Component Id="ConfigFile_SQLitePCLRaw_core_dll" Guid="C8DD6835-0391-44E1-821C-D9CB10059C96">
                 <File Source="$(var.ConfigPublishDir)\SQLitePCLRaw.core.dll" />
             </Component>
-            <Component Id="ConfigFile_SQLitePCLRaw_provider_e_sqlite3_dll" Guid="31552530-44D0-4E0A-BBAC-413EB0E88DAD">
+            <Component Id="ConfigFile_SQLitePCLRaw_provider_e_sqlite3_dll" Guid="D77E8177-2881-44F3-A53C-F2B62217D2CD">
                 <File Source="$(var.ConfigPublishDir)\SQLitePCLRaw.provider.e_sqlite3.dll" />
             </Component>
-            <Component Id="ConfigFile_System_AppContext_dll" Guid="676203D6-35C7-486C-A152-7B50054644CE">
+            <Component Id="ConfigFile_System_AppContext_dll" Guid="B152802E-AD4A-45BF-94B2-5382F9295CE1">
                 <File Source="$(var.ConfigPublishDir)\System.AppContext.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Buffers_dll" Guid="FD5E5B49-C388-40D7-BC13-DAAE19234BDE">
+            <Component Id="ConfigFile_System_Buffers_dll" Guid="1B6830A4-33E3-4C2A-A39D-3A7C2339D27E">
                 <File Source="$(var.ConfigPublishDir)\System.Buffers.dll" />
             </Component>
-            <Component Id="ConfigFile_System_CodeDom_dll" Guid="6B2BEB8E-DAE4-4990-A5C6-4C05DC8F9C33">
+            <Component Id="ConfigFile_System_CodeDom_dll" Guid="B3C6F2F6-6293-4412-9C7F-1C6261C1FB80">
                 <File Source="$(var.ConfigPublishDir)\System.CodeDom.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Collections_Concurrent_dll" Guid="678B679A-1201-4D56-863B-08CAA49F9B71">
+            <Component Id="ConfigFile_System_Collections_Concurrent_dll" Guid="0BD21319-CBDB-4693-B696-67BC24ABC961">
                 <File Source="$(var.ConfigPublishDir)\System.Collections.Concurrent.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Collections_dll" Guid="F29D8703-92C3-4A66-90AE-19CB713F22B6">
+            <Component Id="ConfigFile_System_Collections_dll" Guid="959EE0F3-3A1D-418F-BDED-6E138BB31348">
                 <File Source="$(var.ConfigPublishDir)\System.Collections.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Collections_Immutable_dll" Guid="15924F09-4392-4C07-B982-5F099D683C69">
+            <Component Id="ConfigFile_System_Collections_Immutable_dll" Guid="B0759A48-3037-4E4C-BC8B-4B97DA58D153">
                 <File Source="$(var.ConfigPublishDir)\System.Collections.Immutable.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Collections_NonGeneric_dll" Guid="F902E2DB-2DA4-4CAB-B518-AA69F41F1DAD">
+            <Component Id="ConfigFile_System_Collections_NonGeneric_dll" Guid="79C7B33D-E506-4760-961E-83CA087C4535">
                 <File Source="$(var.ConfigPublishDir)\System.Collections.NonGeneric.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Collections_Specialized_dll" Guid="C8B3EF32-C19C-4C4C-8162-398626A59553">
+            <Component Id="ConfigFile_System_Collections_Specialized_dll" Guid="19152A01-C626-43D4-9D66-34AA43195000">
                 <File Source="$(var.ConfigPublishDir)\System.Collections.Specialized.dll" />
             </Component>
-            <Component Id="ConfigFile_System_ComponentModel_Annotations_dll" Guid="54D4FF09-1AD5-4D1D-B18F-CCC1A1B726DA">
+            <Component Id="ConfigFile_System_ComponentModel_Annotations_dll" Guid="B6A6B97D-7294-4AAC-9D7B-FA8F5F33F20C">
                 <File Source="$(var.ConfigPublishDir)\System.ComponentModel.Annotations.dll" />
             </Component>
-            <Component Id="ConfigFile_System_ComponentModel_DataAnnotations_dll" Guid="0A405A5A-D7E2-4BED-BE7B-CA1B553A01AB">
+            <Component Id="ConfigFile_System_ComponentModel_DataAnnotations_dll" Guid="89294597-F467-4234-9FF4-E45D295E9E4F">
                 <File Source="$(var.ConfigPublishDir)\System.ComponentModel.DataAnnotations.dll" />
             </Component>
-            <Component Id="ConfigFile_System_ComponentModel_dll" Guid="A1DD141C-B7A7-4C86-A664-68EE7AC03B0B">
+            <Component Id="ConfigFile_System_ComponentModel_dll" Guid="DC417E63-952A-4646-97BE-BC5A408DF111">
                 <File Source="$(var.ConfigPublishDir)\System.ComponentModel.dll" />
             </Component>
-            <Component Id="ConfigFile_System_ComponentModel_EventBasedAsync_dll" Guid="0F3A3F34-213D-48D8-9261-323EDA15054E">
+            <Component Id="ConfigFile_System_ComponentModel_EventBasedAsync_dll" Guid="14303B29-FD18-4DE3-A94B-0B1892272AA3">
                 <File Source="$(var.ConfigPublishDir)\System.ComponentModel.EventBasedAsync.dll" />
             </Component>
-            <Component Id="ConfigFile_System_ComponentModel_Primitives_dll" Guid="F83CC292-F438-43D3-9CF3-690CE6313726">
+            <Component Id="ConfigFile_System_ComponentModel_Primitives_dll" Guid="A4B62779-5CD3-4DED-B6FC-867F496FC507">
                 <File Source="$(var.ConfigPublishDir)\System.ComponentModel.Primitives.dll" />
             </Component>
-            <Component Id="ConfigFile_System_ComponentModel_TypeConverter_dll" Guid="DD3ACCDC-5CA7-4D01-B57A-E238D4978D1E">
+            <Component Id="ConfigFile_System_ComponentModel_TypeConverter_dll" Guid="87E2B568-F885-4E88-8C92-B9DEE33C219C">
                 <File Source="$(var.ConfigPublishDir)\System.ComponentModel.TypeConverter.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Configuration_ConfigurationManager_dll" Guid="788882C7-A1EE-43A6-8CDE-3DDB1844048B">
+            <Component Id="ConfigFile_System_Configuration_ConfigurationManager_dll" Guid="4E18A39B-BDA7-4384-AEEA-04890419D2F2">
                 <File Source="$(var.ConfigPublishDir)\System.Configuration.ConfigurationManager.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Configuration_dll" Guid="6EA55062-26AD-4E8C-A6DF-32E5848D0548">
+            <Component Id="ConfigFile_System_Configuration_dll" Guid="2B8D9498-8A14-4466-BBAB-46F79C2BB1F5">
                 <File Source="$(var.ConfigPublishDir)\System.Configuration.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Console_dll" Guid="155892B3-32CE-478E-A754-C58BB088B93B">
+            <Component Id="ConfigFile_System_Console_dll" Guid="82E1718B-D899-471B-98CC-BAE7F8338675">
                 <File Source="$(var.ConfigPublishDir)\System.Console.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Core_dll" Guid="8379DCEB-1991-48EF-8BE7-354EA39FDACD">
+            <Component Id="ConfigFile_System_Core_dll" Guid="DF1A07CE-65AE-46AE-ABA9-2FBCF5E62C18">
                 <File Source="$(var.ConfigPublishDir)\System.Core.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Data_Common_dll" Guid="5AFC8A0C-5759-4857-B318-32AAD9C560FA">
+            <Component Id="ConfigFile_System_Data_Common_dll" Guid="D9F624C3-41BE-4A50-B716-F9FA4C6F3D83">
                 <File Source="$(var.ConfigPublishDir)\System.Data.Common.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Data_DataSetExtensions_dll" Guid="82D8F2DE-705B-4A4C-BC7F-E5C1DB5D7B09">
+            <Component Id="ConfigFile_System_Data_DataSetExtensions_dll" Guid="EE691A97-965C-48F0-9685-29B1939A0104">
                 <File Source="$(var.ConfigPublishDir)\System.Data.DataSetExtensions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Data_dll" Guid="37AD0917-9385-4466-BE72-D02E7E8506FB">
+            <Component Id="ConfigFile_System_Data_dll" Guid="3EA58D53-269D-4C68-B284-AC9E108B66D2">
                 <File Source="$(var.ConfigPublishDir)\System.Data.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Design_dll" Guid="A30E2288-E5A3-49B0-8E90-D5EC998E1510">
+            <Component Id="ConfigFile_System_Design_dll" Guid="DB7FEB78-A046-4730-A72F-350FDBDDA3B7">
                 <File Source="$(var.ConfigPublishDir)\System.Design.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_Contracts_dll" Guid="E2651C34-F546-46E3-9651-87E9315C4F22">
+            <Component Id="ConfigFile_System_Diagnostics_Contracts_dll" Guid="75396DA6-A173-46CA-9A36-AE1389AE9CF2">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.Contracts.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_Debug_dll" Guid="96F5EE95-5B5F-4706-9775-C3FEFB0532FB">
+            <Component Id="ConfigFile_System_Diagnostics_Debug_dll" Guid="C7571806-0779-407A-B5F7-81389D164143">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.Debug.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_DiagnosticSource_dll" Guid="3FD4D953-DB05-493B-9867-C0B5B8AF0328">
+            <Component Id="ConfigFile_System_Diagnostics_DiagnosticSource_dll" Guid="AD4C007F-84AD-4F13-9E85-CEC73096DA84">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.DiagnosticSource.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_EventLog_dll" Guid="F4B9EDCF-144E-4C38-8F8D-29B562586650">
+            <Component Id="ConfigFile_System_Diagnostics_EventLog_dll" Guid="9036E040-197D-45C9-9849-F940E6B95313">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.EventLog.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_EventLog_Messages_dll" Guid="5A0FC0CF-BA2E-4A53-8BDC-7212E68DA8CA">
+            <Component Id="ConfigFile_System_Diagnostics_EventLog_Messages_dll" Guid="6C407FED-0413-4FD3-9E5E-C6B73A60267F">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.EventLog.Messages.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_FileVersionInfo_dll" Guid="470EB0EE-2F63-49F3-972F-0E14E7C62A7D">
+            <Component Id="ConfigFile_System_Diagnostics_FileVersionInfo_dll" Guid="4FD703FE-1AEF-445B-B666-E8BA337493ED">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.FileVersionInfo.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_PerformanceCounter_dll" Guid="AC2B53C5-6076-4A59-9546-7F07816EF4F5">
+            <Component Id="ConfigFile_System_Diagnostics_PerformanceCounter_dll" Guid="E24CDDCB-E38E-4D1A-B56B-55B412FA3ED0">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.PerformanceCounter.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_Process_dll" Guid="6723A121-E20C-4D7E-8BA2-3D65E56BA9AB">
+            <Component Id="ConfigFile_System_Diagnostics_Process_dll" Guid="4C68CF52-B359-4236-91AF-93C4715ABC72">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.Process.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_StackTrace_dll" Guid="C7F597EC-A69A-41BF-9E9A-47249830AEE5">
+            <Component Id="ConfigFile_System_Diagnostics_StackTrace_dll" Guid="59F85542-EC2D-46A5-9884-D85055E7F655">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.StackTrace.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_TextWriterTraceListener_dll" Guid="4FF307FC-1CD4-4729-8CFE-90975F5ABF4C">
+            <Component Id="ConfigFile_System_Diagnostics_TextWriterTraceListener_dll" Guid="B36DA526-E50A-4788-AA5C-4FAFC610CF2E">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.TextWriterTraceListener.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_Tools_dll" Guid="BBFC487A-7AD2-4169-8631-95F60642EF00">
+            <Component Id="ConfigFile_System_Diagnostics_Tools_dll" Guid="3ACAD283-F60F-47ED-897E-99CC9BCED2B4">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.Tools.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_TraceSource_dll" Guid="E7B5C554-2B84-47A9-A01F-7FD978AFAF99">
+            <Component Id="ConfigFile_System_Diagnostics_TraceSource_dll" Guid="77EF0788-9A5A-4361-A2FB-4200AEBB02BC">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.TraceSource.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Diagnostics_Tracing_dll" Guid="A9510EEA-6C39-4B64-9C4E-BC8FEB7D7FFF">
+            <Component Id="ConfigFile_System_Diagnostics_Tracing_dll" Guid="5D11C5F4-54F5-44D7-9007-F9748607E3A6">
                 <File Source="$(var.ConfigPublishDir)\System.Diagnostics.Tracing.dll" />
             </Component>
-            <Component Id="ConfigFile_System_DirectoryServices_dll" Guid="2056AA6B-D3DE-42E1-876C-43EDC6EF5BAD">
+            <Component Id="ConfigFile_System_DirectoryServices_dll" Guid="50F36BDD-166C-41E3-979A-3BF9392A7BE4">
                 <File Source="$(var.ConfigPublishDir)\System.DirectoryServices.dll" />
             </Component>
-            <Component Id="ConfigFile_System_dll" Guid="31B00195-913A-498A-BD1C-2953F64B6C73">
+            <Component Id="ConfigFile_System_dll" Guid="AEF156AF-82A4-4961-8B55-0FA4E70C067E">
                 <File Source="$(var.ConfigPublishDir)\System.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Drawing_Common_dll" Guid="832FC49C-8C16-49A2-9435-423C24FA0444">
+            <Component Id="ConfigFile_System_Drawing_Common_dll" Guid="0B20D3FA-E9BC-4C18-8C10-E2E6A9F2C678">
                 <File Source="$(var.ConfigPublishDir)\System.Drawing.Common.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Drawing_Design_dll" Guid="35B645FA-DD21-4A32-BCB2-375584FDA83D">
+            <Component Id="ConfigFile_System_Drawing_Design_dll" Guid="3965D927-8A65-43F6-B3C0-B6905769C846">
                 <File Source="$(var.ConfigPublishDir)\System.Drawing.Design.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Drawing_dll" Guid="40FF74DE-C34B-4427-B18A-73B4E6B2734C">
+            <Component Id="ConfigFile_System_Drawing_dll" Guid="6FE6E42F-AB9D-4C52-BE3E-0205020C78AF">
                 <File Source="$(var.ConfigPublishDir)\System.Drawing.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Drawing_Primitives_dll" Guid="D57512E9-E5BB-4D31-9478-593C3BBB9248">
+            <Component Id="ConfigFile_System_Drawing_Primitives_dll" Guid="59A779E1-EBEE-45E5-B4D5-EB5FD5E4F4DA">
                 <File Source="$(var.ConfigPublishDir)\System.Drawing.Primitives.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Dynamic_Runtime_dll" Guid="244A3186-AA52-4980-9CA3-8336BD288E83">
+            <Component Id="ConfigFile_System_Dynamic_Runtime_dll" Guid="C05874C0-644A-43C8-BCBC-3076073FBB86">
                 <File Source="$(var.ConfigPublishDir)\System.Dynamic.Runtime.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Formats_Asn1_dll" Guid="3F3185AE-6CC5-475F-8117-A6071645BA2C">
+            <Component Id="ConfigFile_System_Formats_Asn1_dll" Guid="518ABFBD-4457-4AD6-8A4B-693200ABD4F2">
                 <File Source="$(var.ConfigPublishDir)\System.Formats.Asn1.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Formats_Tar_dll" Guid="0F287073-82C7-4E15-BF65-1A5BDE5B6ADB">
+            <Component Id="ConfigFile_System_Formats_Tar_dll" Guid="0685ACF2-BD4F-4BA8-875D-E04201BE2252">
                 <File Source="$(var.ConfigPublishDir)\System.Formats.Tar.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Globalization_Calendars_dll" Guid="98A8538E-D60E-4F76-8D0D-BB5265FDFF80">
+            <Component Id="ConfigFile_System_Globalization_Calendars_dll" Guid="6ADA6522-9780-4AC2-8508-8B845CA62E69">
                 <File Source="$(var.ConfigPublishDir)\System.Globalization.Calendars.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Globalization_dll" Guid="0511A160-0AD8-4D4C-B210-5915E7845174">
+            <Component Id="ConfigFile_System_Globalization_dll" Guid="7A73ECE9-8BCA-4300-9F4A-2FB719EDCD33">
                 <File Source="$(var.ConfigPublishDir)\System.Globalization.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Globalization_Extensions_dll" Guid="322276C6-3A03-4656-BBF3-EAB93BB85A88">
+            <Component Id="ConfigFile_System_Globalization_Extensions_dll" Guid="9BA35B77-7E75-4904-9E83-63E7875EE984">
                 <File Source="$(var.ConfigPublishDir)\System.Globalization.Extensions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_Compression_Brotli_dll" Guid="C5ABFC96-3540-465A-8942-09289665941E">
+            <Component Id="ConfigFile_System_IO_Compression_Brotli_dll" Guid="94E3F076-8B5F-484D-A585-B034F2922756">
                 <File Source="$(var.ConfigPublishDir)\System.IO.Compression.Brotli.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_Compression_dll" Guid="A92F6A1F-8AED-4097-B736-88DE1A2DE522">
+            <Component Id="ConfigFile_System_IO_Compression_dll" Guid="E618BD06-656B-46AC-849A-AFF14009C19C">
                 <File Source="$(var.ConfigPublishDir)\System.IO.Compression.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_Compression_FileSystem_dll" Guid="77577BC5-67CC-4384-BE78-BE078D256611">
+            <Component Id="ConfigFile_System_IO_Compression_FileSystem_dll" Guid="EF236F6F-314D-4135-B0AA-73DFAD4675DE">
                 <File Source="$(var.ConfigPublishDir)\System.IO.Compression.FileSystem.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_Compression_Native_dll" Guid="95B07E2C-B2AE-4DB2-B739-8B99654B7468">
+            <Component Id="ConfigFile_System_IO_Compression_Native_dll" Guid="A4C405F2-7727-4A90-90A2-0BB7E1E8D5B5">
                 <File Source="$(var.ConfigPublishDir)\System.IO.Compression.Native.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_Compression_ZipFile_dll" Guid="DA7CF730-6493-407B-BF93-A2F76ED43A29">
+            <Component Id="ConfigFile_System_IO_Compression_ZipFile_dll" Guid="47EE3B28-7C39-429E-9DFD-D89E14540E69">
                 <File Source="$(var.ConfigPublishDir)\System.IO.Compression.ZipFile.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_dll" Guid="A47A10C6-FB5D-4DD6-ADA1-04C2568088CA">
+            <Component Id="ConfigFile_System_IO_dll" Guid="4C521D04-EC44-4962-9025-DC651756B6E1">
                 <File Source="$(var.ConfigPublishDir)\System.IO.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_FileSystem_AccessControl_dll" Guid="EFFBF7BD-1341-4798-B2D8-B83C84D595A3">
+            <Component Id="ConfigFile_System_IO_FileSystem_AccessControl_dll" Guid="40978525-4BEE-413C-B285-8F4400EC76FE">
                 <File Source="$(var.ConfigPublishDir)\System.IO.FileSystem.AccessControl.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_FileSystem_dll" Guid="466EAB5D-453D-44D0-9A8D-D23CF925AF03">
+            <Component Id="ConfigFile_System_IO_FileSystem_dll" Guid="6CF76DDF-4DFB-4EE3-93F0-95F3B8C9A6F3">
                 <File Source="$(var.ConfigPublishDir)\System.IO.FileSystem.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_FileSystem_DriveInfo_dll" Guid="671D71FD-DBEC-4860-8BD5-6F8EC7514C7E">
+            <Component Id="ConfigFile_System_IO_FileSystem_DriveInfo_dll" Guid="555364B8-C11D-422B-9B41-BC942BE7B018">
                 <File Source="$(var.ConfigPublishDir)\System.IO.FileSystem.DriveInfo.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_FileSystem_Primitives_dll" Guid="D5F99D39-BA18-4ED7-9943-45B829865729">
+            <Component Id="ConfigFile_System_IO_FileSystem_Primitives_dll" Guid="19447CE6-EC05-439E-97E3-AAD84C205203">
                 <File Source="$(var.ConfigPublishDir)\System.IO.FileSystem.Primitives.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_FileSystem_Watcher_dll" Guid="BC7ECE61-7B2F-4099-A616-6BF0A8CEAE2C">
+            <Component Id="ConfigFile_System_IO_FileSystem_Watcher_dll" Guid="52C7653B-1E80-435A-96ED-38FEFD5561FE">
                 <File Source="$(var.ConfigPublishDir)\System.IO.FileSystem.Watcher.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_IsolatedStorage_dll" Guid="B5285016-36D8-4C5C-8B2A-3CE0F51DD193">
+            <Component Id="ConfigFile_System_IO_IsolatedStorage_dll" Guid="CD25795C-262D-4E0F-8811-2D00778A0501">
                 <File Source="$(var.ConfigPublishDir)\System.IO.IsolatedStorage.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_MemoryMappedFiles_dll" Guid="F3D62FC3-6816-4089-8977-1F615150C2D8">
+            <Component Id="ConfigFile_System_IO_MemoryMappedFiles_dll" Guid="E6D6CFC8-985D-4D17-9DEA-B57EB019C5FE">
                 <File Source="$(var.ConfigPublishDir)\System.IO.MemoryMappedFiles.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_Packaging_dll" Guid="863262A1-F9A6-4972-A1CB-83D4E75931F5">
+            <Component Id="ConfigFile_System_IO_Packaging_dll" Guid="692802CE-881A-4BA4-869F-69DA224944CD">
                 <File Source="$(var.ConfigPublishDir)\System.IO.Packaging.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_Pipelines_dll" Guid="242491AA-7114-40AB-9B30-23A2CC1043FF">
+            <Component Id="ConfigFile_System_IO_Pipelines_dll" Guid="46A92D94-F601-4315-A050-C2AD5FE639FE">
                 <File Source="$(var.ConfigPublishDir)\System.IO.Pipelines.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_Pipes_AccessControl_dll" Guid="F3391B10-14A3-4712-91AD-2C6AC651EBC8">
+            <Component Id="ConfigFile_System_IO_Pipes_AccessControl_dll" Guid="4EB03A26-D45D-419B-9330-F331756A42A9">
                 <File Source="$(var.ConfigPublishDir)\System.IO.Pipes.AccessControl.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_Pipes_dll" Guid="0C0472B9-DC1E-47A7-AED0-67516288D165">
+            <Component Id="ConfigFile_System_IO_Pipes_dll" Guid="8A9D7860-5F01-477E-92D3-B04C8B4608BA">
                 <File Source="$(var.ConfigPublishDir)\System.IO.Pipes.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_Ports_dll" Guid="79868522-8EA7-4A7E-8972-0BC25649A3FE">
+            <Component Id="ConfigFile_System_IO_Ports_dll" Guid="C761210D-EB73-4591-9D56-7543C977503C">
                 <File Source="$(var.ConfigPublishDir)\System.IO.Ports.dll" />
             </Component>
-            <Component Id="ConfigFile_System_IO_UnmanagedMemoryStream_dll" Guid="5E3D029E-3DEC-4D92-BA2A-A3AB50F5D64D">
+            <Component Id="ConfigFile_System_IO_UnmanagedMemoryStream_dll" Guid="3202C570-5A72-47B7-B7EC-FBFA5D7D36FF">
                 <File Source="$(var.ConfigPublishDir)\System.IO.UnmanagedMemoryStream.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Linq_dll" Guid="1C7663F7-4952-497D-A259-9B7B23ED8351">
+            <Component Id="ConfigFile_System_Linq_dll" Guid="8878691C-BB3E-4AB9-8E7B-530B5C24F69C">
                 <File Source="$(var.ConfigPublishDir)\System.Linq.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Linq_Expressions_dll" Guid="1FCC7AD5-B42C-46FD-BBA3-B0AB8FE55192">
+            <Component Id="ConfigFile_System_Linq_Expressions_dll" Guid="9A0547AF-82B4-4D7B-94CF-1D20EF5A74E7">
                 <File Source="$(var.ConfigPublishDir)\System.Linq.Expressions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Linq_Parallel_dll" Guid="4AAC043D-83D2-412D-917B-022E20D08753">
+            <Component Id="ConfigFile_System_Linq_Parallel_dll" Guid="65983A61-72DB-49B0-B117-5FD409547F36">
                 <File Source="$(var.ConfigPublishDir)\System.Linq.Parallel.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Linq_Queryable_dll" Guid="8A13738F-D7DF-4DAC-9CEB-36FF49B9558A">
+            <Component Id="ConfigFile_System_Linq_Queryable_dll" Guid="548A504E-5041-491A-9432-BE3F754BAF3E">
                 <File Source="$(var.ConfigPublishDir)\System.Linq.Queryable.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Memory_dll" Guid="96E3D280-B14C-4F26-B3B7-F57267AFF558">
+            <Component Id="ConfigFile_System_Memory_dll" Guid="6D28E9BF-B0FA-40D5-88BA-5AB5EC6CC312">
                 <File Source="$(var.ConfigPublishDir)\System.Memory.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_dll" Guid="206F062B-33F3-4A93-890C-D102AFD352F4">
+            <Component Id="ConfigFile_System_Net_dll" Guid="BBED2277-5FFB-48EE-96BE-8152AAD1352F">
                 <File Source="$(var.ConfigPublishDir)\System.Net.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_Http_dll" Guid="C16CB17F-C0C4-4583-9BB8-FFA345980F3C">
+            <Component Id="ConfigFile_System_Net_Http_dll" Guid="14222C00-3C09-4DB9-BED9-C521F68FC0C2">
                 <File Source="$(var.ConfigPublishDir)\System.Net.Http.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_Http_Json_dll" Guid="5DFD56F6-A660-4383-856F-23FB3C6D182A">
+            <Component Id="ConfigFile_System_Net_Http_Json_dll" Guid="29D02254-70E9-4F16-9EE0-DC46691A13DC">
                 <File Source="$(var.ConfigPublishDir)\System.Net.Http.Json.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_HttpListener_dll" Guid="7A6E5A97-B2EF-442B-A34F-10E35DC3103F">
+            <Component Id="ConfigFile_System_Net_HttpListener_dll" Guid="F265C8C8-F240-4CE2-AAE1-774B0FDC02AC">
                 <File Source="$(var.ConfigPublishDir)\System.Net.HttpListener.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_Mail_dll" Guid="9D221DCB-9BEA-41B5-AE58-066B6D97E951">
+            <Component Id="ConfigFile_System_Net_Mail_dll" Guid="1E3F8683-ED92-41C8-8AAC-30F24C94067F">
                 <File Source="$(var.ConfigPublishDir)\System.Net.Mail.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_NameResolution_dll" Guid="6F2D0AF7-20A1-4753-B001-5A0922085569">
+            <Component Id="ConfigFile_System_Net_NameResolution_dll" Guid="762CDC32-F275-4A2E-8871-0639A368CFAF">
                 <File Source="$(var.ConfigPublishDir)\System.Net.NameResolution.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_NetworkInformation_dll" Guid="2D2924BA-2971-499D-B811-4CB43F70CB41">
+            <Component Id="ConfigFile_System_Net_NetworkInformation_dll" Guid="3AF6B035-6635-4E31-AA3B-DE1E884B696A">
                 <File Source="$(var.ConfigPublishDir)\System.Net.NetworkInformation.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_Ping_dll" Guid="4446899F-4ADB-4051-803A-8198671F4835">
+            <Component Id="ConfigFile_System_Net_Ping_dll" Guid="4AEAD45E-DB53-46B8-81C1-A589C0AC1607">
                 <File Source="$(var.ConfigPublishDir)\System.Net.Ping.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_Primitives_dll" Guid="E7C7DA69-A1FB-48BB-B65E-01484A5D4E6D">
+            <Component Id="ConfigFile_System_Net_Primitives_dll" Guid="9AE706F1-ACC4-41E0-808C-C0BAD3E59F34">
                 <File Source="$(var.ConfigPublishDir)\System.Net.Primitives.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_Quic_dll" Guid="E5621DB8-3E31-4707-AFEB-53B1B5C95664">
+            <Component Id="ConfigFile_System_Net_Quic_dll" Guid="563DAA62-C622-4886-B53E-9A683072875E">
                 <File Source="$(var.ConfigPublishDir)\System.Net.Quic.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_Requests_dll" Guid="619C585C-7232-454D-8612-483574E79900">
+            <Component Id="ConfigFile_System_Net_Requests_dll" Guid="0A193733-AA11-454A-ABF6-BA8331790D5F">
                 <File Source="$(var.ConfigPublishDir)\System.Net.Requests.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_Security_dll" Guid="89DB9695-491B-427C-8F43-19E56A52DF5C">
+            <Component Id="ConfigFile_System_Net_Security_dll" Guid="ED1C195E-5667-4A0F-9495-4066EDF77550">
                 <File Source="$(var.ConfigPublishDir)\System.Net.Security.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_ServicePoint_dll" Guid="8E30DB8A-9E36-4634-BD92-AA95E6AB0511">
+            <Component Id="ConfigFile_System_Net_ServicePoint_dll" Guid="76AA3724-3647-4985-9FF8-67EDED245E1F">
                 <File Source="$(var.ConfigPublishDir)\System.Net.ServicePoint.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_Sockets_dll" Guid="3724D2B2-9828-4E2B-A730-C84AC0996762">
+            <Component Id="ConfigFile_System_Net_Sockets_dll" Guid="E6CDB464-086B-456C-A37F-2239EC4C5F03">
                 <File Source="$(var.ConfigPublishDir)\System.Net.Sockets.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_WebClient_dll" Guid="BE198907-D5D0-4E84-9495-24890236A3E6">
+            <Component Id="ConfigFile_System_Net_WebClient_dll" Guid="E30A5389-FD0A-46BF-8232-F253107F0739">
                 <File Source="$(var.ConfigPublishDir)\System.Net.WebClient.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_WebHeaderCollection_dll" Guid="8F1684CA-78E3-48FB-83C6-41B262A55B4D">
+            <Component Id="ConfigFile_System_Net_WebHeaderCollection_dll" Guid="0F2EA55C-82A3-4997-A7F0-6829D933D9C3">
                 <File Source="$(var.ConfigPublishDir)\System.Net.WebHeaderCollection.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_WebProxy_dll" Guid="3C617252-959F-4821-ADCC-FC9188D9A75B">
+            <Component Id="ConfigFile_System_Net_WebProxy_dll" Guid="30B9C92B-25EB-468A-8723-67756778301A">
                 <File Source="$(var.ConfigPublishDir)\System.Net.WebProxy.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_WebSockets_Client_dll" Guid="D3AAE36F-51B5-4707-B7CD-72C35F23010D">
+            <Component Id="ConfigFile_System_Net_WebSockets_Client_dll" Guid="5218F4BC-783A-4ABC-8610-A5946D6EEE94">
                 <File Source="$(var.ConfigPublishDir)\System.Net.WebSockets.Client.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Net_WebSockets_dll" Guid="9698EC42-A8A2-4824-B5BA-33742DA23FD6">
+            <Component Id="ConfigFile_System_Net_WebSockets_dll" Guid="E7739164-4FFB-4E5A-8A8F-6078279490A8">
                 <File Source="$(var.ConfigPublishDir)\System.Net.WebSockets.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Numerics_dll" Guid="3C4EC925-FE56-4FEE-8F04-C8A848B55A4E">
+            <Component Id="ConfigFile_System_Numerics_dll" Guid="845ED34C-42B2-45BD-B2E7-BF65E895C2C5">
                 <File Source="$(var.ConfigPublishDir)\System.Numerics.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Numerics_Vectors_dll" Guid="7C0F53B1-20F1-43E8-BDDF-C9C264598AF2">
+            <Component Id="ConfigFile_System_Numerics_Vectors_dll" Guid="DCFC884D-C80A-4ABD-BC2C-BEC169CF258A">
                 <File Source="$(var.ConfigPublishDir)\System.Numerics.Vectors.dll" />
             </Component>
-            <Component Id="ConfigFile_System_ObjectModel_dll" Guid="F3225DD1-00D2-4112-885C-7114CF0FCDD9">
+            <Component Id="ConfigFile_System_ObjectModel_dll" Guid="A6A14999-9DF4-4E01-A9A4-782662F05C39">
                 <File Source="$(var.ConfigPublishDir)\System.ObjectModel.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Printing_dll" Guid="A28687F6-0069-4814-9AA9-3DEDD35F6AAD">
+            <Component Id="ConfigFile_System_Printing_dll" Guid="F1370164-CAF3-49FC-AB77-D4A3F2D4920B">
                 <File Source="$(var.ConfigPublishDir)\System.Printing.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Private_CoreLib_dll" Guid="23FD230B-9236-4AD2-A69E-3845F2F5E6DA">
+            <Component Id="ConfigFile_System_Private_CoreLib_dll" Guid="08794E4D-A512-4844-8055-4BCB31B9792D">
                 <File Source="$(var.ConfigPublishDir)\System.Private.CoreLib.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Private_DataContractSerialization_dll" Guid="C4E8EDA2-EA39-4D96-90C4-CF902EC92D1C">
+            <Component Id="ConfigFile_System_Private_DataContractSerialization_dll" Guid="501B38B4-1F6C-4F7F-B8B2-701FCD97AAB3">
                 <File Source="$(var.ConfigPublishDir)\System.Private.DataContractSerialization.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Private_Uri_dll" Guid="035BA666-9111-4F8C-BCA1-0403EF3C25E8">
+            <Component Id="ConfigFile_System_Private_Uri_dll" Guid="C7FFF6D0-0AA3-4E70-8F74-53004D65F78D">
                 <File Source="$(var.ConfigPublishDir)\System.Private.Uri.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Private_Xml_dll" Guid="725DF1D1-14D1-499F-B41A-641377B2E587">
+            <Component Id="ConfigFile_System_Private_Xml_dll" Guid="CA62052B-B3C4-4845-9E79-97EF5CD50184">
                 <File Source="$(var.ConfigPublishDir)\System.Private.Xml.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Private_Xml_Linq_dll" Guid="0897E818-0D71-4051-840B-D8F518284D4A">
+            <Component Id="ConfigFile_System_Private_Xml_Linq_dll" Guid="5E64227D-4A8D-4B15-9DB5-8E7D7A439329">
                 <File Source="$(var.ConfigPublishDir)\System.Private.Xml.Linq.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Reflection_DispatchProxy_dll" Guid="7D3DDA9D-96B7-4027-B044-CBF8B8C89611">
+            <Component Id="ConfigFile_System_Reflection_DispatchProxy_dll" Guid="8FA28BFC-CAE6-44E2-9C56-7700C29C8A41">
                 <File Source="$(var.ConfigPublishDir)\System.Reflection.DispatchProxy.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Reflection_dll" Guid="C2464EED-825B-461D-91F5-BB2A0C98B7D6">
+            <Component Id="ConfigFile_System_Reflection_dll" Guid="9FDC93F9-1CA2-46E8-9111-B05F171BB36A">
                 <File Source="$(var.ConfigPublishDir)\System.Reflection.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Reflection_Emit_dll" Guid="723112CF-0352-49D8-8FA7-B1089B397128">
+            <Component Id="ConfigFile_System_Reflection_Emit_dll" Guid="8E5E7158-EEB7-4CA0-A3FE-38691E9D6357">
                 <File Source="$(var.ConfigPublishDir)\System.Reflection.Emit.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Reflection_Emit_ILGeneration_dll" Guid="0986D87B-1DD2-48AC-90D7-667F20147E2D">
+            <Component Id="ConfigFile_System_Reflection_Emit_ILGeneration_dll" Guid="8912D78A-CF63-4D2E-B450-FF559D57F89C">
                 <File Source="$(var.ConfigPublishDir)\System.Reflection.Emit.ILGeneration.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Reflection_Emit_Lightweight_dll" Guid="A46C184C-D351-4466-9864-04D7D2F47147">
+            <Component Id="ConfigFile_System_Reflection_Emit_Lightweight_dll" Guid="A1407319-210B-40CA-AF0C-D476FFD6E32A">
                 <File Source="$(var.ConfigPublishDir)\System.Reflection.Emit.Lightweight.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Reflection_Extensions_dll" Guid="171AD9BE-3E8D-4006-8818-7D0BA5374FC3">
+            <Component Id="ConfigFile_System_Reflection_Extensions_dll" Guid="5C878CD8-0727-4C08-81BF-657CAC49C988">
                 <File Source="$(var.ConfigPublishDir)\System.Reflection.Extensions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Reflection_Metadata_dll" Guid="036631B3-FEE3-4110-BE0F-F544BFB2B8C3">
+            <Component Id="ConfigFile_System_Reflection_Metadata_dll" Guid="49B8A12E-D3D1-4327-9D80-309D53D0C767">
                 <File Source="$(var.ConfigPublishDir)\System.Reflection.Metadata.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Reflection_Primitives_dll" Guid="EA8CE1DF-14AC-4AA8-A587-9410166D4BAD">
+            <Component Id="ConfigFile_System_Reflection_Primitives_dll" Guid="0B8C5E13-EC2F-40C9-B3B5-64B09C9F0A69">
                 <File Source="$(var.ConfigPublishDir)\System.Reflection.Primitives.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Reflection_TypeExtensions_dll" Guid="8AB2C383-1818-421B-BF8C-7D9CA5D5825B">
+            <Component Id="ConfigFile_System_Reflection_TypeExtensions_dll" Guid="F401CDDF-7BFD-4DAF-B667-C690F841EBE9">
                 <File Source="$(var.ConfigPublishDir)\System.Reflection.TypeExtensions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Resources_Extensions_dll" Guid="74D16578-EA4F-4C4F-87A7-E16576AB12F1">
+            <Component Id="ConfigFile_System_Resources_Extensions_dll" Guid="9529E2AF-9F5E-4771-A46D-44CBE6304909">
                 <File Source="$(var.ConfigPublishDir)\System.Resources.Extensions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Resources_Reader_dll" Guid="E9E8F156-3F2B-48D6-B866-ED7C0618C385">
+            <Component Id="ConfigFile_System_Resources_Reader_dll" Guid="53992B14-0977-450A-9FA0-1A156407F6D5">
                 <File Source="$(var.ConfigPublishDir)\System.Resources.Reader.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Resources_ResourceManager_dll" Guid="5D7B7507-8173-4A62-B00A-17FF7C1EC3EA">
+            <Component Id="ConfigFile_System_Resources_ResourceManager_dll" Guid="17473AC1-7A2E-4608-8E96-826902A1A45D">
                 <File Source="$(var.ConfigPublishDir)\System.Resources.ResourceManager.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Resources_Writer_dll" Guid="6F828450-D5C1-4CA9-87F5-C38AC5E7F326">
+            <Component Id="ConfigFile_System_Resources_Writer_dll" Guid="0EF0EB1C-27E9-45EC-8AF5-94773A6C511B">
                 <File Source="$(var.ConfigPublishDir)\System.Resources.Writer.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_CompilerServices_Unsafe_dll" Guid="7F0E099E-E8A2-4DBF-AAEE-CAC74C2F2172">
+            <Component Id="ConfigFile_System_Runtime_CompilerServices_Unsafe_dll" Guid="073CAA6D-3D49-4792-B883-161FD571C750">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.CompilerServices.Unsafe.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_CompilerServices_VisualC_dll" Guid="CBCEA1F2-D72D-4CAA-818E-722CF39C115C">
+            <Component Id="ConfigFile_System_Runtime_CompilerServices_VisualC_dll" Guid="E584759F-D19C-417D-B424-F91741D02AA4">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.CompilerServices.VisualC.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_dll" Guid="857AA623-3E6F-44E4-B043-5C5B3E280D61">
+            <Component Id="ConfigFile_System_Runtime_dll" Guid="56C81B05-C147-4346-86D1-EF6289E736FC">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_Extensions_dll" Guid="2608E637-4C43-4D94-A06C-7AA32C1F5D99">
+            <Component Id="ConfigFile_System_Runtime_Extensions_dll" Guid="BB2D47DB-0EB0-4BDF-A175-D723D935D1D0">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.Extensions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_Handles_dll" Guid="35C53BC9-D23C-444F-98D3-CAB78A2DFADC">
+            <Component Id="ConfigFile_System_Runtime_Handles_dll" Guid="B428979F-73D9-4089-AA50-2F529D3DC32C">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.Handles.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_InteropServices_dll" Guid="946DB3D3-54D9-4A17-9042-88BE8B87CA47">
+            <Component Id="ConfigFile_System_Runtime_InteropServices_dll" Guid="E3A0FC1A-703D-4D71-9CA4-362504D41956">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.InteropServices.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_InteropServices_JavaScript_dll" Guid="1954DE18-85AC-4D90-A850-EF28FB97ED2A">
+            <Component Id="ConfigFile_System_Runtime_InteropServices_JavaScript_dll" Guid="92A4BC9E-CE8A-4B23-9963-E09E8E9CF178">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.InteropServices.JavaScript.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_InteropServices_RuntimeInformation_dll" Guid="24E7B002-81D2-4A5E-B13C-5A68AF1D53CD">
+            <Component Id="ConfigFile_System_Runtime_InteropServices_RuntimeInformation_dll" Guid="A0017A6A-41AE-4837-85A8-F42C4FCE82C3">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.InteropServices.RuntimeInformation.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_Intrinsics_dll" Guid="5621809F-8C5E-4AEC-BAB6-8EAA83BC9C16">
+            <Component Id="ConfigFile_System_Runtime_Intrinsics_dll" Guid="253CA286-D378-4726-A341-7776A5BA6290">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.Intrinsics.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_Loader_dll" Guid="97A830DE-B05D-43DE-B696-FAEB0CE02EF5">
+            <Component Id="ConfigFile_System_Runtime_Loader_dll" Guid="25A97964-F189-464D-BE44-AEBB01952DB8">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.Loader.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_Numerics_dll" Guid="F8690FB2-4617-45BF-A45D-095AC3C24174">
+            <Component Id="ConfigFile_System_Runtime_Numerics_dll" Guid="4AB0219E-9A7F-4354-9119-0332DA0CA40D">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.Numerics.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_Serialization_dll" Guid="45F98481-57F4-439C-BAC4-F6A5D4AB44F7">
+            <Component Id="ConfigFile_System_Runtime_Serialization_dll" Guid="279FE21F-7EF2-4B81-9228-76B6DC94F47E">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.Serialization.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_Serialization_Formatters_dll" Guid="448335EC-DBDB-4ACC-86E8-2E8B4D91766B">
+            <Component Id="ConfigFile_System_Runtime_Serialization_Formatters_dll" Guid="C7108559-A49E-491C-BDF9-D0DBB72084F9">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.Serialization.Formatters.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_Serialization_Json_dll" Guid="6F428FF7-8E7B-4539-8AB5-B44933A51675">
+            <Component Id="ConfigFile_System_Runtime_Serialization_Json_dll" Guid="34519022-E9B6-475C-A170-E837B66CC500">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.Serialization.Json.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_Serialization_Primitives_dll" Guid="60DE6170-AB71-4138-8569-E0AB8922E528">
+            <Component Id="ConfigFile_System_Runtime_Serialization_Primitives_dll" Guid="EC48CD3B-3E04-42D4-BA77-6B7A6C7AFD90">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.Serialization.Primitives.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Runtime_Serialization_Xml_dll" Guid="51B7CB11-2331-4330-9CFD-14331C1E5511">
+            <Component Id="ConfigFile_System_Runtime_Serialization_Xml_dll" Guid="9A08B7E4-433A-4AE9-B74F-43E46CB9A841">
                 <File Source="$(var.ConfigPublishDir)\System.Runtime.Serialization.Xml.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_AccessControl_dll" Guid="AD64B6CA-1B38-4B39-BC32-2EE490E98D17">
+            <Component Id="ConfigFile_System_Security_AccessControl_dll" Guid="FE45D7E7-3FD9-4BFB-9216-FA38DF20B004">
                 <File Source="$(var.ConfigPublishDir)\System.Security.AccessControl.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Claims_dll" Guid="84FCCF54-9110-4601-AB2B-F9531098B00B">
+            <Component Id="ConfigFile_System_Security_Claims_dll" Guid="3ED49B35-90A1-4C72-B83C-5EB7F43E5BE2">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Claims.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_Algorithms_dll" Guid="449147BA-B13A-4CCF-86AF-5D6F88460446">
+            <Component Id="ConfigFile_System_Security_Cryptography_Algorithms_dll" Guid="6498124C-EEA9-4961-954F-E376FA6F2EB9">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.Algorithms.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_Cng_dll" Guid="55ADEBBB-A473-4AC5-8034-FDAF07FF518E">
+            <Component Id="ConfigFile_System_Security_Cryptography_Cng_dll" Guid="DD345A1F-2117-4CDD-BB12-71FE09C6F8E7">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.Cng.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_Csp_dll" Guid="9CB842D9-1C10-4014-882F-EEB416E39127">
+            <Component Id="ConfigFile_System_Security_Cryptography_Csp_dll" Guid="BB36BE63-F999-4B7B-B06B-723D9E3727E1">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.Csp.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_dll" Guid="609173A1-C849-42A2-BE06-21FE7FDED2F7">
+            <Component Id="ConfigFile_System_Security_Cryptography_dll" Guid="974B48C7-8DA8-4901-BC70-5089955167B8">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_Encoding_dll" Guid="DAC38711-69D9-4AE4-86A1-B5FEB1C54BDD">
+            <Component Id="ConfigFile_System_Security_Cryptography_Encoding_dll" Guid="4C39E1C6-9285-4BE3-B52F-41C97C7B9181">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.Encoding.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_OpenSsl_dll" Guid="AB23DB89-8EE3-4D53-8978-B58A5879B49E">
+            <Component Id="ConfigFile_System_Security_Cryptography_OpenSsl_dll" Guid="8DE7F433-4482-4CC7-80CB-4A1F930D0729">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.OpenSsl.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_Pkcs_dll" Guid="91DD9ADC-2228-432D-B814-81690FADD589">
+            <Component Id="ConfigFile_System_Security_Cryptography_Pkcs_dll" Guid="FF95EE67-0115-4CBB-B3DB-29C60DCEFEEF">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.Pkcs.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_Primitives_dll" Guid="D07E4EC9-DCEA-4892-993B-074A26C00907">
+            <Component Id="ConfigFile_System_Security_Cryptography_Primitives_dll" Guid="1E6CCE25-C63E-4373-9544-081E17746976">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.Primitives.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_ProtectedData_dll" Guid="4C58CAF3-20BE-4007-93FE-883AC1354D05">
+            <Component Id="ConfigFile_System_Security_Cryptography_ProtectedData_dll" Guid="FE780E9F-520E-482B-8B3B-3CF6CF32DE92">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.ProtectedData.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_X509Certificates_dll" Guid="1BFDAE51-16D5-4B74-ADFC-F1B83DCE8452">
+            <Component Id="ConfigFile_System_Security_Cryptography_X509Certificates_dll" Guid="F05ADDAE-DAA9-47E3-AE27-E2CDCEC587D7">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.X509Certificates.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Cryptography_Xml_dll" Guid="3B506121-98B8-4B5D-B490-2FA20B274B80">
+            <Component Id="ConfigFile_System_Security_Cryptography_Xml_dll" Guid="D36CFE93-1E24-4378-AAF3-D4269205F271">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Cryptography.Xml.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_dll" Guid="25ABCCCF-A0BF-4B74-8493-AB8D130D43E5">
+            <Component Id="ConfigFile_System_Security_dll" Guid="0A0E4DEE-84FD-45BF-89D9-243656927E01">
                 <File Source="$(var.ConfigPublishDir)\System.Security.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Permissions_dll" Guid="DBB20E91-6666-41A1-B36A-885786531109">
+            <Component Id="ConfigFile_System_Security_Permissions_dll" Guid="16501DE9-BF95-4582-9B5D-B6CAAC08C33B">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Permissions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Principal_dll" Guid="B7A45239-30EC-4741-8467-12B9063F547E">
+            <Component Id="ConfigFile_System_Security_Principal_dll" Guid="DE095597-92EC-4D4E-B2FE-9873D3BB8793">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Principal.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_Principal_Windows_dll" Guid="009D9F5D-0B6F-45A5-8DF3-0FA881802BE3">
+            <Component Id="ConfigFile_System_Security_Principal_Windows_dll" Guid="87C435D7-704C-43BA-B418-F839120B3288">
                 <File Source="$(var.ConfigPublishDir)\System.Security.Principal.Windows.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Security_SecureString_dll" Guid="D8E0D33E-E0AC-44DA-ABC7-9C20EEACB55C">
+            <Component Id="ConfigFile_System_Security_SecureString_dll" Guid="B4F17B34-7AD8-48D6-B93B-C3A2B874D83E">
                 <File Source="$(var.ConfigPublishDir)\System.Security.SecureString.dll" />
             </Component>
-            <Component Id="ConfigFile_System_ServiceModel_Web_dll" Guid="71BD3ABC-2830-49A2-AF82-3CEF9CB11521">
+            <Component Id="ConfigFile_System_ServiceModel_Web_dll" Guid="BB5CE730-93FF-4538-BE5A-E3C7E9E27811">
                 <File Source="$(var.ConfigPublishDir)\System.ServiceModel.Web.dll" />
             </Component>
-            <Component Id="ConfigFile_System_ServiceProcess_dll" Guid="3DFACB9B-FF8E-46C8-8165-169FB9380333">
+            <Component Id="ConfigFile_System_ServiceProcess_dll" Guid="EB5C714D-47D5-41B0-B047-FFDD5CA48D87">
                 <File Source="$(var.ConfigPublishDir)\System.ServiceProcess.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Text_Encoding_CodePages_dll" Guid="DF4E1FA5-5DA8-44AD-A8B2-2520A2654E97">
+            <Component Id="ConfigFile_System_Text_Encoding_CodePages_dll" Guid="463E34D0-49E3-4519-B500-7DFEB7EC35F2">
                 <File Source="$(var.ConfigPublishDir)\System.Text.Encoding.CodePages.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Text_Encoding_dll" Guid="EE50231E-EC14-4FA8-A685-2191112838D0">
+            <Component Id="ConfigFile_System_Text_Encoding_dll" Guid="441DE10C-5175-4C7D-BE83-5D15B06F5F2F">
                 <File Source="$(var.ConfigPublishDir)\System.Text.Encoding.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Text_Encoding_Extensions_dll" Guid="43BFAE1B-53C5-4C1B-A409-C8CA0E971775">
+            <Component Id="ConfigFile_System_Text_Encoding_Extensions_dll" Guid="A3400096-F108-4C88-923E-E7F7C7F78209">
                 <File Source="$(var.ConfigPublishDir)\System.Text.Encoding.Extensions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Text_Encodings_Web_dll" Guid="84201E9C-05B7-4ACF-921D-0B9C96D007ED">
+            <Component Id="ConfigFile_System_Text_Encodings_Web_dll" Guid="E2412ECB-201B-4E7C-8076-EA2BD70AA499">
                 <File Source="$(var.ConfigPublishDir)\System.Text.Encodings.Web.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Text_Json_dll" Guid="C800B360-E3B0-4922-B674-916ED23E9052">
+            <Component Id="ConfigFile_System_Text_Json_dll" Guid="28439FC8-A3CB-43C5-A560-1E33A3E6EFD3">
                 <File Source="$(var.ConfigPublishDir)\System.Text.Json.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Text_RegularExpressions_dll" Guid="BBDDA573-F806-4E52-881A-117137984646">
+            <Component Id="ConfigFile_System_Text_RegularExpressions_dll" Guid="201DD86C-4D10-4E1C-AAB7-C485D2FD6021">
                 <File Source="$(var.ConfigPublishDir)\System.Text.RegularExpressions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_AccessControl_dll" Guid="7F5689AB-2332-427F-83F5-8EBED3E216D5">
+            <Component Id="ConfigFile_System_Threading_AccessControl_dll" Guid="70DBF25B-065C-485E-8317-E5D8B0D7B311">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.AccessControl.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_Channels_dll" Guid="27E07BC7-D276-43F2-9AF1-4704EA623A0A">
+            <Component Id="ConfigFile_System_Threading_Channels_dll" Guid="03F6C91F-89F7-4B66-89FA-D29B39E6D760">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.Channels.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_dll" Guid="A55B17B8-2188-4C86-BB07-A964B4142FD1">
+            <Component Id="ConfigFile_System_Threading_dll" Guid="44EEFB51-5F55-4A00-B1D7-1928F45CEF5D">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_Overlapped_dll" Guid="9969C9E7-9D50-4FB8-8DDD-A8024A8FAA62">
+            <Component Id="ConfigFile_System_Threading_Overlapped_dll" Guid="C0B93333-A15C-4925-BC28-817504A90215">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.Overlapped.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_Tasks_Dataflow_dll" Guid="B5007184-540C-4D09-8A7B-6D0CDE1D6786">
+            <Component Id="ConfigFile_System_Threading_Tasks_Dataflow_dll" Guid="2AA2E424-8782-4C8E-B892-F7C840BADEC9">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.Tasks.Dataflow.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_Tasks_dll" Guid="E64D1FE4-9C36-418A-87C7-922C6F46B0A7">
+            <Component Id="ConfigFile_System_Threading_Tasks_dll" Guid="2EDAC313-1A96-4797-8EA7-61A0EB8B9911">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.Tasks.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_Tasks_Extensions_dll" Guid="03A574FC-6770-4987-8C59-6EC2A47D9D47">
+            <Component Id="ConfigFile_System_Threading_Tasks_Extensions_dll" Guid="C8D0DB69-1466-4C84-AA6B-566367D7BD6E">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.Tasks.Extensions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_Tasks_Parallel_dll" Guid="F646DE3A-DCAB-43AA-8F35-C2DEEB75EE37">
+            <Component Id="ConfigFile_System_Threading_Tasks_Parallel_dll" Guid="7AD55344-9380-4A07-AB33-356425205265">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.Tasks.Parallel.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_Thread_dll" Guid="BD3BAEB5-28E9-4D74-A044-BF5122CC8D1D">
+            <Component Id="ConfigFile_System_Threading_Thread_dll" Guid="DB51E162-7E3B-4C11-88FD-1B5E828701AB">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.Thread.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_ThreadPool_dll" Guid="39A6ED61-4C20-4791-B924-D06F2543D9B3">
+            <Component Id="ConfigFile_System_Threading_ThreadPool_dll" Guid="CAC76943-71B4-4C65-8EA0-5E9B534C2232">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.ThreadPool.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Threading_Timer_dll" Guid="AB064D12-8EEC-47F3-B4F0-BE56B477D7B6">
+            <Component Id="ConfigFile_System_Threading_Timer_dll" Guid="8FB9DC9E-3DF5-4E3B-AE8B-9CC03AEB1B49">
                 <File Source="$(var.ConfigPublishDir)\System.Threading.Timer.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Transactions_dll" Guid="D5C6F954-D30E-4967-AEC6-63DF4C9A995B">
+            <Component Id="ConfigFile_System_Transactions_dll" Guid="CD2665A0-90BC-4090-9657-47BA33DC9D67">
                 <File Source="$(var.ConfigPublishDir)\System.Transactions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Transactions_Local_dll" Guid="FC8F6A29-D0A0-4D51-86ED-CC68DEA45767">
+            <Component Id="ConfigFile_System_Transactions_Local_dll" Guid="E1A46FD5-40D3-4D6C-9F4A-3FD169DFF0C2">
                 <File Source="$(var.ConfigPublishDir)\System.Transactions.Local.dll" />
             </Component>
-            <Component Id="ConfigFile_System_ValueTuple_dll" Guid="7F79F8C4-349D-4EB8-909D-DC9689C2F11D">
+            <Component Id="ConfigFile_System_ValueTuple_dll" Guid="510DBDB9-D8F8-4691-A931-08DF57A6E54A">
                 <File Source="$(var.ConfigPublishDir)\System.ValueTuple.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Web_dll" Guid="077A8C7D-2CBE-4A6A-9D4F-831F5EFE5DF5">
+            <Component Id="ConfigFile_System_Web_dll" Guid="488F5180-7454-4C2D-A853-6FA1EBE2633B">
                 <File Source="$(var.ConfigPublishDir)\System.Web.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Web_HttpUtility_dll" Guid="983C55B8-9DAD-45C2-A367-E7C375D489A1">
+            <Component Id="ConfigFile_System_Web_HttpUtility_dll" Guid="48F8E097-2C4E-4755-9C20-CD6C5E3F28CC">
                 <File Source="$(var.ConfigPublishDir)\System.Web.HttpUtility.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Windows_Controls_Ribbon_dll" Guid="16006D73-442F-44CC-8AFE-58E591C43532">
+            <Component Id="ConfigFile_System_Windows_Controls_Ribbon_dll" Guid="C8212486-FBA8-4DF5-A003-71DE6EBA7452">
                 <File Source="$(var.ConfigPublishDir)\System.Windows.Controls.Ribbon.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Windows_dll" Guid="EFFB721A-031B-4B22-B470-D9E652ACFC4C">
+            <Component Id="ConfigFile_System_Windows_dll" Guid="4D218844-3E7E-481B-B2DD-81870D101D29">
                 <File Source="$(var.ConfigPublishDir)\System.Windows.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Windows_Extensions_dll" Guid="F96925D3-8B43-4525-AA4B-9307E0638277">
+            <Component Id="ConfigFile_System_Windows_Extensions_dll" Guid="09F5826C-E251-4224-98AB-52109A030095">
                 <File Source="$(var.ConfigPublishDir)\System.Windows.Extensions.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Windows_Forms_Design_dll" Guid="7C85625A-4FCE-4303-AD23-5317BB4ACF1D">
+            <Component Id="ConfigFile_System_Windows_Forms_Design_dll" Guid="D3A5D98A-1703-489A-AFAF-2CCC6F7FFC92">
                 <File Source="$(var.ConfigPublishDir)\System.Windows.Forms.Design.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Windows_Forms_Design_Editors_dll" Guid="90034E3F-C29C-42F0-B005-A85623135485">
+            <Component Id="ConfigFile_System_Windows_Forms_Design_Editors_dll" Guid="2BEA6978-8720-429D-88B2-0998A50F90AD">
                 <File Source="$(var.ConfigPublishDir)\System.Windows.Forms.Design.Editors.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Windows_Forms_dll" Guid="7A386670-4BAA-4209-BA69-12505B040869">
+            <Component Id="ConfigFile_System_Windows_Forms_dll" Guid="CC583F11-E4DA-4C12-89E6-290E6083AF62">
                 <File Source="$(var.ConfigPublishDir)\System.Windows.Forms.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Windows_Forms_Primitives_dll" Guid="E09864A9-284D-44C1-BF85-D46AD23D206B">
+            <Component Id="ConfigFile_System_Windows_Forms_Primitives_dll" Guid="FFC6F0BA-8821-48BB-8150-539947C33305">
                 <File Source="$(var.ConfigPublishDir)\System.Windows.Forms.Primitives.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Windows_Input_Manipulations_dll" Guid="FAB7BB6F-4B40-4ACD-B4F2-07EB38D93952">
+            <Component Id="ConfigFile_System_Windows_Input_Manipulations_dll" Guid="741BBA6F-DE69-4285-9A26-3B3D5B501504">
                 <File Source="$(var.ConfigPublishDir)\System.Windows.Input.Manipulations.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Windows_Presentation_dll" Guid="B917B41B-69E9-40D0-8559-4866DD091E59">
+            <Component Id="ConfigFile_System_Windows_Presentation_dll" Guid="1F105181-09B3-4151-8E9C-48EFB6090B65">
                 <File Source="$(var.ConfigPublishDir)\System.Windows.Presentation.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Xaml_dll" Guid="F1319892-56FA-47C2-AB98-DBE1503EAFA5">
+            <Component Id="ConfigFile_System_Xaml_dll" Guid="D3EEC85D-6CAC-4C40-8ADD-1DE51D480A13">
                 <File Source="$(var.ConfigPublishDir)\System.Xaml.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Xml_dll" Guid="33DA145D-91CD-4BD8-83E1-94E5CB9C75F7">
+            <Component Id="ConfigFile_System_Xml_dll" Guid="50FD6D5B-F62A-48F2-A7B6-A6586364A9E2">
                 <File Source="$(var.ConfigPublishDir)\System.Xml.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Xml_Linq_dll" Guid="091C56C6-3A95-41C6-B8DC-270F74F70113">
+            <Component Id="ConfigFile_System_Xml_Linq_dll" Guid="C95EB2B9-6004-45E7-82F4-AA5556F9A211">
                 <File Source="$(var.ConfigPublishDir)\System.Xml.Linq.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Xml_ReaderWriter_dll" Guid="74C8FC5B-D03F-4BEA-96D9-1BAF52BEAD81">
+            <Component Id="ConfigFile_System_Xml_ReaderWriter_dll" Guid="41CB1BA4-808A-4CE8-8180-2F7E8F7F9A2F">
                 <File Source="$(var.ConfigPublishDir)\System.Xml.ReaderWriter.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Xml_Serialization_dll" Guid="C02A3BD1-9469-47E3-B7DA-ED9BA3412159">
+            <Component Id="ConfigFile_System_Xml_Serialization_dll" Guid="2BAD13F9-35AD-405E-B523-0B38E457CD2D">
                 <File Source="$(var.ConfigPublishDir)\System.Xml.Serialization.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Xml_XDocument_dll" Guid="4F0F51FF-4804-40BC-9803-DDCDB4A97937">
+            <Component Id="ConfigFile_System_Xml_XDocument_dll" Guid="B282E848-438B-4021-A787-0CEB28FC2151">
                 <File Source="$(var.ConfigPublishDir)\System.Xml.XDocument.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Xml_XmlDocument_dll" Guid="9479F258-648D-4DF2-8941-523EE9946903">
+            <Component Id="ConfigFile_System_Xml_XmlDocument_dll" Guid="4FC1DA92-8D6C-4204-A6C4-84598856612E">
                 <File Source="$(var.ConfigPublishDir)\System.Xml.XmlDocument.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Xml_XmlSerializer_dll" Guid="B636C5DE-F775-4127-99A5-153137C30F83">
+            <Component Id="ConfigFile_System_Xml_XmlSerializer_dll" Guid="9B5CD71E-E0F7-480C-A8F5-5F7425D38B2A">
                 <File Source="$(var.ConfigPublishDir)\System.Xml.XmlSerializer.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Xml_XPath_dll" Guid="C9B5A608-5678-4A30-AEF6-BE439D5CF0E0">
+            <Component Id="ConfigFile_System_Xml_XPath_dll" Guid="5348EB03-FAC6-4859-A11C-883BCB24E126">
                 <File Source="$(var.ConfigPublishDir)\System.Xml.XPath.dll" />
             </Component>
-            <Component Id="ConfigFile_System_Xml_XPath_XDocument_dll" Guid="28160937-877C-465F-AA24-3D8B40994791">
+            <Component Id="ConfigFile_System_Xml_XPath_XDocument_dll" Guid="C0A00B90-DE09-4B02-8B60-ED640358F056">
                 <File Source="$(var.ConfigPublishDir)\System.Xml.XPath.XDocument.dll" />
             </Component>
-            <Component Id="ConfigFile_UIAutomationClient_dll" Guid="C18D571F-5935-492B-95C8-E59C3C506497">
+            <Component Id="ConfigFile_UIAutomationClient_dll" Guid="F11FDEBB-CDAE-4CC5-B18D-45EB33AA56CE">
                 <File Source="$(var.ConfigPublishDir)\UIAutomationClient.dll" />
             </Component>
-            <Component Id="ConfigFile_UIAutomationClientSideProviders_dll" Guid="9726D5DE-AB26-4039-9851-EA973E829BDA">
+            <Component Id="ConfigFile_UIAutomationClientSideProviders_dll" Guid="958FC801-C1A4-4F48-91A5-075E8D4154D1">
                 <File Source="$(var.ConfigPublishDir)\UIAutomationClientSideProviders.dll" />
             </Component>
-            <Component Id="ConfigFile_UIAutomationProvider_dll" Guid="92490BAB-779B-456C-A23A-21360069C1A2">
+            <Component Id="ConfigFile_UIAutomationProvider_dll" Guid="90DBFF69-F5B7-4BB4-BA6B-DFEED3D35CDB">
                 <File Source="$(var.ConfigPublishDir)\UIAutomationProvider.dll" />
             </Component>
-            <Component Id="ConfigFile_UIAutomationTypes_dll" Guid="9862E0A8-331A-4010-954F-A68016912E38">
+            <Component Id="ConfigFile_UIAutomationTypes_dll" Guid="3312BD5D-026D-4337-806E-11E0EF27165D">
                 <File Source="$(var.ConfigPublishDir)\UIAutomationTypes.dll" />
             </Component>
-            <Component Id="ConfigFile_vcruntime140_cor3_dll" Guid="C5DA0CDF-7339-43F0-82A3-B3BAB3CB7716">
+            <Component Id="ConfigFile_vcruntime140_cor3_dll" Guid="C11822B8-969A-4485-9289-6B7058A8F001">
                 <File Source="$(var.ConfigPublishDir)\vcruntime140_cor3.dll" />
             </Component>
-            <Component Id="ConfigFile_WindowsBase_dll" Guid="4D786712-9B39-485C-87DA-2C3EA50250BB">
+            <Component Id="ConfigFile_WindowsBase_dll" Guid="02AD7FDD-23BF-4320-9996-21D67A1980E2">
                 <File Source="$(var.ConfigPublishDir)\WindowsBase.dll" />
             </Component>
-            <Component Id="ConfigFile_WindowsFormsIntegration_dll" Guid="281B5ECC-2398-4D81-B27E-9B9F8844AE6E">
+            <Component Id="ConfigFile_WindowsFormsIntegration_dll" Guid="F22E8EA2-90FB-4061-97DB-02FB1FD61F2C">
                 <File Source="$(var.ConfigPublishDir)\WindowsFormsIntegration.dll" />
             </Component>
-            <Component Id="ConfigFile_wpfgfx_cor3_dll" Guid="E36F6461-AA95-4AD3-B04C-71FA64E55016">
+            <Component Id="ConfigFile_wpfgfx_cor3_dll" Guid="ED51F7B0-8BB5-4409-84F4-20D3CF0ACEEC">
                 <File Source="$(var.ConfigPublishDir)\wpfgfx_cor3.dll" />
             </Component>
         </ComponentGroup>
