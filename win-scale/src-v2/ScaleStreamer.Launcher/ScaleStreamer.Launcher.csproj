@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Version>3.3.1</Version>
+    <Version>3.3.2</Version>
     <Company>Cloud-Scale</Company>
     <Product>Scale Streamer Launcher</Product>
     <Description>Launcher for Scale Streamer - starts service and opens configuration</Description>

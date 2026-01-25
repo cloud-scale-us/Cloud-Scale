@@ -3,13 +3,13 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
      xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
-    <Package Name="Scale Streamer v3.3.1 (Self-Contained)"
+    <Package Name="Scale Streamer v3.3.2 (Self-Contained)"
              Manufacturer="Cloud-Scale"
-             Version="3.3.1"
+             Version="3.3.2"
              UpgradeCode="B2C3D4E5-F6A7-8901-BCDE-FA2345678902"
              Scope="perMachine">
 
-        <SummaryInformation Description="Scale Streamer v3.3.1 - Comprehensive diagnostics with live TCP data monitoring"
+        <SummaryInformation Description="Scale Streamer v3.3.2 - GUARANTEED tab visibility with comprehensive diagnostics"
                             Manufacturer="Cloud-Scale" />
 
         <MajorUpgrade DowngradeErrorMessage="A newer version of Scale Streamer is already installed."
@@ -173,7 +173,7 @@
             <Component Id="AppRegistryKeys" Guid="F6666666-6666-6666-6666-666666666661">
                 <RegistryKey Root="HKLM" Key="Software\Cloud-Scale\ScaleStreamer">
                     <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" />
-                    <RegistryValue Name="Version" Type="string" Value="3.3.1" />
+                    <RegistryValue Name="Version" Type="string" Value="3.3.2" />
                     <RegistryValue Name="Vendor" Type="string" Value="Cloud-Scale" />
                     <RegistryValue Name="SupportURL" Type="string" Value="https://cloud-scale.us/support" />
                     <RegistryValue Name="ServicePath" Type="string" Value="[ServiceFolder]" />

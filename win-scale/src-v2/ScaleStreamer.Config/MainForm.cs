@@ -10,7 +10,7 @@ namespace ScaleStreamer.Config;
 /// </summary>
 public partial class MainForm : Form
 {
-    private const string APP_VERSION = "3.3.1";
+    private const string APP_VERSION = "3.3.2";
 
     private readonly IpcClient _ipcClient;
     private System.Windows.Forms.Timer _statusTimer;
@@ -148,8 +148,15 @@ public partial class MainForm : Form
         };
 
         // Add header first (docks to top), then tab control (fills remaining space)
+        this.SuspendLayout();
         this.Controls.Add(headerPanel);
         this.Controls.Add(_mainTabControl);
+        this.ResumeLayout(false);
+        this.PerformLayout();
+
+        // Explicitly show the tab control
+        _mainTabControl.Show();
+        _mainTabControl.BringToFront();
     }
 
     private Icon? LoadAppIcon()
@@ -168,6 +175,13 @@ public partial class MainForm : Form
 
     private void InitializeTabs()
     {
+        if (_mainTabControl == null)
+        {
+            throw new InvalidOperationException("TabControl not initialized. InitializeComponent must be called first.");
+        }
+
+        _mainTabControl.SuspendLayout();
+
         // Connection Configuration Tab
         var connectionPage = new TabPage("Connection")
         {
@@ -237,6 +251,11 @@ public partial class MainForm : Form
         _diagnosticsTab.Dock = DockStyle.Fill;
         diagnosticsPage.Controls.Add(_diagnosticsTab);
         _mainTabControl.TabPages.Add(diagnosticsPage);
+
+        _mainTabControl.ResumeLayout(true);
+        _mainTabControl.SelectedIndex = 0; // Select first tab
+
+        Log.Information("Initialized {TabCount} tabs", _mainTabControl.TabPages.Count);
     }
 
 
