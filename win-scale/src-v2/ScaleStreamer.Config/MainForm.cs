@@ -10,7 +10,7 @@ namespace ScaleStreamer.Config;
 /// </summary>
 public partial class MainForm : Form
 {
-    private const string APP_VERSION = "3.0.0";
+    private const string APP_VERSION = "3.1.0";
 
     private readonly IpcClient _ipcClient;
     private System.Windows.Forms.Timer _statusTimer;
@@ -23,6 +23,7 @@ public partial class MainForm : Form
     private MonitoringTab? _monitoringTab;
     private StatusTab? _statusTab;
     private LoggingTab? _loggingTab;
+    private SettingsTab? _settingsTab;
 
     // Update notification
     private Panel? _updateNotificationPanel;
@@ -213,6 +214,16 @@ public partial class MainForm : Form
         _loggingTab.Dock = DockStyle.Fill;
         loggingPage.Controls.Add(_loggingTab);
         _mainTabControl.TabPages.Add(loggingPage);
+
+        // Settings Tab
+        var settingsPage = new TabPage("Settings")
+        {
+            UseVisualStyleBackColor = true
+        };
+        _settingsTab = new SettingsTab(_ipcClient);
+        _settingsTab.Dock = DockStyle.Fill;
+        settingsPage.Controls.Add(_settingsTab);
+        _mainTabControl.TabPages.Add(settingsPage);
     }
 
 

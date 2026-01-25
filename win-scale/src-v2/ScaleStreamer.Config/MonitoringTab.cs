@@ -1,6 +1,8 @@
 using ScaleStreamer.Common.IPC;
 using ScaleStreamer.Common.Models;
 using System.Text.Json;
+using System.Net;
+using System.Net.Sockets;
 
 namespace ScaleStreamer.Config;
 
@@ -173,6 +175,16 @@ public partial class MonitoringTab : UserControl
 
         layout.Controls.Add(_lastUpdateLabel);
         layout.Controls.Add(_readingRateLabel);
+
+        // RTSP URL
+        var rtspUrl = $"rtsp://{GetLocalIPv4Address()}:8554/scale1";
+        var rtspUrlLabel = CreateStatLabel($"RTSP URL: {rtspUrl}");
+        rtspUrlLabel.Cursor = Cursors.Hand;
+        rtspUrlLabel.ForeColor = Color.Blue;
+        rtspUrlLabel.Click += (s, e) => Clipboard.SetText(rtspUrl);
+        rtspUrlLabel.MouseEnter += (s, e) => rtspUrlLabel.Font = new Font(rtspUrlLabel.Font, FontStyle.Underline);
+        rtspUrlLabel.MouseLeave += (s, e) => rtspUrlLabel.Font = new Font(rtspUrlLabel.Font, FontStyle.Regular);
+        layout.Controls.Add(rtspUrlLabel);
 
         var clearButton = new Button
         {
@@ -354,5 +366,20 @@ public partial class MonitoringTab : UserControl
         _readingCount = 0;
         _startTime = DateTime.Now;
         _readingRateLabel.Text = "Reading Rate: 0.0/sec";
+    }
+
+    private string GetLocalIPv4Address()
+    {
+        try
+        {
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0);
+            socket.Connect("8.8.8.8", 65530);
+            var endPoint = socket.LocalEndPoint as IPEndPoint;
+            return endPoint?.Address.ToString() ?? "127.0.0.1";
+        }
+        catch
+        {
+            return "127.0.0.1";
+        }
     }
 }

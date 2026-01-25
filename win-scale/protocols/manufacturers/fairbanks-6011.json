@@ -1,53 +1,78 @@
 {
   "protocol_name": "Fairbanks 6011",
   "manufacturer": "Fairbanks Scales",
-  "version": "1.0",
-  "description": "Fairbanks 6011 ASCII protocol - STATUS WEIGHT TARE format",
+  "version": "1.1",
+  "description": "Fairbanks 6011 ASCII protocol - STATUS WEIGHT TARE format. Continuous TCP stream at ~10 readings/second.",
   "connection": {
     "type": "TcpIp",
     "host": "192.168.1.100",
-    "port": 10001,
+    "port": 5001,
     "timeout_ms": 5000,
     "auto_reconnect": true,
     "reconnect_interval_seconds": 10
   },
   "data_format": "ASCII",
   "mode": "Continuous",
+  "encoding": "ASCII",
+  "data_rate_hz": 10,
   "parsing": {
     "line_delimiter": "\r\n",
+    "alternate_delimiters": ["\r", "\n"],
     "field_separator": "\\s+",
+    "strip_control_chars": true,
+    "control_chars_to_remove": ["\u0002", "\u0003"],
     "fields": [
       {
         "name": "status",
         "position": 0,
-        "data_type": "integer",
+        "data_type": "string",
+        "description": "Scale status: 1=stable, 2=motion, 1\"=negative weight",
         "mapping": {
-          "0": "unknown",
           "1": "stable",
           "2": "motion",
-          "3": "overload",
-          "4": "underload"
+          "1\"": "negative"
         }
       },
       {
         "name": "weight",
         "position": 1,
         "data_type": "float",
-        "multiplier": 0.01,
-        "unit": "lb"
+        "multiplier": 1.0,
+        "unit": "lb",
+        "description": "Raw weight value. Multiplier depends on scale config: 1.0 (no decimal), 0.1 (one decimal), 0.01 (two decimals)"
       },
       {
         "name": "tare",
         "position": 2,
         "data_type": "float",
-        "multiplier": 0.01,
+        "multiplier": 1.0,
         "unit": "lb"
       }
-    ]
+    ],
+    "negative_indicator": {
+      "field": "status",
+      "pattern": "\"",
+      "applies_to": "weight"
+    }
   },
   "validation": {
-    "min_weight": 0,
+    "min_weight": -50000,
     "max_weight": 50000,
-    "require_stable": false
-  }
+    "require_stable": false,
+    "allow_negative": true
+  },
+  "examples": {
+    "stable_positive": "1     960    00",
+    "motion": "2     965    00",
+    "negative": "1\"   -500    00"
+  },
+  "notes": [
+    "Default port is 5001",
+    "Data transmitted as continuous ASCII stream",
+    "Status field contains negative indicator (double quote) for negative weights",
+    "Weight multiplier varies by scale configuration - adjust multiplier field as needed",
+    "Common multipliers: 1.0 (no decimal), 0.1 (one decimal), 0.01 (two decimals)",
+    "Control characters STX (0x02) and ETX (0x03) may be present and should be stripped",
+    "Line endings can be CR, LF, or CRLF"
+  ]
 }
