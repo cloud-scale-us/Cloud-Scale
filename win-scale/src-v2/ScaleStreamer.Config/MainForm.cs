@@ -10,7 +10,7 @@ namespace ScaleStreamer.Config;
 /// </summary>
 public partial class MainForm : Form
 {
-    private const string APP_VERSION = "3.3.0";
+    private const string APP_VERSION = "3.3.1";
 
     private readonly IpcClient _ipcClient;
     private System.Windows.Forms.Timer _statusTimer;
@@ -24,6 +24,7 @@ public partial class MainForm : Form
     private StatusTab? _statusTab;
     private LoggingTab? _loggingTab;
     private SettingsTab? _settingsTab;
+    private DiagnosticsTab? _diagnosticsTab;
 
     // Update notification
     private Panel? _updateNotificationPanel;
@@ -226,6 +227,16 @@ public partial class MainForm : Form
         _settingsTab.Dock = DockStyle.Fill;
         settingsPage.Controls.Add(_settingsTab);
         _mainTabControl.TabPages.Add(settingsPage);
+
+        // Diagnostics Tab
+        var diagnosticsPage = new TabPage("Diagnostics")
+        {
+            UseVisualStyleBackColor = true
+        };
+        _diagnosticsTab = new DiagnosticsTab(_ipcClient);
+        _diagnosticsTab.Dock = DockStyle.Fill;
+        diagnosticsPage.Controls.Add(_diagnosticsTab);
+        _mainTabControl.TabPages.Add(diagnosticsPage);
     }
 
 
@@ -575,6 +586,11 @@ public partial class MainForm : Form
 
             case IpcMessageType.Error:
                 _loggingTab?.HandleError(message);
+                break;
+
+            case IpcMessageType.RawData:
+                // Route raw TCP data to diagnostics
+                _diagnosticsTab?.LogDebug($"Raw data received: {message.Payload}");
                 break;
         }
     }

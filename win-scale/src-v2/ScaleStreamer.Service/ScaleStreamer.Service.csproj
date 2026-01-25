@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <Version>3.3.0</Version>
+    <Version>3.3.1</Version>
     <Company>Cloud-Scale</Company>
     <Product>Scale Streamer Service</Product>
     <Description>Background service for managing scale connections and data streaming</Description>

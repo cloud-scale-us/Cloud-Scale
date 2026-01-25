@@ -40,6 +40,7 @@ public enum IpcMessageType
     Error,
     ConnectionStatus,
     ScaleList,
+    RawData,
 
     // Events (Service -> GUI)
     ScaleConnected,
