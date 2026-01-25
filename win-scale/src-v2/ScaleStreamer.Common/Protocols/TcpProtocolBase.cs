@@ -1,0 +1,224 @@
+using ScaleStreamer.Common.Models;
+using System.Net.Sockets;
+using System.Text;
+
+namespace ScaleStreamer.Common.Protocols;
+
+/// <summary>
+/// Base class for TCP/IP-based scale protocols
+/// Handles socket management, buffering, and line-based reading
+/// </summary>
+public abstract class TcpProtocolBase : BaseScaleProtocol
+{
+    protected TcpClient? _client;
+    protected NetworkStream? _stream;
+    protected StringBuilder _buffer = new();
+    protected readonly byte[] _readBuffer = new byte[8192];
+    protected string _lineDelimiter = "\r\n";
+
+    public override async Task<bool> ConnectAsync(ConnectionConfig config, CancellationToken cancellationToken = default)
+    {
+        ValidateConfig(config);
+
+        if (config.Type != ConnectionType.TcpIp)
+            throw new ArgumentException("Configuration must be for TCP/IP connection");
+
+        if (string.IsNullOrEmpty(config.Host))
+            throw new ArgumentException("Host is required for TCP/IP connection");
+
+        await _connectionLock.WaitAsync(cancellationToken);
+        try
+        {
+            _config = config;
+            UpdateStatus(ConnectionStatus.Connecting);
+
+            _client = new TcpClient
+            {
+                SendTimeout = config.TimeoutMs,
+                ReceiveTimeout = config.TimeoutMs
+            };
+
+            await _client.ConnectAsync(config.Host!, config.Port!.Value, cancellationToken);
+
+            if (_client.Connected)
+            {
+                _stream = _client.GetStream();
+                UpdateStatus(ConnectionStatus.Connected);
+                OnErrorOccurred($"Connected to {config.Host}:{config.Port}");
+                return true;
+            }
+
+            UpdateStatus(ConnectionStatus.Error);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            UpdateStatus(ConnectionStatus.Error);
+            OnErrorOccurred($"Connection failed: {ex.Message}");
+            return false;
+        }
+        finally
+        {
+            _connectionLock.Release();
+        }
+    }
+
+    public override async Task DisconnectAsync()
+    {
+        await _connectionLock.WaitAsync();
+        try
+        {
+            await StopContinuousReadingAsync();
+
+            if (_stream != null)
+            {
+                _stream.Close();
+                _stream.Dispose();
+                _stream = null;
+            }
+
+            if (_client != null)
+            {
+                _client.Close();
+                _client.Dispose();
+                _client = null;
+            }
+
+            _buffer.Clear();
+            UpdateStatus(ConnectionStatus.Disconnected);
+        }
+        finally
+        {
+            _connectionLock.Release();
+        }
+    }
+
+    /// <summary>
+    /// Read a single line from the TCP stream
+    /// </summary>
+    protected async Task<string?> ReadLineAsync(CancellationToken cancellationToken = default)
+    {
+        if (_stream == null || !_stream.CanRead)
+            return null;
+
+        try
+        {
+            // Check if we already have a complete line in the buffer
+            var delimiterIndex = _buffer.ToString().IndexOf(_lineDelimiter);
+            if (delimiterIndex >= 0)
+            {
+                var line = _buffer.ToString(0, delimiterIndex);
+                _buffer.Remove(0, delimiterIndex + _lineDelimiter.Length);
+                return line;
+            }
+
+            // Read more data from stream
+            var bytesRead = await _stream.ReadAsync(_readBuffer, 0, _readBuffer.Length, cancellationToken);
+            if (bytesRead == 0)
+            {
+                // Connection closed
+                OnErrorOccurred("Connection closed by remote host");
+                UpdateStatus(ConnectionStatus.Error);
+                return null;
+            }
+
+            // Append to buffer
+            var data = Encoding.ASCII.GetString(_readBuffer, 0, bytesRead);
+            _buffer.Append(data);
+
+            // Check again for complete line
+            delimiterIndex = _buffer.ToString().IndexOf(_lineDelimiter);
+            if (delimiterIndex >= 0)
+            {
+                var line = _buffer.ToString(0, delimiterIndex);
+                _buffer.Remove(0, delimiterIndex + _lineDelimiter.Length);
+                return line;
+            }
+
+            // No complete line yet, but data was received
+            return null;
+        }
+        catch (IOException ex)
+        {
+            OnErrorOccurred($"Read error: {ex.Message}");
+            return null;
+        }
+        catch (OperationCanceledException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Send a command to the scale
+    /// </summary>
+    protected async Task<bool> SendCommandAsync(string command, CancellationToken cancellationToken = default)
+    {
+        if (_stream == null || !_stream.CanWrite)
+            return false;
+
+        try
+        {
+            var data = Encoding.ASCII.GetBytes(command + _lineDelimiter);
+            await _stream.WriteAsync(data, 0, data.Length, cancellationToken);
+            await _stream.FlushAsync(cancellationToken);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            OnErrorOccurred($"Send command error: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Read raw bytes from the stream
+    /// </summary>
+    protected async Task<byte[]?> ReadBytesAsync(int count, CancellationToken cancellationToken = default)
+    {
+        if (_stream == null || !_stream.CanRead)
+            return null;
+
+        try
+        {
+            var buffer = new byte[count];
+            var totalRead = 0;
+
+            while (totalRead < count)
+            {
+                var bytesRead = await _stream.ReadAsync(buffer, totalRead, count - totalRead, cancellationToken);
+                if (bytesRead == 0)
+                {
+                    // Connection closed
+                    OnErrorOccurred("Connection closed while reading bytes");
+                    return null;
+                }
+                totalRead += bytesRead;
+            }
+
+            return buffer;
+        }
+        catch (Exception ex)
+        {
+            OnErrorOccurred($"Read bytes error: {ex.Message}");
+            return null;
+        }
+    }
+
+    protected override void ValidateConfig(ConnectionConfig config)
+    {
+        base.ValidateConfig(config);
+
+        if (string.IsNullOrEmpty(config.Host))
+            throw new ArgumentException("Host is required for TCP/IP connection");
+
+        if (!config.Port.HasValue || config.Port.Value <= 0 || config.Port.Value > 65535)
+            throw new ArgumentException("Port must be between 1 and 65535");
+    }
+
+    public override void Dispose()
+    {
+        DisconnectAsync().GetAwaiter().GetResult();
+        base.Dispose();
+    }
+}

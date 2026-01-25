@@ -1,0 +1,40 @@
+{
+  "protocol_name": "Generic ASCII",
+  "manufacturer": "Generic",
+  "version": "1.0",
+  "description": "Configurable ASCII protocol with regex parsing",
+  "connection": {
+    "type": "TcpIp",
+    "host": "192.168.1.100",
+    "port": 10001,
+    "auto_reconnect": true
+  },
+  "data_format": "ASCII",
+  "mode": "Continuous",
+  "parsing": {
+    "line_delimiter": "\r\n",
+    "regex": "(?<status>[A-Z])\\s+(?<weight>[0-9.]+)\\s+(?<unit>[A-Z]+)",
+    "fields": [
+      {
+        "name": "status",
+        "regex_group": "status",
+        "data_type": "string",
+        "mapping": {
+          "S": "stable",
+          "M": "motion",
+          "O": "overload"
+        }
+      },
+      {
+        "name": "weight",
+        "regex_group": "weight",
+        "data_type": "float"
+      },
+      {
+        "name": "unit",
+        "regex_group": "unit",
+        "data_type": "string"
+      }
+    ]
+  }
+}

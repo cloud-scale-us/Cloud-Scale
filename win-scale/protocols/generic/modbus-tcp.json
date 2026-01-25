@@ -1,0 +1,51 @@
+{
+  "protocol_name": "Modbus TCP Generic",
+  "manufacturer": "Generic",
+  "version": "1.0",
+  "description": "Generic Modbus TCP protocol for industrial scales",
+  "connection": {
+    "type": "ModbusTCP",
+    "host": "192.168.1.50",
+    "port": 502,
+    "timeout_ms": 3000,
+    "unit_id": 1,
+    "auto_reconnect": true
+  },
+  "data_format": "ModbusRegisters",
+  "mode": "Polled",
+  "polling_interval_ms": 100,
+  "parsing": {
+    "fields": [
+      {
+        "name": "weight",
+        "register_address": 0,
+        "register_count": 2,
+        "data_type": "float32_be",
+        "unit": "kg"
+      },
+      {
+        "name": "status",
+        "register_address": 2,
+        "register_count": 1,
+        "data_type": "uint16",
+        "bit_masks": {
+          "stable": 1,
+          "overload": 2,
+          "underload": 4,
+          "motion": 8
+        }
+      },
+      {
+        "name": "tare",
+        "register_address": 3,
+        "register_count": 2,
+        "data_type": "float32_be",
+        "unit": "kg"
+      }
+    ]
+  },
+  "validation": {
+    "min_weight": 0,
+    "max_weight": 10000
+  }
+}

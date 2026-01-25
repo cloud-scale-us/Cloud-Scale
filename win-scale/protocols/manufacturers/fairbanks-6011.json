@@ -1,0 +1,53 @@
+{
+  "protocol_name": "Fairbanks 6011",
+  "manufacturer": "Fairbanks Scales",
+  "version": "1.0",
+  "description": "Fairbanks 6011 ASCII protocol - STATUS WEIGHT TARE format",
+  "connection": {
+    "type": "TcpIp",
+    "host": "192.168.1.100",
+    "port": 10001,
+    "timeout_ms": 5000,
+    "auto_reconnect": true,
+    "reconnect_interval_seconds": 10
+  },
+  "data_format": "ASCII",
+  "mode": "Continuous",
+  "parsing": {
+    "line_delimiter": "\r\n",
+    "field_separator": "\\s+",
+    "fields": [
+      {
+        "name": "status",
+        "position": 0,
+        "data_type": "integer",
+        "mapping": {
+          "0": "unknown",
+          "1": "stable",
+          "2": "motion",
+          "3": "overload",
+          "4": "underload"
+        }
+      },
+      {
+        "name": "weight",
+        "position": 1,
+        "data_type": "float",
+        "multiplier": 0.01,
+        "unit": "lb"
+      },
+      {
+        "name": "tare",
+        "position": 2,
+        "data_type": "float",
+        "multiplier": 0.01,
+        "unit": "lb"
+      }
+    ]
+  },
+  "validation": {
+    "min_weight": 0,
+    "max_weight": 50000,
+    "require_stable": false
+  }
+}

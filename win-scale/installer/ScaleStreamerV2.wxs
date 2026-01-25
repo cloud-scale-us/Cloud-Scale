@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+    <Package Name="Scale Streamer v2.0"
+             Manufacturer="Cloud-Scale"
+             Version="2.0.0"
+             UpgradeCode="B2C3D4E5-F6A7-8901-BCDE-FA2345678901"
+             Scope="perMachine">
+
+        <SummaryInformation Description="Scale Streamer v2.0 - Universal scale data acquisition and streaming platform"
+                            Manufacturer="Cloud-Scale" />
+
+        <MajorUpgrade DowngradeErrorMessage="A newer version of Scale Streamer is already installed."
+                      Schedule="afterInstallInitialize" />
+
+        <Media Id="1" Cabinet="ScaleStreamer.cab" EmbedCab="yes" CompressionLevel="high" />
+
+        <!-- Properties -->
+        <Property Id="LAUNCHCONFIGONEXIT" Value="1" />
+        <Property Id="STARTSERVICEONEXIT" Value="1" />
+
+        <!-- Directory Structure -->
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="INSTALLFOLDER" Name="Scale Streamer">
+                <!-- Service Directory -->
+                <Directory Id="ServiceFolder" Name="Service" />
+
+                <!-- Configuration GUI Directory -->
+                <Directory Id="ConfigFolder" Name="Config" />
+
+                <!-- Protocol Templates Directory -->
+                <Directory Id="ProtocolsFolder" Name="protocols">
+                    <Directory Id="ManufacturersFolder" Name="manufacturers" />
+                    <Directory Id="GenericProtocolsFolder" Name="generic" />
+                </Directory>
+
+                <!-- Documentation Directory -->
+                <Directory Id="DocsFolder" Name="docs" />
+            </Directory>
+        </StandardDirectory>
+
+        <!-- Common Application Data (for database and logs) -->
+        <StandardDirectory Id="CommonAppDataFolder">
+            <Directory Id="AppDataFolder" Name="ScaleStreamer">
+                <Directory Id="LogsFolder" Name="logs" />
+                <Directory Id="BackupsFolder" Name="backups" />
+            </Directory>
+        </StandardDirectory>
+
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="ApplicationProgramsFolder" Name="Scale Streamer" />
+        </StandardDirectory>
+
+        <StandardDirectory Id="DesktopFolder" />
+
+        <!-- ================================================================ -->
+        <!-- SERVICE COMPONENTS -->
+        <!-- ================================================================ -->
+        <ComponentGroup Id="ServiceComponents" Directory="ServiceFolder">
+            <Component Id="ServiceExecutable" Guid="A1111111-1111-1111-1111-111111111111">
+                <File Id="ServiceExe" Source="$(var.ServicePublishDir)\ScaleStreamer.Service.exe" KeyPath="yes" />
+
+                <!-- Windows Service Configuration -->
+                <ServiceInstall Id="ScaleStreamerService"
+                                Name="ScaleStreamerService"
+                                DisplayName="Scale Streamer Service"
+                                Description="Cloud-Scale Scale Streamer - Manages scale connections and data streaming"
+                                Type="ownProcess"
+                                Start="auto"
+                                Account="LocalSystem"
+                                ErrorControl="normal"
+                                Interactive="no">
+                    <util:ServiceConfig FirstFailureActionType="restart"
+                                       SecondFailureActionType="restart"
+                                       ThirdFailureActionType="restart"
+                                       RestartServiceDelayInSeconds="60" />
+                </ServiceInstall>
+
+                <ServiceControl Id="StartService"
+                               Name="ScaleStreamerService"
+                               Start="install"
+                               Stop="both"
+                               Remove="uninstall"
+                               Wait="yes" />
+            </Component>
+
+            <Component Id="ServiceDll" Guid="A1111111-1111-1111-1111-111111111112">
+                <File Source="$(var.ServicePublishDir)\ScaleStreamer.Service.dll" KeyPath="yes" />
+            </Component>
+
+            <Component Id="ServiceRuntimeConfig" Guid="A1111111-1111-1111-1111-111111111113">
+                <File Source="$(var.ServicePublishDir)\ScaleStreamer.Service.runtimeconfig.json" KeyPath="yes" />
+            </Component>
+
+            <Component Id="ServiceAppSettings" Guid="A1111111-1111-1111-1111-111111111114">
+                <File Source="$(var.ServicePublishDir)\appsettings.json" KeyPath="yes" />
+            </Component>
+
+            <Component Id="CommonLibraryDll" Guid="A1111111-1111-1111-1111-111111111115">
+                <File Source="$(var.ServicePublishDir)\ScaleStreamer.Common.dll" KeyPath="yes" />
+            </Component>
+
+            <Component Id="DatabaseSchema" Guid="A1111111-1111-1111-1111-111111111116">
+                <File Source="..\src-v2\ScaleStreamer.Common\Database\schema.sql" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- Service Runtime Dependencies -->
+        <!-- TODO: Add runtime DLLs individually or use heat.exe to harvest -->
+        <!--
+        <ComponentGroup Id="ServiceRuntimeComponents" Directory="ServiceFolder">
+            <Files Include="$(var.ServicePublishDir)\*.dll">
+                <Exclude Files="$(var.ServicePublishDir)\ScaleStreamer.Service.dll" />
+                <Exclude Files="$(var.ServicePublishDir)\ScaleStreamer.Common.dll" />
+            </Files>
+        </ComponentGroup>
+        -->
+
+        <!-- ================================================================ -->
+        <!-- CONFIGURATION GUI COMPONENTS -->
+        <!-- ================================================================ -->
+        <ComponentGroup Id="ConfigComponents" Directory="ConfigFolder">
+            <Component Id="ConfigExecutable" Guid="B2222222-2222-2222-2222-222222222221">
+                <File Id="ConfigExe" Source="$(var.ConfigPublishDir)\ScaleStreamer.Config.exe" KeyPath="yes">
+                    <Shortcut Id="DesktopShortcut"
+                              Directory="DesktopFolder"
+                              Name="Scale Streamer Configuration"
+                              Description="Configure and monitor scale connections"
+                              WorkingDirectory="ConfigFolder"
+                              Advertise="yes" />
+                </File>
+            </Component>
+
+            <Component Id="ConfigDll" Guid="B2222222-2222-2222-2222-222222222222">
+                <File Source="$(var.ConfigPublishDir)\ScaleStreamer.Config.dll" KeyPath="yes" />
+            </Component>
+
+            <Component Id="ConfigRuntimeConfig" Guid="B2222222-2222-2222-2222-222222222223">
+                <File Source="$(var.ConfigPublishDir)\ScaleStreamer.Config.runtimeconfig.json" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- Config Runtime Dependencies -->
+        <!-- TODO: Add runtime DLLs individually or use heat.exe to harvest -->
+        <!--
+        <ComponentGroup Id="ConfigRuntimeComponents" Directory="ConfigFolder">
+            <Files Include="$(var.ConfigPublishDir)\*.dll">
+                <Exclude Files="$(var.ConfigPublishDir)\ScaleStreamer.Config.dll" />
+                <Exclude Files="$(var.ConfigPublishDir)\ScaleStreamer.Common.dll" />
+            </Files>
+        </ComponentGroup>
+        -->
+
+        <!-- ================================================================ -->
+        <!-- PROTOCOL TEMPLATES -->
+        <!-- ================================================================ -->
+        <ComponentGroup Id="ProtocolComponents" Directory="ProtocolsFolder">
+            <!-- Manufacturer-specific protocols -->
+            <Component Id="ProtocolFairbanks6011" Directory="ManufacturersFolder" Guid="C3333333-3333-3333-3333-333333333331">
+                <File Source="..\protocols\manufacturers\fairbanks-6011.json" KeyPath="yes" />
+            </Component>
+
+            <!-- Generic protocols -->
+            <Component Id="ProtocolGenericAscii" Directory="GenericProtocolsFolder" Guid="C3333333-3333-3333-3333-333333333332">
+                <File Source="..\protocols\generic\generic-ascii.json" KeyPath="yes" />
+            </Component>
+
+            <Component Id="ProtocolModbusTcp" Directory="GenericProtocolsFolder" Guid="C3333333-3333-3333-3333-333333333333">
+                <File Source="..\protocols\generic\modbus-tcp.json" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- ================================================================ -->
+        <!-- DOCUMENTATION -->
+        <!-- ================================================================ -->
+        <ComponentGroup Id="DocumentationComponents" Directory="DocsFolder">
+            <Component Id="DocQuickStart" Guid="D4444444-4444-4444-4444-444444444441">
+                <File Source="..\QUICK-START-V2.md" KeyPath="yes" />
+            </Component>
+
+            <Component Id="DocBuildAndTest" Guid="D4444444-4444-4444-4444-444444444442">
+                <File Source="..\BUILD-AND-TEST-V2.md" KeyPath="yes" />
+            </Component>
+
+            <Component Id="DocArchitecture" Guid="D4444444-4444-4444-4444-444444444443">
+                <File Source="..\V2-UNIVERSAL-ARCHITECTURE.md" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- ================================================================ -->
+        <!-- APPLICATION DATA DIRECTORIES -->
+        <!-- ================================================================ -->
+        <ComponentGroup Id="AppDataComponents" Directory="AppDataFolder">
+            <Component Id="LogsDirectory" Directory="LogsFolder" Guid="E5555555-5555-5555-5555-555555555551">
+                <CreateFolder />
+                <RegistryValue Root="HKLM"
+                              Key="Software\Cloud-Scale\ScaleStreamer"
+                              Name="LogsPath"
+                              Type="string"
+                              Value="[LogsFolder]"
+                              KeyPath="yes" />
+            </Component>
+
+            <Component Id="BackupsDirectory" Directory="BackupsFolder" Guid="E5555555-5555-5555-5555-555555555552">
+                <CreateFolder />
+                <RegistryValue Root="HKLM"
+                              Key="Software\Cloud-Scale\ScaleStreamer"
+                              Name="BackupsPath"
+                              Type="string"
+                              Value="[BackupsFolder]"
+                              KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- ================================================================ -->
+        <!-- REGISTRY KEYS -->
+        <!-- ================================================================ -->
+        <ComponentGroup Id="RegistryComponents" Directory="INSTALLFOLDER">
+            <Component Id="AppRegistryKeys" Guid="F6666666-6666-6666-6666-666666666661">
+                <RegistryKey Root="HKLM" Key="Software\Cloud-Scale\ScaleStreamer">
+                    <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" />
+                    <RegistryValue Name="Version" Type="string" Value="2.0.0" />
+                    <RegistryValue Name="Vendor" Type="string" Value="Cloud-Scale" />
+                    <RegistryValue Name="SupportURL" Type="string" Value="https://cloud-scale.us/support" />
+                    <RegistryValue Name="ServicePath" Type="string" Value="[ServiceFolder]" />
+                    <RegistryValue Name="ConfigPath" Type="string" Value="[ConfigFolder]" />
+                    <RegistryValue Name="ProtocolsPath" Type="string" Value="[ProtocolsFolder]" KeyPath="yes" />
+                </RegistryKey>
+            </Component>
+
+            <!-- Firewall Port Registry -->
+            <Component Id="FirewallRegistry" Guid="F6666666-6666-6666-6666-666666666662">
+                <RegistryKey Root="HKLM" Key="Software\Cloud-Scale\ScaleStreamer\Firewall">
+                    <RegistryValue Name="RTSP" Type="integer" Value="8554" />
+                    <RegistryValue Name="HLS" Type="integer" Value="8888" KeyPath="yes" />
+                </RegistryKey>
+            </Component>
+        </ComponentGroup>
+
+        <!-- ================================================================ -->
+        <!-- START MENU SHORTCUTS -->
+        <!-- ================================================================ -->
+        <ComponentGroup Id="ShortcutComponents" Directory="ApplicationProgramsFolder">
+            <Component Id="StartMenuShortcuts" Guid="77777777-7777-7777-7777-777777777771">
+                <Shortcut Id="ConfigShortcut"
+                          Name="Scale Streamer Configuration"
+                          Description="Configure and monitor scale connections"
+                          Target="[ConfigFolder]ScaleStreamer.Config.exe"
+                          WorkingDirectory="ConfigFolder" />
+
+                <Shortcut Id="ServiceControlShortcut"
+                          Name="Service Control Panel"
+                          Description="Open Windows Services to manage Scale Streamer Service"
+                          Target="[System64Folder]services.msc"
+                          Arguments="/s" />
+
+                <Shortcut Id="DocsShortcut"
+                          Name="Documentation"
+                          Description="View Scale Streamer documentation"
+                          Target="[DocsFolder]" />
+
+                <Shortcut Id="UninstallShortcut"
+                          Name="Uninstall Scale Streamer"
+                          Description="Uninstall Scale Streamer"
+                          Target="[System64Folder]msiexec.exe"
+                          Arguments="/x [ProductCode]" />
+
+                <RemoveFolder Id="CleanUpShortcutFolder" On="uninstall" />
+                <RegistryValue Root="HKCU" Key="Software\ScaleStreamer" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- ================================================================ -->
+        <!-- CUSTOM ACTIONS -->
+        <!-- ================================================================ -->
+
+        <!-- Add Firewall Rules -->
+        <CustomAction Id="AddFirewallRules"
+                      Directory="INSTALLFOLDER"
+                      Execute="deferred"
+                      Impersonate="no"
+                      ExeCommand='cmd.exe /c netsh advfirewall firewall add rule name="Scale Streamer - RTSP" dir=in action=allow protocol=TCP localport=8554 &amp; netsh advfirewall firewall add rule name="Scale Streamer - HLS" dir=in action=allow protocol=TCP localport=8888'
+                      Return="ignore" />
+
+        <!-- Remove Firewall Rules -->
+        <CustomAction Id="RemoveFirewallRules"
+                      Directory="INSTALLFOLDER"
+                      Execute="deferred"
+                      Impersonate="no"
+                      ExeCommand='cmd.exe /c netsh advfirewall firewall delete rule name="Scale Streamer - RTSP" &amp; netsh advfirewall firewall delete rule name="Scale Streamer - HLS"'
+                      Return="ignore" />
+
+        <!-- Initialize Database -->
+        <CustomAction Id="InitializeDatabase"
+                      Directory="ServiceFolder"
+                      Execute="deferred"
+                      Impersonate="no"
+                      ExeCommand='"[ServiceFolder]ScaleStreamer.Service.exe" --init-db'
+                      Return="ignore" />
+
+        <!-- Launch Configuration App -->
+        <CustomAction Id="LaunchConfigApp"
+                      Directory="ConfigFolder"
+                      ExeCommand='"[ConfigFolder]ScaleStreamer.Config.exe"'
+                      Return="asyncNoWait" />
+
+        <!-- ================================================================ -->
+        <!-- INSTALL SEQUENCE -->
+        <!-- ================================================================ -->
+        <InstallExecuteSequence>
+            <!-- Firewall rules -->
+            <Custom Action="AddFirewallRules" After="InstallFiles" Condition="NOT Installed" />
+            <Custom Action="RemoveFirewallRules" After="RemoveFiles" Condition="Installed AND NOT REINSTALL" />
+
+            <!-- Database initialization -->
+            <Custom Action="InitializeDatabase" After="AddFirewallRules" Condition="NOT Installed" />
+
+            <!-- Launch config app after install -->
+            <Custom Action="LaunchConfigApp" After="InstallFinalize" Condition="LAUNCHCONFIGONEXIT AND NOT Installed" />
+        </InstallExecuteSequence>
+
+        <!-- ================================================================ -->
+        <!-- FEATURES -->
+        <!-- ================================================================ -->
+        <Feature Id="MainFeature" Title="Scale Streamer Core" Level="1"
+                 Description="Core service and configuration application"
+                 ConfigurableDirectory="INSTALLFOLDER" AllowAbsent="no">
+            <ComponentGroupRef Id="ServiceComponents" />
+            <!-- <ComponentGroupRef Id="ServiceRuntimeComponents" /> -->
+            <ComponentGroupRef Id="ConfigComponents" />
+            <!-- <ComponentGroupRef Id="ConfigRuntimeComponents" /> -->
+            <ComponentGroupRef Id="ProtocolComponents" />
+            <ComponentGroupRef Id="AppDataComponents" />
+            <ComponentGroupRef Id="RegistryComponents" />
+            <ComponentGroupRef Id="ShortcutComponents" />
+        </Feature>
+
+        <Feature Id="DocumentationFeature" Title="Documentation" Level="1"
+                 Description="User guides and technical documentation">
+            <ComponentGroupRef Id="DocumentationComponents" />
+        </Feature>
+
+        <!-- ================================================================ -->
+        <!-- USER INTERFACE -->
+        <!-- ================================================================ -->
+        <ui:WixUI Id="WixUI_FeatureTree" />
+
+        <!-- License Agreement -->
+        <WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+
+        <!-- Installer Images -->
+        <WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
+        <WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
+
+        <!-- ================================================================ -->
+        <!-- PRODUCT INFORMATION -->
+        <!-- ================================================================ -->
+
+        <!-- Icon for Add/Remove Programs -->
+        <Icon Id="ScaleStreamerIcon" SourceFile="icon.ico" />
+        <Property Id="ARPPRODUCTICON" Value="ScaleStreamerIcon" />
+        <Property Id="ARPURLINFOABOUT" Value="https://cloud-scale.us" />
+        <Property Id="ARPHELPLINK" Value="https://cloud-scale.us/support" />
+        <Property Id="ARPCONTACT" Value="admin@cloud-scale.us" />
+
+        <!-- Enable verbose logging -->
+        <Property Id="MsiLogging" Value="voicewarmup" />
+
+    </Package>
+</Wix>
