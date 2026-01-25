@@ -39,9 +39,16 @@ public class ScaleService : BackgroundService
 
         // Protocols are in the parent directory (Scale Streamer\protocols)
         // Service runs from (Scale Streamer\Service\)
-        var installRoot = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory)?.FullName
-            ?? AppDomain.CurrentDomain.BaseDirectory;
+        // First try registry, then use BaseDirectory parent
+        var baseDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
+        var installRoot = Path.GetDirectoryName(baseDir);
+        if (string.IsNullOrEmpty(installRoot))
+        {
+            _logger.LogWarning("Could not determine install root from BaseDirectory: {BaseDir}", baseDir);
+            installRoot = baseDir;
+        }
         _protocolsPath = Path.Combine(installRoot, "protocols");
+        _logger.LogInformation("Protocols path resolved to: {Path}", _protocolsPath);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -106,19 +113,20 @@ public class ScaleService : BackgroundService
         }
 
         var jsonFiles = Directory.GetFiles(_protocolsPath, "*.json", SearchOption.AllDirectories);
-        _logger.LogInformation("Loading {Count} protocol templates...", jsonFiles.Length);
+        _logger.LogInformation("Found {Count} protocol template files in {Path}", jsonFiles.Length, _protocolsPath);
 
         foreach (var file in jsonFiles)
         {
             try
             {
+                _logger.LogDebug("Loading protocol from: {File}", file);
                 var json = await File.ReadAllTextAsync(file);
                 var protocol = JsonSerializer.Deserialize<ProtocolDefinition>(json);
 
                 if (protocol != null && _database != null)
                 {
                     await _database.SaveProtocolTemplateAsync(protocol, isBuiltin: true);
-                    _logger.LogInformation("Loaded protocol: {Name}", protocol.ProtocolName);
+                    _logger.LogInformation("Loaded protocol template: {Name} v{Version}", protocol.ProtocolName, protocol.Version);
                 }
             }
             catch (Exception ex)
