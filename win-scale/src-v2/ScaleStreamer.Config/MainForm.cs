@@ -10,7 +10,7 @@ namespace ScaleStreamer.Config;
 /// </summary>
 public partial class MainForm : Form
 {
-    private const string APP_VERSION = "3.2.0";
+    private const string APP_VERSION = "3.3.0";
 
     private readonly IpcClient _ipcClient;
     private System.Windows.Forms.Timer _statusTimer;
@@ -137,16 +137,18 @@ public partial class MainForm : Form
         headerPanel.Controls.Add(titleLabel);
         headerPanel.Controls.Add(versionLabel);
 
-        // Create main tab control
+        // Create main tab control - MUST be added after header for proper docking
         _mainTabControl = new TabControl
         {
             Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 9F)
+            Font = new Font("Segoe UI", 9F),
+            Visible = true,
+            Name = "MainTabControl"
         };
 
+        // Add header first (docks to top), then tab control (fills remaining space)
         this.Controls.Add(headerPanel);
         this.Controls.Add(_mainTabControl);
-        headerPanel.BringToFront();
     }
 
     private Icon? LoadAppIcon()
