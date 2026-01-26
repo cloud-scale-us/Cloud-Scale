@@ -296,8 +296,9 @@ public class IpcServer : IDisposable
 
     /// <summary>
     /// Send response/event to all connected clients (broadcast)
+    /// Uses fire-and-forget to prevent slow clients from blocking broadcasts
     /// </summary>
-    public async Task SendResponseAsync(IpcResponse response)
+    public Task SendResponseAsync(IpcResponse response)
     {
         List<ConnectedClient> clientsCopy;
         lock (_clientsLock)
@@ -308,40 +309,39 @@ public class IpcServer : IDisposable
         if (clientsCopy.Count == 0)
         {
             _log.Verbose("SendResponseAsync: No connected clients to send to");
-            return;
+            return Task.CompletedTask;
         }
 
         var json = JsonSerializer.Serialize<IpcMessage>(response);
         _log.Debug("Broadcasting {MessageType} to {ClientCount} clients", response.MessageType, clientsCopy.Count);
 
-        var failedClients = new List<ConnectedClient>();
-
+        // Fire-and-forget broadcast to each client
+        // This prevents slow clients from blocking the broadcast to others
         foreach (var client in clientsCopy)
         {
-            try
+            var capturedClient = client; // Capture for closure
+            _ = Task.Run(async () =>
             {
-                await client.Writer.WriteLineAsync(json);
-                await client.Writer.FlushAsync();
-            }
-            catch (Exception ex)
-            {
-                _log.Warning(ex, "[Conn#{ConnectionId}] Failed to send message: {Error}", client.ConnectionId, ex.Message);
-                client.IsConnected = false;
-                failedClients.Add(client);
-            }
+                try
+                {
+                    await capturedClient.Writer.WriteLineAsync(json);
+                    await capturedClient.Writer.FlushAsync();
+                }
+                catch (Exception ex)
+                {
+                    _log.Warning(ex, "[Conn#{ConnectionId}] Failed to send message: {Error}", capturedClient.ConnectionId, ex.Message);
+                    capturedClient.IsConnected = false;
+
+                    // Remove failed client
+                    lock (_clientsLock)
+                    {
+                        _connectedClients.Remove(capturedClient);
+                    }
+                }
+            });
         }
 
-        // Remove failed clients
-        if (failedClients.Count > 0)
-        {
-            lock (_clientsLock)
-            {
-                foreach (var client in failedClients)
-                {
-                    _connectedClients.Remove(client);
-                }
-            }
-        }
+        return Task.CompletedTask;
     }
 
     /// <summary>
