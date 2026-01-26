@@ -228,8 +228,19 @@ public partial class LoggingTab : UserControl
                 }
             }
 
-            // Read last 100 lines from log file
-            var lines = File.ReadLines(logFile).TakeLast(100).ToList();
+            // Read last 100 lines from log file (use FileShare.ReadWrite for locked files)
+            var lines = new List<string>();
+            using (var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var reader = new StreamReader(fileStream))
+            {
+                var allLines = new List<string>();
+                string? line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    allLines.Add(line);
+                }
+                lines = allLines.TakeLast(100).ToList();
+            }
 
             foreach (var line in lines)
             {

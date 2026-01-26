@@ -37,6 +37,7 @@ public partial class ConnectionTab : UserControl
 
     // Status controls
     private Label _connectionStatusLabel;
+    private Button _quickSetupButton;
     private Button _testConnectionButton;
     private Button _saveButton;
     private TextBox _logTextBox;
@@ -132,6 +133,39 @@ public partial class ConnectionTab : UserControl
         mainPanel.Controls.Add(serialPanel);
         mainPanel.SetColumnSpan(serialPanel, 2);
         mainPanel.SetRow(serialPanel, row++);
+
+        // Quick Setup Section
+        AddSectionHeader(mainPanel, "Quick Setup", ref row);
+
+        var quickSetupPanel = new FlowLayoutPanel
+        {
+            AutoSize = true,
+            FlowDirection = FlowDirection.LeftToRight,
+            Padding = new Padding(0, 5, 0, 10)
+        };
+
+        _quickSetupButton = new Button
+        {
+            Text = "Auto-Detect Scale...",
+            Width = 150,
+            Height = 35
+        };
+        _quickSetupButton.Click += QuickSetup_Click;
+
+        var quickSetupHelp = new Label
+        {
+            Text = "Automatically detect scale connection and protocol",
+            AutoSize = true,
+            Padding = new Padding(10, 8, 0, 0),
+            ForeColor = Color.Gray
+        };
+
+        quickSetupPanel.Controls.Add(_quickSetupButton);
+        quickSetupPanel.Controls.Add(quickSetupHelp);
+
+        mainPanel.Controls.Add(quickSetupPanel);
+        mainPanel.SetColumnSpan(quickSetupPanel, 2);
+        mainPanel.SetRow(quickSetupPanel, row++);
 
         // Connection Status Section
         AddSectionHeader(mainPanel, "Connection Status", ref row);
@@ -412,7 +446,78 @@ public partial class ConnectionTab : UserControl
 
     private void Protocol_Changed(object? sender, EventArgs e)
     {
-        LogMessage($"Protocol changed to: {_protocolCombo.SelectedItem}");
+        var protocol = _protocolCombo.SelectedItem?.ToString();
+        LogMessage($"Protocol changed to: {protocol}");
+
+        if (!string.IsNullOrEmpty(protocol))
+        {
+            LoadProtocolDefaults(protocol);
+        }
+    }
+
+    private void LoadProtocolDefaults(string protocolName)
+    {
+        try
+        {
+            // Try to load protocol template from installation folder
+            var installPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                "Scale Streamer", "protocols");
+
+            string? templatePath = null;
+
+            // Map protocol names to file paths
+            if (protocolName.Contains("Fairbanks 6011"))
+            {
+                templatePath = Path.Combine(installPath, "manufacturers", "fairbanks-6011.json");
+            }
+            else if (protocolName.Contains("Generic ASCII"))
+            {
+                templatePath = Path.Combine(installPath, "generic", "generic-ascii.json");
+            }
+            else if (protocolName.Contains("Modbus TCP"))
+            {
+                templatePath = Path.Combine(installPath, "generic", "modbus-tcp.json");
+            }
+
+            if (templatePath != null && File.Exists(templatePath))
+            {
+                var json = File.ReadAllText(templatePath);
+                var template = JsonSerializer.Deserialize<JsonElement>(json);
+
+                // Apply connection defaults
+                if (template.TryGetProperty("connection", out var connection))
+                {
+                    if (connection.TryGetProperty("type", out var connType))
+                    {
+                        var type = connType.GetString();
+                        _connectionTypeCombo.SelectedItem = type;
+                    }
+
+                    if (connection.TryGetProperty("port", out var port))
+                    {
+                        _portNumeric.Value = port.GetInt32();
+                        LogMessage($"  → Port set to {port.GetInt32()}");
+                    }
+
+                    if (connection.TryGetProperty("timeout_ms", out var timeout))
+                    {
+                        _timeoutNumeric.Value = timeout.GetInt32();
+                    }
+
+                    if (connection.TryGetProperty("auto_reconnect", out var autoReconnect))
+                    {
+                        _autoReconnectCheck.Checked = autoReconnect.GetBoolean();
+                    }
+                }
+
+                LogMessage($"✓ Loaded defaults for {protocolName}");
+            }
+        }
+        catch (Exception ex)
+        {
+            LogMessage($"Could not load protocol defaults: {ex.Message}");
+        }
     }
 
     private void ConnectionType_Changed(object? sender, EventArgs e)
@@ -510,5 +615,73 @@ public partial class ConnectionTab : UserControl
 
         var timestamp = DateTime.Now.ToString("HH:mm:ss");
         _logTextBox.AppendText($"[{timestamp}] {message}\r\n");
+    }
+
+    private void QuickSetup_Click(object? sender, EventArgs e)
+    {
+        using var wizard = new QuickSetupWizard();
+        if (wizard.ShowDialog(this) == DialogResult.OK)
+        {
+            if (wizard.DetectedProtocol != null && wizard.DetectedConfig != null)
+            {
+                ApplyQuickSetupConfig(wizard.DetectedProtocol, wizard.IpAddress!, wizard.Port);
+                LogMessage($"✓ Quick setup completed: {wizard.DetectedProtocol} at {wizard.IpAddress}:{wizard.Port}");
+            }
+        }
+    }
+
+    private void ApplyQuickSetupConfig(string protocol, string ipAddress, int port)
+    {
+        // Set connection type to TCP/IP
+        _connectionTypeCombo.SelectedItem = "TcpIp";
+
+        // Set TCP/IP settings
+        _hostText.Text = ipAddress;
+        _portNumeric.Value = port;
+
+        // Set manufacturer and protocol based on detection
+        if (protocol.Contains("Fairbanks"))
+        {
+            _manufacturerCombo.SelectedItem = "Fairbanks Scales";
+            // Wait for manufacturer list to update
+            Application.DoEvents();
+            _protocolCombo.SelectedItem = "Fairbanks 6011";
+        }
+        else if (protocol.Contains("Generic ASCII"))
+        {
+            _manufacturerCombo.SelectedItem = "Generic";
+            Application.DoEvents();
+            _protocolCombo.SelectedItem = "Generic ASCII";
+        }
+        else if (protocol.Contains("Modbus"))
+        {
+            _manufacturerCombo.SelectedItem = "Generic";
+            Application.DoEvents();
+            _protocolCombo.SelectedItem = "Modbus TCP";
+        }
+
+        // Generate scale ID and name if empty
+        if (string.IsNullOrWhiteSpace(_scaleIdText.Text))
+        {
+            _scaleIdText.Text = $"scale-{ipAddress.Replace(".", "-")}";
+        }
+
+        if (string.IsNullOrWhiteSpace(_scaleNameText.Text))
+        {
+            _scaleNameText.Text = $"{protocol} at {ipAddress}";
+        }
+
+        // Update status
+        _connectionStatusLabel.Text = "Configuration Ready - Click Save";
+        _connectionStatusLabel.ForeColor = Color.Green;
+
+        MessageBox.Show(
+            $"Configuration detected and applied!\n\n" +
+            $"Protocol: {protocol}\n" +
+            $"Address: {ipAddress}:{port}\n\n" +
+            $"Review the settings and click 'Save Configuration' to apply.",
+            "Quick Setup Complete",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
     }
 }
