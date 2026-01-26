@@ -23,6 +23,26 @@ public partial class LoggingTab : UserControl
         _ipcClient = ipcClient;
         InitializeComponent();
         LoadDefaults();
+
+        // Delay background loading until handle is created
+        this.HandleCreated += (s, e) =>
+        {
+            Task.Run(() => LoadServiceLogs());
+        };
+    }
+
+    /// <summary>
+    /// Safe invoke that checks if handle is created before invoking
+    /// </summary>
+    private void SafeInvoke(Action action)
+    {
+        if (!IsHandleCreated || IsDisposed)
+            return;
+
+        if (InvokeRequired)
+            BeginInvoke(action);
+        else
+            action();
     }
 
     private void InitializeComponent()
@@ -186,8 +206,7 @@ public partial class LoggingTab : UserControl
         _categoryFilterCombo.Items.Add("Database");
         _categoryFilterCombo.SelectedIndex = 0;
 
-        // Load actual service logs
-        Task.Run(() => LoadServiceLogs());
+        // Background loading now happens in HandleCreated event
     }
 
     private void LoadServiceLogs()
@@ -200,7 +219,7 @@ public partial class LoggingTab : UserControl
 
             if (!Directory.Exists(logsPath))
             {
-                Invoke(() => AddEvent(DateTime.Now, "WRN", "GUI",
+                SafeInvoke(() => AddEvent(DateTime.Now, "WRN", "GUI",
                     $"Service logs directory not found: {logsPath}"));
                 return;
             }
@@ -222,7 +241,7 @@ public partial class LoggingTab : UserControl
                 }
                 else
                 {
-                    Invoke(() => AddEvent(DateTime.Now, "WRN", "GUI",
+                    SafeInvoke(() => AddEvent(DateTime.Now, "WRN", "GUI",
                         "No service log files found"));
                     return;
                 }
@@ -250,11 +269,11 @@ public partial class LoggingTab : UserControl
                 ParseLogLine(line);
             }
 
-            Invoke(() => _eventCountLabel.Text = $"Events: {_eventsListView.Items.Count} (from {Path.GetFileName(logFile)})");
+            SafeInvoke(() => _eventCountLabel.Text = $"Events: {_eventsListView.Items.Count} (from {Path.GetFileName(logFile)})");
         }
         catch (Exception ex)
         {
-            Invoke(() => AddEvent(DateTime.Now, "ERR", "GUI",
+            SafeInvoke(() => AddEvent(DateTime.Now, "ERR", "GUI",
                 $"Failed to load service logs: {ex.Message}"));
         }
     }
@@ -294,7 +313,7 @@ public partial class LoggingTab : UserControl
             else if (message.Contains("IPC") || message.Contains("pipe"))
                 category = "IPC";
 
-            Invoke(() => AddEvent(timestamp, level, category, message));
+            SafeInvoke(() => AddEvent(timestamp, level, category, message));
         }
         catch
         {
@@ -304,9 +323,12 @@ public partial class LoggingTab : UserControl
 
     private void AddEvent(DateTime timestamp, string level, string category, string message)
     {
+        if (!IsHandleCreated || IsDisposed)
+            return;
+
         if (InvokeRequired)
         {
-            Invoke(() => AddEvent(timestamp, level, category, message));
+            BeginInvoke(() => AddEvent(timestamp, level, category, message));
             return;
         }
 

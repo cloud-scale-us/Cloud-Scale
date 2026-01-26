@@ -536,10 +536,16 @@ INSERT OR IGNORE INTO config (key, value) VALUES ('metric_retention_days', '7');
         var templates = new List<ProtocolDefinition>();
         using var reader = await command.ExecuteReaderAsync();
 
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Skip
+        };
+
         while (await reader.ReadAsync())
         {
             var json = reader.GetString(0);
-            var protocol = JsonSerializer.Deserialize<ProtocolDefinition>(json);
+            var protocol = JsonSerializer.Deserialize<ProtocolDefinition>(json, options);
             if (protocol != null)
                 templates.Add(protocol);
         }

@@ -324,14 +324,21 @@ public class IpcCommandHandler
             try
             {
                 var json = await File.ReadAllTextAsync(file);
-                var protocol = JsonSerializer.Deserialize<ProtocolDefinition>(json);
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Skip
+                };
+
+                var protocol = JsonSerializer.Deserialize<ProtocolDefinition>(json, options);
 
                 if (protocol != null && protocol.ProtocolName == protocolName)
                     return protocol;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to load protocol from: {File}", file);
+                _logger.LogWarning(ex, "Failed to load protocol from: {File}. Error: {Message}", file, ex.Message);
             }
         }
 

@@ -121,17 +121,29 @@ public class ScaleService : BackgroundService
             {
                 _logger.LogDebug("Loading protocol from: {File}", file);
                 var json = await File.ReadAllTextAsync(file);
-                var protocol = JsonSerializer.Deserialize<ProtocolDefinition>(json);
+
+                // Configure JSON options to ignore unknown properties (allows extra documentation fields)
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Skip
+                };
+
+                var protocol = JsonSerializer.Deserialize<ProtocolDefinition>(json, options);
 
                 if (protocol != null && _database != null)
                 {
                     await _database.SaveProtocolTemplateAsync(protocol, isBuiltin: true);
                     _logger.LogInformation("Loaded protocol template: {Name} v{Version}", protocol.ProtocolName, protocol.Version);
                 }
+                else if (protocol == null)
+                {
+                    _logger.LogWarning("Protocol deserialized to null from: {File}", file);
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to load protocol from: {File}", file);
+                _logger.LogError(ex, "Failed to load protocol from: {File}. Error: {Message}", file, ex.Message);
             }
         }
     }

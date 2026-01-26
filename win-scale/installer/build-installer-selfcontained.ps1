@@ -86,21 +86,26 @@ Write-Host "[3/4] Building MSI installer..." -ForegroundColor Yellow
 
 $wixFile = Join-Path $InstallerDir "ScaleStreamerV2-SelfContained.wxs"
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-$outputMsi = Join-Path $OutputDir "ScaleStreamer-v3.4.2-$timestamp.msi"
+$outputMsi = Join-Path $OutputDir "ScaleStreamer-v3.4.3-$timestamp.msi"
 
 # Install extensions if not already present
 & wix extension add -g WixToolset.UI.wixext/4.0.5 2>$null
 & wix extension add -g WixToolset.Util.wixext/4.0.5 2>$null
 
-wix build $wixFile `
-    "$InstallerDir\GeneratedComponents.wxs" `
-    -o $outputMsi `
-    -ext WixToolset.UI.wixext/4.0.5 `
-    -ext WixToolset.Util.wixext/4.0.5 `
-    -d ServicePublishDir=$ServicePublishDir `
-    -d ConfigPublishDir=$ConfigPublishDir `
-    -d LauncherPublishDir=$LauncherPublishDir `
-    -arch x64
+Push-Location $InstallerDir
+try {
+    wix build "ScaleStreamerV2-SelfContained.wxs" `
+        "GeneratedComponents.wxs" `
+        -o $outputMsi `
+        -ext WixToolset.UI.wixext/4.0.5 `
+        -ext WixToolset.Util.wixext/4.0.5 `
+        -d ServicePublishDir=$ServicePublishDir `
+        -d ConfigPublishDir=$ConfigPublishDir `
+        -d LauncherPublishDir=$LauncherPublishDir `
+        -arch x64
+} finally {
+    Pop-Location
+}
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "WiX build failed!"
