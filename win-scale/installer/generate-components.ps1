@@ -59,19 +59,12 @@ foreach ($file in $configFiles) {
     $safeFileName = $file.Name -replace '[\.-]', '_'
     $guid = [System.Guid]::NewGuid().ToString().ToUpper()
 
-    # Add shortcut for the main EXE
+    # Desktop shortcut is created separately in main WXS file - don't duplicate here
     if ($file.Name -eq "ScaleStreamer.Config.exe") {
         $xml += @"
 
             <Component Id="ConfigFile_$safeFileName" Guid="$guid">
-                <File Id="ConfigExe" Source="`$(var.ConfigPublishDir)\$($file.Name)">
-                    <Shortcut Id="DesktopShortcut"
-                              Directory="DesktopFolder"
-                              Name="Scale Streamer Configuration"
-                              Description="Configure and monitor scale connections"
-                              WorkingDirectory="ConfigFolder"
-                              Advertise="yes" />
-                </File>
+                <File Id="ConfigExe" Source="`$(var.ConfigPublishDir)\$($file.Name)" />
             </Component>
 "@
     } else {

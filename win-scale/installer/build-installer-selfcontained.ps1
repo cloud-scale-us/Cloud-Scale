@@ -7,8 +7,21 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Ensure tools are in PATH
-$env:Path = "C:\Program Files\dotnet;C:\Users\Charlie\.dotnet\tools;$env:Path"
+# Ensure tools are in PATH (check multiple locations)
+$dotnetPaths = @("C:\Program Files\dotnet", "C:\dotnet", "$env:USERPROFILE\.dotnet")
+$toolsPaths = @("$env:USERPROFILE\.dotnet\tools", "C:\Users\Charlie\.dotnet\tools")
+foreach ($path in $dotnetPaths) {
+    if (Test-Path "$path\dotnet.exe") {
+        $env:Path = "$path;$env:Path"
+        break
+    }
+}
+foreach ($path in $toolsPaths) {
+    if (Test-Path $path) {
+        $env:Path = "$path;$env:Path"
+        break
+    }
+}
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Scale Streamer v2.0 Self-Contained Installer" -ForegroundColor Cyan
@@ -86,19 +99,19 @@ Write-Host "[3/4] Building MSI installer..." -ForegroundColor Yellow
 
 $wixFile = Join-Path $InstallerDir "ScaleStreamerV2-SelfContained.wxs"
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-$outputMsi = Join-Path $OutputDir "ScaleStreamer-v3.4.5-$timestamp.msi"
+$outputMsi = Join-Path $OutputDir "ScaleStreamer-v4.1.2-$timestamp.msi"
 
 # Install extensions if not already present
-& wix extension add -g WixToolset.UI.wixext/4.0.5 2>$null
-& wix extension add -g WixToolset.Util.wixext/4.0.5 2>$null
+& wix extension add -g WixToolset.UI.wixext 2>$null
+& wix extension add -g WixToolset.Util.wixext 2>$null
 
 Push-Location $InstallerDir
 try {
     wix build "ScaleStreamerV2-SelfContained.wxs" `
         "GeneratedComponents.wxs" `
         -o $outputMsi `
-        -ext WixToolset.UI.wixext/4.0.5 `
-        -ext WixToolset.Util.wixext/4.0.5 `
+        -ext WixToolset.UI.wixext `
+        -ext WixToolset.Util.wixext `
         -d ServicePublishDir=$ServicePublishDir `
         -d ConfigPublishDir=$ConfigPublishDir `
         -d LauncherPublishDir=$LauncherPublishDir `

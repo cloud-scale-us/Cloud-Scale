@@ -7,8 +7,14 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Ensure dotnet is in PATH
-$env:Path = "C:\Program Files\dotnet;$env:Path"
+# Ensure dotnet is in PATH (check multiple locations)
+$dotnetPaths = @("C:\Program Files\dotnet", "C:\dotnet", "$env:USERPROFILE\.dotnet")
+foreach ($path in $dotnetPaths) {
+    if (Test-Path "$path\dotnet.exe") {
+        $env:Path = "$path;$env:Path"
+        break
+    }
+}
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Self-Contained Installer Build" -ForegroundColor Cyan
