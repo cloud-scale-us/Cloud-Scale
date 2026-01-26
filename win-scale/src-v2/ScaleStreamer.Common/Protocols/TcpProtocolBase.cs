@@ -15,6 +15,8 @@ public abstract class TcpProtocolBase : BaseScaleProtocol
     protected StringBuilder _buffer = new();
     protected readonly byte[] _readBuffer = new byte[8192];
     protected string _lineDelimiter = "\r\n";
+    protected int _totalBytesReceived = 0;
+    protected DateTime? _firstDataReceivedTime = null;
 
     public override async Task<bool> ConnectAsync(ConnectionConfig config, CancellationToken cancellationToken = default)
     {
@@ -122,6 +124,22 @@ public abstract class TcpProtocolBase : BaseScaleProtocol
                 return null;
             }
 
+            // LOG: Raw data received
+            _totalBytesReceived += bytesRead;
+            if (_firstDataReceivedTime == null)
+            {
+                _firstDataReceivedTime = DateTime.UtcNow;
+                OnErrorOccurred($"[TCP] First data received: {bytesRead} bytes from {_config?.Host}:{_config?.Port}");
+            }
+
+            // Log raw bytes as hex and ASCII
+            var hexDump = string.Join(" ", _readBuffer.Take(Math.Min(bytesRead, 32)).Select(b => $"{b:X2}"));
+            var asciiPreview = Encoding.ASCII.GetString(_readBuffer, 0, Math.Min(bytesRead, 32))
+                .Replace("\r", "\\r")
+                .Replace("\n", "\\n")
+                .Replace("\t", "\\t");
+            OnErrorOccurred($"[TCP] Received {bytesRead} bytes | HEX: {hexDump} | ASCII: {asciiPreview}");
+
             // Append to buffer
             var data = Encoding.ASCII.GetString(_readBuffer, 0, bytesRead);
             _buffer.Append(data);
@@ -132,10 +150,14 @@ public abstract class TcpProtocolBase : BaseScaleProtocol
             {
                 var line = _buffer.ToString(0, delimiterIndex);
                 _buffer.Remove(0, delimiterIndex + _lineDelimiter.Length);
+                OnErrorOccurred($"[TCP] Complete line extracted: '{line}'");
                 return line;
             }
 
             // No complete line yet, but data was received
+            var bufferPreview = _buffer.ToString().Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t");
+            OnErrorOccurred($"[TCP] No complete line yet. Buffer size: {_buffer.Length} chars. Content: '{bufferPreview.Substring(0, Math.Min(50, bufferPreview.Length))}'");
+            OnErrorOccurred($"[TCP] Expected delimiter: '{_lineDelimiter.Replace("\r", "\\r").Replace("\n", "\\n")}'");
             return null;
         }
         catch (IOException ex)

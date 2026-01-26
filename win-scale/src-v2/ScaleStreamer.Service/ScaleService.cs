@@ -167,7 +167,7 @@ public class ScaleService : BackgroundService
     {
         try
         {
-            _logger.LogDebug("Weight received from {ScaleId}: {Weight} {Unit}",
+            _logger.LogInformation("Weight received from {ScaleId}: {Weight} {Unit}",
                 e.ScaleId, e.Reading.Weight, e.Reading.Unit);
 
             // Store in database

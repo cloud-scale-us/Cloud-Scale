@@ -56,8 +56,14 @@ public class ScaleConnectionManager
                 WeightReceived?.Invoke(this, (scaleId, reading));
             };
 
+            protocolAdapter.RawDataReceived += (sender, rawData) =>
+            {
+                _logger?.LogInformation("[{ScaleId}] Raw data: {RawData}", scaleId, rawData);
+            };
+
             protocolAdapter.ErrorOccurred += (sender, error) =>
             {
+                _logger?.LogWarning("[{ScaleId}] {Error}", scaleId, error.Message);
                 ErrorOccurred?.Invoke(this, (scaleId, error.Message));
             };
 

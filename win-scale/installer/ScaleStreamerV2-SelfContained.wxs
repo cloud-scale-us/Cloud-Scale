@@ -3,13 +3,13 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
      xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
-    <Package Name="Scale Streamer v3.4.3 (Self-Contained)"
+    <Package Name="Scale Streamer v3.4.4 (Self-Contained)"
              Manufacturer="Cloud-Scale"
-             Version="3.4.3"
+             Version="3.4.4"
              UpgradeCode="B2C3D4E5-F6A7-8901-BCDE-FA2345678902"
              Scope="perMachine">
 
-        <SummaryInformation Description="Scale Streamer v3.4.3 - CRITICAL: Fixed protocol loading and WinForms threading bugs"
+        <SummaryInformation Description="Scale Streamer v3.4.4 - Enhanced TCP diagnostics and logging"
                             Manufacturer="Cloud-Scale" />
 
         <MajorUpgrade DowngradeErrorMessage="A newer version of Scale Streamer is already installed."
@@ -152,6 +152,12 @@
             <Component Id="DiagnosticsScript" Guid="D5555555-5555-5555-5555-555555555551">
                 <File Id="CollectDiagnostics" Source="..\collect-diagnostics.ps1" KeyPath="yes" />
             </Component>
+
+            <Component Id="ScaleTestTool" Guid="D5555555-5555-5555-5555-555555555552">
+                <File Id="ScaleTestToolExe"
+                      Source="..\src-v2\ScaleStreamer.TestTool\bin\Release\net8.0\win-x64\publish\ScaleStreamer.TestTool.exe"
+                      KeyPath="yes" />
+            </Component>
         </ComponentGroup>
 
         <!-- ================================================================ -->
@@ -186,7 +192,7 @@
             <Component Id="AppRegistryKeys" Guid="F6666666-6666-6666-6666-666666666661">
                 <RegistryKey Root="HKLM" Key="Software\Cloud-Scale\ScaleStreamer">
                     <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" />
-                    <RegistryValue Name="Version" Type="string" Value="3.4.3" />
+                    <RegistryValue Name="Version" Type="string" Value="3.4.4" />
                     <RegistryValue Name="Vendor" Type="string" Value="Cloud-Scale" />
                     <RegistryValue Name="SupportURL" Type="string" Value="https://cloud-scale.us/support" />
                     <RegistryValue Name="ServicePath" Type="string" Value="[ServiceFolder]" />
