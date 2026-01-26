@@ -10,15 +10,22 @@ static class Program
     [STAThread]
     static void Main()
     {
-        // Configure Serilog
+        // Configure Serilog with detailed logging
+        var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "ScaleStreamer", "logs", "config-.log");
+
         Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
+            .MinimumLevel.Verbose()  // Capture everything
             .WriteTo.File(
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "ScaleStreamer", "logs", "config-.log"),
+                logPath,
                 rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 7)
+                retainedFileCountLimit: 7,
+                outputTemplate: "{Timestamp:HH:mm:ss.fff} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
             .CreateLogger();
+
+        Log.Information("=== Scale Streamer Config Starting ===");
+        Log.Information("Log file: {LogPath}", logPath);
+        Log.Information("Version: {Version}", "3.4.5");
 
         try
         {

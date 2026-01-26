@@ -15,6 +15,7 @@ public partial class MainForm : Form
     private readonly IpcClient _ipcClient;
     private System.Windows.Forms.Timer _statusTimer;
     private bool _serviceConnected = false;
+    private bool _connectionInProgress = false;
 
     // Tab controls
     private TabControl _mainTabControl;
@@ -36,8 +37,10 @@ public partial class MainForm : Form
 
     public MainForm()
     {
+        Log.Information("MainForm constructor starting");
         InitializeComponent();
 
+        Log.Debug("Creating IpcClient");
         _ipcClient = new IpcClient("ScaleStreamerPipe");
         _ipcClient.MessageReceived += OnServiceMessageReceived;
         _ipcClient.ErrorOccurred += OnIpcError;
@@ -53,28 +56,40 @@ public partial class MainForm : Form
         };
         _statusTimer.Tick += StatusTimer_Tick;
         _statusTimer.Start();
+        Log.Debug("Status timer started with 5s interval");
 
         // Defer initial connection and update check until form is shown
         this.Shown += OnFormShown;
+        Log.Information("MainForm constructor completed");
     }
 
     private async void OnFormShown(object? sender, EventArgs e)
     {
+        Log.Information("OnFormShown event fired - form is now visible");
+
         // Give service a moment to fully start if app launched during installation
+        Log.Debug("Delaying 500ms before initial connection attempt");
         await Task.Delay(500);
 
         // Try initial connection after form is visible
+        Log.Information("Starting initial connection to service");
         await ConnectToServiceAsync();
 
         // Check for updates (non-blocking)
+        Log.Debug("Starting background update check");
         _ = Task.Run(async () =>
         {
             _updateChecker = new UpdateChecker(APP_VERSION);
             var update = await _updateChecker.CheckForUpdatesAsync();
             if (update != null)
             {
+                Log.Information("Update available: v{Version}", update.LatestVersion);
                 _availableUpdate = update;
                 ShowUpdateNotification(update);
+            }
+            else
+            {
+                Log.Debug("No updates available");
             }
         });
     }
@@ -554,12 +569,22 @@ public partial class MainForm : Form
 
     private async Task ConnectToServiceAsync()
     {
+        if (_connectionInProgress)
+            return;
+
+        _connectionInProgress = true;
         try
         {
             Log.Information("Attempting to connect to Scale Streamer Service...");
+            Log.Debug("Starting ConnectAsync with 3s timeout...");
 
-            // Increase timeout to 3 seconds for more reliable connection
-            var connected = await _ipcClient.ConnectAsync(timeoutMs: 3000);
+            // Run the entire connection on a background thread to avoid any UI thread capture
+            var connected = await Task.Run(async () =>
+            {
+                return await _ipcClient.ConnectAsync(timeoutMs: 3000).ConfigureAwait(false);
+            }).ConfigureAwait(false);
+
+            Log.Debug("ConnectAsync returned: {Connected}", connected);
 
             if (connected && _ipcClient.IsConnected)
             {
@@ -577,25 +602,53 @@ public partial class MainForm : Form
             _serviceConnected = false;
             Log.Error(ex, "Error connecting to service");
         }
+        finally
+        {
+            _connectionInProgress = false;
+            Log.Debug("ConnectToServiceAsync completed, _connectionInProgress = false");
+        }
     }
 
 
     private async void StatusTimer_Tick(object? sender, EventArgs e)
     {
+        Log.Verbose("StatusTimer_Tick: _serviceConnected={ServiceConnected}, IpcClient.IsConnected={IpcConnected}, _connectionInProgress={ConnectionInProgress}",
+            _serviceConnected, _ipcClient.IsConnected, _connectionInProgress);
+
         if (!_serviceConnected || !_ipcClient.IsConnected)
         {
-            await ConnectToServiceAsync();
+            if (!_connectionInProgress)
+            {
+                Log.Debug("StatusTimer: Not connected, attempting reconnection");
+                await ConnectToServiceAsync();
+            }
+            else
+            {
+                Log.Verbose("StatusTimer: Connection attempt already in progress, skipping");
+            }
         }
     }
 
     private void OnServiceMessageReceived(object? sender, IpcMessage message)
     {
-        Log.Debug("Received message from service: {MessageType}", message.MessageType);
+        Log.Information("OnServiceMessageReceived: Type={MessageType} (int={TypeInt}), PayloadLen={Length}",
+            message.MessageType, (int)message.MessageType, message.Payload?.Length ?? 0);
+
+        // Always log to monitoring tab for debugging
+        _monitoringTab?.AppendDebugLog($"IPC: {message.MessageType}");
 
         // Route message to appropriate tab
         switch (message.MessageType)
         {
+            case IpcMessageType.ServiceStarted:
+                // Welcome message received - connection is fully established
+                _serviceConnected = true;
+                Log.Information("Connected to Scale Streamer Service: {Payload}", message.Payload);
+                _monitoringTab?.UpdateConnectionStatus(true);
+                break;
+
             case IpcMessageType.WeightReading:
+                Log.Information("Routing WeightReading to MonitoringTab");
                 _monitoringTab?.HandleWeightReading(message);
                 break;
 
@@ -611,6 +664,11 @@ public partial class MainForm : Form
                 // Route raw TCP data to diagnostics
                 _diagnosticsTab?.LogDebug($"Raw data received: {message.Payload}");
                 break;
+
+            default:
+                Log.Warning("Unknown message type: {MessageType}", message.MessageType);
+                _monitoringTab?.AppendDebugLog($"UNKNOWN: {message.MessageType}");
+                break;
         }
     }
 
@@ -618,6 +676,7 @@ public partial class MainForm : Form
     {
         Log.Error("IPC Error: {Error}", error);
         _serviceConnected = false;
+        _monitoringTab?.UpdateConnectionStatus(false);
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)

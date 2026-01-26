@@ -114,8 +114,23 @@ public abstract class TcpProtocolBase : BaseScaleProtocol
                 return line;
             }
 
-            // Read more data from stream
-            var bytesRead = await _stream.ReadAsync(_readBuffer, 0, _readBuffer.Length, cancellationToken);
+            // Read more data from stream with timeout
+            var timeout = _config?.TimeoutMs ?? 5000;
+            using var readCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            readCts.CancelAfter(timeout);
+
+            int bytesRead;
+            try
+            {
+                bytesRead = await _stream.ReadAsync(_readBuffer, 0, _readBuffer.Length, readCts.Token);
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                // Timeout - no data available
+                OnErrorOccurred($"[TCP] Read timeout after {timeout}ms waiting for data");
+                return null;
+            }
+
             if (bytesRead == 0)
             {
                 // Connection closed
