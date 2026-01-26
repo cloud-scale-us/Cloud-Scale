@@ -1,4 +1,6 @@
 using System.IO.Pipes;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
 
@@ -20,6 +22,40 @@ public class IpcServer : IDisposable
     public IpcServer(string pipeName = "ScaleStreamerPipe")
     {
         _pipeName = pipeName;
+    }
+
+    /// <summary>
+    /// Create pipe security settings that allow all users to connect
+    /// </summary>
+    private static PipeSecurity CreatePipeSecurity()
+    {
+        var pipeSecurity = new PipeSecurity();
+
+        // Allow Everyone to read/write to the pipe
+        var everyone = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+        pipeSecurity.AddAccessRule(new PipeAccessRule(
+            everyone,
+            PipeAccessRights.ReadWrite,
+            AccessControlType.Allow));
+
+        // Allow Authenticated Users to read/write
+        var authenticatedUsers = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
+        pipeSecurity.AddAccessRule(new PipeAccessRule(
+            authenticatedUsers,
+            PipeAccessRights.ReadWrite,
+            AccessControlType.Allow));
+
+        // Allow the current user (LocalSystem when running as service)
+        var currentUser = WindowsIdentity.GetCurrent().User;
+        if (currentUser != null)
+        {
+            pipeSecurity.AddAccessRule(new PipeAccessRule(
+                currentUser,
+                PipeAccessRights.FullControl,
+                AccessControlType.Allow));
+        }
+
+        return pipeSecurity;
     }
 
     /// <summary>
@@ -68,13 +104,17 @@ public class IpcServer : IDisposable
         {
             try
             {
-                // Create new pipe server for each connection
-                _pipeServer = new NamedPipeServerStream(
+                // Create new pipe server for each connection with security allowing all users
+                var pipeSecurity = CreatePipeSecurity();
+                _pipeServer = NamedPipeServerStreamAcl.Create(
                     _pipeName,
                     PipeDirection.InOut,
                     NamedPipeServerStream.MaxAllowedServerInstances,
                     PipeTransmissionMode.Message,
-                    PipeOptions.Asynchronous);
+                    PipeOptions.Asynchronous,
+                    0, // inBufferSize (0 = default)
+                    0, // outBufferSize (0 = default)
+                    pipeSecurity);
 
                 // Wait for client connection
                 await _pipeServer.WaitForConnectionAsync(cancellationToken);
