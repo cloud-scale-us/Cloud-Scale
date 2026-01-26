@@ -259,7 +259,7 @@ public partial class ConnectionTab : UserControl
 
         // Host
         AddLabel(layout, "Host/IP Address:", ref row);
-        _hostText = new TextBox { Width = 250, Text = "10.1.10.210" };
+        _hostText = new TextBox { Width = 250, PlaceholderText = "Enter IP or use Auto-Detect" };
         AddControl(layout, _hostText, row++);
 
         // Port

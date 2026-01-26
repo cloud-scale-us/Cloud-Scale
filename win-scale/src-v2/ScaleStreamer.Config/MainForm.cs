@@ -569,6 +569,13 @@ public partial class MainForm : Form
 
     private async Task ConnectToServiceAsync()
     {
+        // Skip if already connected
+        if (_serviceConnected && _ipcClient.IsConnected)
+        {
+            Log.Verbose("Already connected, skipping connection attempt");
+            return;
+        }
+
         if (_connectionInProgress)
             return;
 

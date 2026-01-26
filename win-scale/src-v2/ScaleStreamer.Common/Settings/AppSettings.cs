@@ -238,11 +238,11 @@ public class AppSettings
 /// </summary>
 public class ScaleConnectionSettings
 {
-    public string ScaleId { get; set; } = "scale-001";
-    public string ScaleName { get; set; } = "Main Scale";
+    public string ScaleId { get; set; } = "";
+    public string ScaleName { get; set; } = "";
     public string Location { get; set; } = "";
     public string ConnectionType { get; set; } = "TcpIp";
-    public string Host { get; set; } = "10.1.10.210";
+    public string Host { get; set; } = "";
     public int Port { get; set; } = 5001;
     public string Protocol { get; set; } = "Generic ASCII";
     public string Manufacturer { get; set; } = "Generic";

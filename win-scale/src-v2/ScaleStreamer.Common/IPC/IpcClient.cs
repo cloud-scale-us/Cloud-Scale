@@ -36,9 +36,17 @@ public class IpcClient : IDisposable
     {
         _log.Information("ConnectAsync starting: PipeName={PipeName}, Timeout={TimeoutMs}ms, CurrentIsConnected={IsConnected}",
             _pipeName, timeoutMs, IsConnected);
+
+        // If already connected, return immediately
+        if (IsConnected)
+        {
+            _log.Debug("Already connected, skipping connection attempt");
+            return true;
+        }
+
         try
         {
-            // Dispose any existing connection
+            // Dispose any existing (broken) connection
             if (_pipeClient != null)
             {
                 _log.Debug("Disposing existing pipe connection");

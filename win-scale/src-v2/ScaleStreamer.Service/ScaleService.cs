@@ -21,6 +21,8 @@ public class ScaleService : BackgroundService
     private IpcCommandHandler? _commandHandler;
     private readonly string _databasePath;
     private readonly string _protocolsPath;
+    private CancellationTokenSource? _settingsDebounce;
+    private readonly object _settingsLock = new();
 
     public ScaleService(
         ILogger<ScaleService> logger,
@@ -331,22 +333,58 @@ public class ScaleService : BackgroundService
 
     /// <summary>
     /// Handle settings file changes (auto-reload when Config app saves)
+    /// Uses debouncing to prevent multiple reconnection attempts
     /// </summary>
-    private async void OnSettingsChanged(object? sender, EventArgs e)
+    private void OnSettingsChanged(object? sender, EventArgs e)
     {
-        try
+        // Debounce settings changes - wait 500ms after last change before applying
+        lock (_settingsLock)
         {
-            var settings = AppSettings.Instance.ScaleConnection;
-            _logger.LogInformation("Settings changed! New values: Host={Host}, Port={Port}, AutoReconnect={AutoReconnect}",
-                settings.Host, settings.Port, settings.AutoReconnect);
+            _settingsDebounce?.Cancel();
+            _settingsDebounce = new CancellationTokenSource();
+        }
 
-            // TODO: Reconnect scales with new settings if they changed
-            // For now just log the change - in production you'd compare and apply
-        }
-        catch (Exception ex)
+        var token = _settingsDebounce!.Token;
+        var self = this;
+
+        _ = Task.Run(async () =>
         {
-            _logger.LogError(ex, "Error handling settings change");
-        }
+            try
+            {
+                await Task.Delay(500, token);
+
+                var settings = AppSettings.Instance.ScaleConnection;
+                self._logger.LogInformation("Settings changed! Reconnecting with: Host={Host}, Port={Port}, AutoReconnect={AutoReconnect}",
+                    settings.Host, settings.Port, settings.AutoReconnect);
+
+                // Skip if no host configured
+                if (string.IsNullOrEmpty(settings.Host))
+                {
+                    self._logger.LogWarning("No scale host configured, skipping reconnection");
+                    return;
+                }
+
+                // Disconnect existing scale if any
+                var existingScale = self._connectionManager.GetScale(settings.ScaleId);
+                if (existingScale != null)
+                {
+                    self._logger.LogInformation("Disconnecting existing scale: {ScaleId}", settings.ScaleId);
+                    await self._connectionManager.RemoveScaleAsync(settings.ScaleId);
+                }
+
+                // Reconnect with new settings
+                self._logger.LogInformation("Reconnecting to scale with new settings...");
+                await self.ConnectFromSettingsAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                // Debounced - another change came in
+            }
+            catch (Exception ex)
+            {
+                self._logger.LogError(ex, "Error handling settings change");
+            }
+        });
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)

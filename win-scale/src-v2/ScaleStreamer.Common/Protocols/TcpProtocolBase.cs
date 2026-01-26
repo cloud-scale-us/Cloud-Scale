@@ -1,6 +1,7 @@
 using ScaleStreamer.Common.Models;
 using System.Net.Sockets;
 using System.Text;
+using Serilog;
 
 namespace ScaleStreamer.Common.Protocols;
 
@@ -10,6 +11,8 @@ namespace ScaleStreamer.Common.Protocols;
 /// </summary>
 public abstract class TcpProtocolBase : BaseScaleProtocol
 {
+    private static readonly ILogger _log = Log.ForContext<TcpProtocolBase>();
+
     protected TcpClient? _client;
     protected NetworkStream? _stream;
     protected StringBuilder _buffer = new();
@@ -46,7 +49,7 @@ public abstract class TcpProtocolBase : BaseScaleProtocol
             {
                 _stream = _client.GetStream();
                 UpdateStatus(ConnectionStatus.Connected);
-                OnErrorOccurred($"Connected to {config.Host}:{config.Port}");
+                _log.Information("Connected to {Host}:{Port}", config.Host, config.Port);
                 return true;
             }
 
@@ -126,8 +129,8 @@ public abstract class TcpProtocolBase : BaseScaleProtocol
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                // Timeout - no data available
-                OnErrorOccurred($"[TCP] Read timeout after {timeout}ms waiting for data");
+                // Timeout - no data available (this is normal for polled connections)
+                _log.Debug("[TCP] Read timeout after {TimeoutMs}ms waiting for data", timeout);
                 return null;
             }
 
@@ -144,16 +147,16 @@ public abstract class TcpProtocolBase : BaseScaleProtocol
             if (_firstDataReceivedTime == null)
             {
                 _firstDataReceivedTime = DateTime.UtcNow;
-                OnErrorOccurred($"[TCP] First data received: {bytesRead} bytes from {_config?.Host}:{_config?.Port}");
+                _log.Debug("[TCP] First data received: {BytesRead} bytes from {Host}:{Port}", bytesRead, _config?.Host, _config?.Port);
             }
 
-            // Log raw bytes as hex and ASCII
+            // Log raw bytes as hex and ASCII (verbose level to avoid log spam)
             var hexDump = string.Join(" ", _readBuffer.Take(Math.Min(bytesRead, 32)).Select(b => $"{b:X2}"));
             var asciiPreview = Encoding.ASCII.GetString(_readBuffer, 0, Math.Min(bytesRead, 32))
                 .Replace("\r", "\\r")
                 .Replace("\n", "\\n")
                 .Replace("\t", "\\t");
-            OnErrorOccurred($"[TCP] Received {bytesRead} bytes | HEX: {hexDump} | ASCII: {asciiPreview}");
+            _log.Verbose("[TCP] Received {BytesRead} bytes | HEX: {HexDump} | ASCII: {AsciiPreview}", bytesRead, hexDump, asciiPreview);
 
             // Append to buffer
             var data = Encoding.ASCII.GetString(_readBuffer, 0, bytesRead);
@@ -165,14 +168,13 @@ public abstract class TcpProtocolBase : BaseScaleProtocol
             {
                 var line = _buffer.ToString(0, delimiterIndex);
                 _buffer.Remove(0, delimiterIndex + _lineDelimiter.Length);
-                OnErrorOccurred($"[TCP] Complete line extracted: '{line}'");
+                _log.Verbose("[TCP] Complete line extracted: {Line}", line);
                 return line;
             }
 
-            // No complete line yet, but data was received
+            // No complete line yet, but data was received (verbose to avoid log spam)
             var bufferPreview = _buffer.ToString().Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t");
-            OnErrorOccurred($"[TCP] No complete line yet. Buffer size: {_buffer.Length} chars. Content: '{bufferPreview.Substring(0, Math.Min(50, bufferPreview.Length))}'");
-            OnErrorOccurred($"[TCP] Expected delimiter: '{_lineDelimiter.Replace("\r", "\\r").Replace("\n", "\\n")}'");
+            _log.Verbose("[TCP] No complete line yet. Buffer size: {BufferLength} chars", _buffer.Length);
             return null;
         }
         catch (IOException ex)

@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>4.1.2</Version>
+    <Version>4.2.0</Version>
     <Company>Cloud-Scale</Company>
     <Product>Scale Streamer Configuration</Product>
     <Description>Configuration GUI for Scale Streamer Service</Description>
@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.1" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
 

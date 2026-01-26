@@ -31,6 +31,9 @@ public partial class MonitoringTab : UserControl
     private int _readingCount = 0;
     private DateTime _startTime = DateTime.Now;
     private DateTime _lastReadingTime = DateTime.MinValue;
+    private DateTime _lastUiUpdate = DateTime.MinValue;
+    private const int UI_UPDATE_INTERVAL_MS = 250; // Throttle UI updates to 4/second max
+    private WeightReading? _latestReading = null;
 
     public MonitoringTab(IpcClient ipcClient)
     {
@@ -299,40 +302,52 @@ public partial class MonitoringTab : UserControl
 
     /// <summary>
     /// Handle incoming weight reading from IPC - called by MainForm
+    /// Throttled to prevent GUI freeze from high-frequency updates
     /// </summary>
     public void HandleWeightReading(IpcMessage message)
     {
-        // Always log to debug panel first
-        AppendLog($"HandleWeightReading called! Type={message.MessageType}");
-
         try
         {
             if (string.IsNullOrEmpty(message.Payload))
             {
-                AppendLog("ERROR: Payload is null or empty");
                 return;
             }
-
-            AppendLog($"Payload[{message.Payload.Length}]: {message.Payload.Substring(0, Math.Min(80, message.Payload.Length))}...");
 
             // Deserialize the WeightReading from the payload
             var reading = JsonSerializer.Deserialize<WeightReading>(message.Payload);
             if (reading == null)
             {
-                AppendLog("ERROR: Deserialize returned null");
                 return;
             }
 
-            AppendLog($"PARSED: {reading.Weight} {reading.Unit}");
+            // Always count readings for rate calculation
+            _readingCount++;
+            _lastReadingTime = DateTime.Now;
+            _latestReading = reading;
+
+            // Throttle UI updates to prevent freeze
+            var now = DateTime.Now;
+            if ((now - _lastUiUpdate).TotalMilliseconds < UI_UPDATE_INTERVAL_MS)
+            {
+                // Skip UI update, but we've stored the latest reading
+                return;
+            }
+            _lastUiUpdate = now;
+
+            // Now update the display with the latest reading
             UpdateDisplay(reading);
         }
-        catch (JsonException jsonEx)
+        catch (JsonException)
         {
-            AppendLog($"JSON ERROR: {jsonEx.Message}");
+            // Silently ignore JSON errors to prevent log spam
         }
         catch (Exception ex)
         {
-            AppendLog($"EXCEPTION: {ex.GetType().Name}: {ex.Message}");
+            // Only log unexpected errors occasionally
+            if (_readingCount % 100 == 0)
+            {
+                AppendLog($"ERROR: {ex.GetType().Name}: {ex.Message}");
+            }
         }
     }
 
@@ -363,57 +378,64 @@ public partial class MonitoringTab : UserControl
     {
         if (InvokeRequired)
         {
-            Invoke(() => UpdateDisplay(reading));
+            BeginInvoke(() => UpdateDisplay(reading));
             return;
         }
 
-        _log.Debug("UpdateDisplay: weight={Weight}, unit={Unit}", reading.Weight, reading.Unit);
-
-        // Update current weight display
-        _currentWeightLabel.Text = reading.Weight.ToString("F0");
-        _unitLabel.Text = reading.Unit;
-
-        // Update status with color
-        _statusLabel.Text = $"Status: {reading.Status}";
-        _statusLabel.ForeColor = reading.Status switch
+        // Batch UI updates with SuspendLayout/ResumeLayout to reduce flicker
+        this.SuspendLayout();
+        try
         {
-            ScaleStatus.Stable => Color.Green,
-            ScaleStatus.Motion => Color.Orange,
-            ScaleStatus.Overload => Color.Red,
-            ScaleStatus.Underload => Color.Red,
-            ScaleStatus.Error => Color.Red,
-            _ => Color.Gray
-        };
+            // Update current weight display
+            _currentWeightLabel.Text = reading.Weight.ToString("F0");
+            _unitLabel.Text = reading.Unit;
 
-        // Update statistics
-        _readingCount++;
-        _lastReadingTime = DateTime.Now;
-        var elapsed = (_lastReadingTime - _startTime).TotalSeconds;
-        var rate = elapsed > 0 ? _readingCount / elapsed : 0;
-        _readingRateLabel.Text = $"Rate: {rate:F1}/sec";
-        _lastUpdateLabel.Text = $"Last Update: {_lastReadingTime:HH:mm:ss.fff}";
+            // Update status with color
+            _statusLabel.Text = $"Status: {reading.Status}";
+            _statusLabel.ForeColor = reading.Status switch
+            {
+                ScaleStatus.Stable => Color.Green,
+                ScaleStatus.Motion => Color.Orange,
+                ScaleStatus.Overload => Color.Red,
+                ScaleStatus.Underload => Color.Red,
+                ScaleStatus.Error => Color.Red,
+                _ => Color.Gray
+            };
 
-        // Mark as connected
-        _connectionStatusLabel.Text = "● Receiving Data";
-        _connectionStatusLabel.ForeColor = Color.Green;
+            // Update statistics (use cached values from HandleWeightReading)
+            var elapsed = (_lastReadingTime - _startTime).TotalSeconds;
+            var rate = elapsed > 0 ? _readingCount / elapsed : 0;
+            _readingRateLabel.Text = $"Rate: {rate:F1}/sec";
+            _lastUpdateLabel.Text = $"Last Update: {_lastReadingTime:HH:mm:ss.fff}";
 
-        // Add to history (keep last 100)
-        var item = new ListViewItem(reading.Timestamp.ToLocalTime().ToString("HH:mm:ss.fff"));
-        item.SubItems.Add(reading.Weight.ToString("F0"));
-        item.SubItems.Add(reading.Unit);
-        item.SubItems.Add(reading.Status.ToString());
+            // Mark as connected
+            _connectionStatusLabel.Text = "● Receiving Data";
+            _connectionStatusLabel.ForeColor = Color.Green;
 
-        _historyListView.Items.Insert(0, item);
+            // Add to history (keep last 100) - use BeginUpdate/EndUpdate for ListView
+            _historyListView.BeginUpdate();
+            try
+            {
+                var item = new ListViewItem(reading.Timestamp.ToLocalTime().ToString("HH:mm:ss.fff"));
+                item.SubItems.Add(reading.Weight.ToString("F0"));
+                item.SubItems.Add(reading.Unit);
+                item.SubItems.Add(reading.Status.ToString());
 
-        if (_historyListView.Items.Count > 100)
-        {
-            _historyListView.Items.RemoveAt(100);
+                _historyListView.Items.Insert(0, item);
+
+                if (_historyListView.Items.Count > 100)
+                {
+                    _historyListView.Items.RemoveAt(100);
+                }
+            }
+            finally
+            {
+                _historyListView.EndUpdate();
+            }
         }
-
-        // Show raw data if available
-        if (!string.IsNullOrEmpty(reading.RawData))
+        finally
         {
-            AppendLog($"Raw: {reading.RawData}");
+            this.ResumeLayout(false);
         }
     }
 
@@ -421,18 +443,18 @@ public partial class MonitoringTab : UserControl
     {
         if (InvokeRequired)
         {
-            Invoke(() => AppendLog(message));
+            BeginInvoke(() => AppendLog(message));
             return;
         }
 
         var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
         _rawDataText.AppendText($"[{timestamp}] {message}\r\n");
 
-        // Keep only last 500 lines
+        // Keep only last 200 lines (reduced from 500 for better performance)
         var lines = _rawDataText.Lines;
-        if (lines.Length > 500)
+        if (lines.Length > 200)
         {
-            _rawDataText.Lines = lines.Skip(lines.Length - 500).ToArray();
+            _rawDataText.Lines = lines.Skip(lines.Length - 200).ToArray();
         }
     }
 
