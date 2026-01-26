@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using ScaleStreamer.Common.Database;
 using ScaleStreamer.Common.Models;
 using ScaleStreamer.Common.IPC;
+using ScaleStreamer.Common.Settings;
 using System.Text.Json;
 
 namespace ScaleStreamer.Service;
@@ -57,6 +58,13 @@ public class ScaleService : BackgroundService
 
         try
         {
+            // Load and watch settings file
+            var settings = AppSettings.Instance;
+            settings.SettingsChanged += OnSettingsChanged;
+            settings.StartWatching();
+            _logger.LogInformation("Settings loaded from: {Path}. ScaleHost={Host}, ScalePort={Port}",
+                AppSettings.SettingsFilePath, settings.ScaleConnection.Host, settings.ScaleConnection.Port);
+
             // Initialize database
             _database = new DatabaseService(_databasePath);
             await _database.InitializeAsync();
@@ -78,14 +86,14 @@ public class ScaleService : BackgroundService
             _ipcServer.Start();
             _logger.LogInformation("IPC Server started on pipe: ScaleStreamerPipe");
 
-            // Load scale configurations from database
-            // TODO: Implement scale configuration loading
-
             // Subscribe to weight readings
             _connectionManager.WeightReceived += OnWeightReceived;
             _connectionManager.ErrorOccurred += OnError;
 
             _logger.LogInformation("Scale Service running and ready for connections.");
+
+            // Auto-connect to scale from settings
+            await ConnectFromSettingsAsync();
 
             // Keep service running
             await Task.Delay(Timeout.Infinite, stoppingToken);
@@ -149,15 +157,84 @@ public class ScaleService : BackgroundService
     }
 
     /// <summary>
-    /// Create test connection for development/testing
-    /// TODO: Remove this once GUI is implemented
+    /// Connect to scale using settings from AppSettings
     /// </summary>
-    private async Task CreateTestConnectionIfNeeded()
+    private async Task ConnectFromSettingsAsync()
     {
-        // Check if any scales are configured
-        // For now, just log that we're ready for configuration
-        _logger.LogInformation("Service ready for scale configuration via GUI");
-        await Task.CompletedTask;
+        try
+        {
+            var scaleSettings = AppSettings.Instance.ScaleConnection;
+
+            // Check if we have host/port configured
+            if (string.IsNullOrEmpty(scaleSettings.Host) || scaleSettings.Port <= 0)
+            {
+                _logger.LogInformation("No scale connection configured in settings. Waiting for GUI configuration.");
+                return;
+            }
+
+            _logger.LogInformation("Auto-connecting to scale: {Host}:{Port} (Protocol: {Protocol})",
+                scaleSettings.Host, scaleSettings.Port, scaleSettings.Protocol);
+
+            // Register the scale in the database first (required for foreign key constraint)
+            if (_database != null)
+            {
+                await _database.RegisterScaleAsync(
+                    scaleSettings.ScaleId,
+                    scaleSettings.ScaleId,  // Use ID as name for now
+                    $"{scaleSettings.Host}:{scaleSettings.Port}",
+                    scaleSettings.Protocol);
+                _logger.LogInformation("Scale registered in database: {ScaleId}", scaleSettings.ScaleId);
+            }
+
+            // Create a ProtocolDefinition from settings
+            var protocol = new ProtocolDefinition
+            {
+                ProtocolName = scaleSettings.Protocol ?? "Generic ASCII",
+                Manufacturer = scaleSettings.Manufacturer ?? "Generic",
+                DataFormat = DataFormat.ASCII,
+                Mode = DataMode.Continuous,
+                Connection = new ConnectionConfig
+                {
+                    Type = scaleSettings.ConnectionType == "Serial" ? ConnectionType.RS232 : ConnectionType.TcpIp,
+                    Host = scaleSettings.Host,
+                    Port = scaleSettings.Port,
+                    TimeoutMs = scaleSettings.TimeoutMs,
+                    AutoReconnect = scaleSettings.AutoReconnect,
+                    ReconnectIntervalSeconds = scaleSettings.ReconnectIntervalSeconds,
+                    ComPort = scaleSettings.ComPort,
+                    BaudRate = scaleSettings.BaudRate,
+                    DataBits = scaleSettings.DataBits,
+                    Parity = scaleSettings.Parity,
+                    StopBits = scaleSettings.StopBits
+                },
+                Parsing = new ParsingConfig
+                {
+                    LineDelimiter = "\r",  // Fairbanks FB6000 uses CR only, not CRLF
+                    FieldSeparator = "\\s+",
+                    Fields = new List<FieldDefinition>
+                    {
+                        new FieldDefinition { Name = "status", DataType = "string", Position = 0 },
+                        new FieldDefinition { Name = "weight", DataType = "float", Position = 1 }
+                    }
+                }
+            };
+
+            var connected = await _connectionManager.AddScaleAsync(scaleSettings.ScaleId, protocol);
+
+            if (connected)
+            {
+                _logger.LogInformation("Successfully connected to scale: {ScaleId}", scaleSettings.ScaleId);
+            }
+            else
+            {
+                _logger.LogWarning("Failed to connect to scale: {ScaleId} at {Host}:{Port}",
+                    scaleSettings.ScaleId, scaleSettings.Host, scaleSettings.Port);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error auto-connecting to scale from settings");
+        }
     }
 
     /// <summary>
@@ -252,9 +329,33 @@ public class ScaleService : BackgroundService
         _logger.LogError("IPC Error: {Error}", error);
     }
 
+    /// <summary>
+    /// Handle settings file changes (auto-reload when Config app saves)
+    /// </summary>
+    private async void OnSettingsChanged(object? sender, EventArgs e)
+    {
+        try
+        {
+            var settings = AppSettings.Instance.ScaleConnection;
+            _logger.LogInformation("Settings changed! New values: Host={Host}, Port={Port}, AutoReconnect={AutoReconnect}",
+                settings.Host, settings.Port, settings.AutoReconnect);
+
+            // TODO: Reconnect scales with new settings if they changed
+            // For now just log the change - in production you'd compare and apply
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error handling settings change");
+        }
+    }
+
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Scale Service stopping...");
+
+        // Stop watching settings
+        AppSettings.Instance.SettingsChanged -= OnSettingsChanged;
+        AppSettings.Instance.StopWatching();
 
         // Stop IPC server
         if (_ipcServer != null)

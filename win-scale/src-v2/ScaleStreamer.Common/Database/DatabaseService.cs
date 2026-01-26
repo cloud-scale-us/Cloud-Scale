@@ -489,6 +489,56 @@ INSERT OR IGNORE INTO config (key, value) VALUES ('metric_retention_days', '7');
 
     #endregion
 
+    #region Scale Registration
+
+    /// <summary>
+    /// Register or update a scale in the database
+    /// </summary>
+    public async Task RegisterScaleAsync(string scaleId, string name, string? location = null, string? protocolName = null)
+    {
+        if (_connection == null)
+            throw new InvalidOperationException("Database not initialized");
+
+        var sql = @"
+            INSERT INTO scales (id, name, location, protocol_name, enabled, created, modified)
+            VALUES (@id, @name, @location, @protocolName, 1, @created, @modified)
+            ON CONFLICT(id) DO UPDATE SET
+                name = @name,
+                location = COALESCE(@location, scales.location),
+                protocol_name = COALESCE(@protocolName, scales.protocol_name),
+                modified = @modified";
+
+        using var command = _connection.CreateCommand();
+        command.CommandText = sql;
+        command.Parameters.AddWithValue("@id", scaleId);
+        command.Parameters.AddWithValue("@name", name);
+        command.Parameters.AddWithValue("@location", location ?? (object)DBNull.Value);
+        command.Parameters.AddWithValue("@protocolName", protocolName ?? (object)DBNull.Value);
+        command.Parameters.AddWithValue("@created", DateTime.UtcNow);
+        command.Parameters.AddWithValue("@modified", DateTime.UtcNow);
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    /// <summary>
+    /// Check if a scale is registered
+    /// </summary>
+    public async Task<bool> IsScaleRegisteredAsync(string scaleId)
+    {
+        if (_connection == null)
+            throw new InvalidOperationException("Database not initialized");
+
+        var sql = "SELECT COUNT(*) FROM scales WHERE id = @id";
+        using var command = _connection.CreateCommand();
+        command.CommandText = sql;
+        command.Parameters.AddWithValue("@id", scaleId);
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
+    }
+
+    #endregion
+
     #region Protocol Templates
 
     /// <summary>

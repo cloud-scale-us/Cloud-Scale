@@ -3,68 +3,131 @@ using ScaleStreamer.Common.Models;
 using System.Text.Json;
 using System.Net;
 using System.Net.Sockets;
+using Serilog;
 
 namespace ScaleStreamer.Config;
 
 /// <summary>
 /// Real-time monitoring dashboard showing live weight readings
+/// Rebuilt for reliability - direct IPC message handling
 /// </summary>
 public partial class MonitoringTab : UserControl
 {
+    private static readonly ILogger _log = Log.ForContext<MonitoringTab>();
+
     private readonly IpcClient _ipcClient;
-    private Label _currentWeightLabel;
-    private Label _tareLabel;
-    private Label _grossLabel;
-    private Label _netLabel;
-    private Label _statusLabel;
-    private Label _unitLabel;
-    private Label _lastUpdateLabel;
-    private Label _readingRateLabel;
-    private TextBox _rawDataText;
-    private ListView _historyListView;
+
+    // Main display controls
+    private Label _currentWeightLabel = null!;
+    private Label _unitLabel = null!;
+    private Label _statusLabel = null!;
+    private Label _lastUpdateLabel = null!;
+    private Label _connectionStatusLabel = null!;
+    private Label _readingRateLabel = null!;
+    private TextBox _rawDataText = null!;
+    private ListView _historyListView = null!;
+    private Panel _statusBarPanel = null!;
 
     private int _readingCount = 0;
     private DateTime _startTime = DateTime.Now;
+    private DateTime _lastReadingTime = DateTime.MinValue;
 
     public MonitoringTab(IpcClient ipcClient)
     {
         _ipcClient = ipcClient;
+        _log.Information("MonitoringTab constructor starting");
         InitializeComponent();
+        _log.Information("MonitoringTab initialized");
     }
 
     private void InitializeComponent()
     {
+        this.SuspendLayout();
         this.Padding = new Padding(10);
 
-        // Create main layout
-        var mainLayout = new TableLayoutPanel
+        // Main container - split into top status bar and content below
+        var mainContainer = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            RowCount = 2,
+            ColumnCount = 1
+        };
+        mainContainer.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); // Status bar
+        mainContainer.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Content
+
+        // === STATUS BAR (TOP) ===
+        _statusBarPanel = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.FromArgb(240, 240, 240),
+            Padding = new Padding(10, 5, 10, 5)
+        };
+
+        _connectionStatusLabel = new Label
+        {
+            Text = "● Disconnected",
+            ForeColor = Color.Red,
+            Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+            AutoSize = true,
+            Location = new Point(10, 10)
+        };
+
+        _lastUpdateLabel = new Label
+        {
+            Text = "Last Update: Never",
+            ForeColor = Color.Gray,
+            Font = new Font("Segoe UI", 9F),
+            AutoSize = true,
+            Location = new Point(180, 12)
+        };
+
+        _readingRateLabel = new Label
+        {
+            Text = "Rate: 0.0/sec",
+            ForeColor = Color.Gray,
+            Font = new Font("Segoe UI", 9F),
+            AutoSize = true,
+            Location = new Point(400, 12)
+        };
+
+        _statusBarPanel.Controls.Add(_connectionStatusLabel);
+        _statusBarPanel.Controls.Add(_lastUpdateLabel);
+        _statusBarPanel.Controls.Add(_readingRateLabel);
+
+        mainContainer.Controls.Add(_statusBarPanel, 0, 0);
+
+        // === CONTENT AREA ===
+        var contentLayout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             RowCount = 2,
             ColumnCount = 2
         };
-        mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-        mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-        mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
-        mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
+        contentLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+        contentLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+        contentLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
+        contentLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
 
         // Current Weight Display (top-left)
         var weightPanel = CreateWeightDisplayPanel();
-        mainLayout.Controls.Add(weightPanel, 0, 0);
+        contentLayout.Controls.Add(weightPanel, 0, 0);
 
         // Status Panel (top-right)
-        var statusPanel = CreateStatusPanel();
-        mainLayout.Controls.Add(statusPanel, 1, 0);
+        var statusPanel = CreateInfoPanel();
+        contentLayout.Controls.Add(statusPanel, 1, 0);
 
         // History List (bottom-left)
         var historyPanel = CreateHistoryPanel();
-        mainLayout.Controls.Add(historyPanel, 0, 1);
+        contentLayout.Controls.Add(historyPanel, 0, 1);
 
         // Raw Data Panel (bottom-right)
         var rawDataPanel = CreateRawDataPanel();
-        mainLayout.Controls.Add(rawDataPanel, 1, 1);
+        contentLayout.Controls.Add(rawDataPanel, 1, 1);
 
-        this.Controls.Add(mainLayout);
+        mainContainer.Controls.Add(contentLayout, 0, 1);
+
+        this.Controls.Add(mainContainer);
+        this.ResumeLayout(true);
     }
 
     private Control CreateWeightDisplayPanel()
@@ -73,141 +136,112 @@ public partial class MonitoringTab : UserControl
         {
             Text = "Current Weight",
             Dock = DockStyle.Fill,
-            Padding = new Padding(20)
+            Padding = new Padding(20),
+            Font = new Font("Segoe UI", 10F)
         };
 
-        var layout = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 2
-        };
+        var innerPanel = new Panel { Dock = DockStyle.Fill };
 
         // Current Weight (large display)
         _currentWeightLabel = new Label
         {
-            Text = "0.00",
-            Font = new Font("Segoe UI", 48F, FontStyle.Bold),
-            AutoSize = true,
+            Text = "---",
+            Font = new Font("Segoe UI", 72F, FontStyle.Bold),
             ForeColor = Color.DarkBlue,
-            TextAlign = ContentAlignment.MiddleCenter
+            AutoSize = false,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Dock = DockStyle.Top,
+            Height = 120
         };
 
         _unitLabel = new Label
         {
             Text = "lb",
-            Font = new Font("Segoe UI", 24F),
-            AutoSize = true,
+            Font = new Font("Segoe UI", 28F),
             ForeColor = Color.Gray,
-            TextAlign = ContentAlignment.MiddleCenter
+            AutoSize = false,
+            TextAlign = ContentAlignment.TopCenter,
+            Dock = DockStyle.Top,
+            Height = 50
         };
 
-        var weightContainer = new FlowLayoutPanel
+        _statusLabel = new Label
         {
-            Dock = DockStyle.Fill,
-            FlowDirection = FlowDirection.LeftToRight,
-            Anchor = AnchorStyles.None
+            Text = "Status: Unknown",
+            Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+            ForeColor = Color.Gray,
+            AutoSize = false,
+            TextAlign = ContentAlignment.TopCenter,
+            Dock = DockStyle.Top,
+            Height = 40
         };
-        weightContainer.Controls.Add(_currentWeightLabel);
-        weightContainer.Controls.Add(_unitLabel);
 
-        layout.Controls.Add(weightContainer);
-        layout.SetColumnSpan(weightContainer, 2);
-        layout.SetRow(weightContainer, 0);
+        innerPanel.Controls.Add(_statusLabel);
+        innerPanel.Controls.Add(_unitLabel);
+        innerPanel.Controls.Add(_currentWeightLabel);
 
-        // Status
-        int row = 1;
-        AddWeightField(layout, "Status:", out _statusLabel, ref row, Color.Gray);
-        AddWeightField(layout, "Tare:", out _tareLabel, ref row, Color.Black);
-        AddWeightField(layout, "Gross:", out _grossLabel, ref row, Color.Black);
-        AddWeightField(layout, "Net:", out _netLabel, ref row, Color.Black);
-
-        panel.Controls.Add(layout);
+        panel.Controls.Add(innerPanel);
         return panel;
     }
 
-    private void AddWeightField(TableLayoutPanel layout, string label, out Label valueLabel, ref int row, Color color)
-    {
-        var labelControl = new Label
-        {
-            Text = label,
-            AutoSize = true,
-            Font = new Font("Segoe UI", 11F, FontStyle.Bold),
-            TextAlign = ContentAlignment.MiddleRight
-        };
-
-        valueLabel = new Label
-        {
-            Text = "-",
-            AutoSize = true,
-            Font = new Font("Segoe UI", 11F),
-            ForeColor = color,
-            TextAlign = ContentAlignment.MiddleLeft
-        };
-
-        layout.Controls.Add(labelControl);
-        layout.SetColumn(labelControl, 0);
-        layout.SetRow(labelControl, row);
-
-        layout.Controls.Add(valueLabel);
-        layout.SetColumn(valueLabel, 1);
-        layout.SetRow(valueLabel, row);
-
-        row++;
-    }
-
-    private Control CreateStatusPanel()
+    private Control CreateInfoPanel()
     {
         var panel = new GroupBox
         {
-            Text = "Statistics",
+            Text = "Information",
             Dock = DockStyle.Fill,
-            Padding = new Padding(10)
+            Padding = new Padding(10),
+            Font = new Font("Segoe UI", 10F)
         };
 
         var layout = new FlowLayoutPanel
         {
             Dock = DockStyle.Fill,
-            FlowDirection = FlowDirection.TopDown
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false
         };
-
-        _lastUpdateLabel = CreateStatLabel("Last Update: Never");
-        _readingRateLabel = CreateStatLabel("Reading Rate: 0.0/sec");
-
-        layout.Controls.Add(_lastUpdateLabel);
-        layout.Controls.Add(_readingRateLabel);
 
         // RTSP URL
         var rtspUrl = $"rtsp://{GetLocalIPv4Address()}:8554/scale1";
-        var rtspUrlLabel = CreateStatLabel($"RTSP URL: {rtspUrl}");
-        rtspUrlLabel.Cursor = Cursors.Hand;
-        rtspUrlLabel.ForeColor = Color.Blue;
-        rtspUrlLabel.Click += (s, e) => Clipboard.SetText(rtspUrl);
-        rtspUrlLabel.MouseEnter += (s, e) => rtspUrlLabel.Font = new Font(rtspUrlLabel.Font, FontStyle.Underline);
-        rtspUrlLabel.MouseLeave += (s, e) => rtspUrlLabel.Font = new Font(rtspUrlLabel.Font, FontStyle.Regular);
-        layout.Controls.Add(rtspUrlLabel);
+        var rtspLabel = new Label
+        {
+            Text = $"RTSP: {rtspUrl}",
+            Font = new Font("Segoe UI", 9F),
+            AutoSize = true,
+            Padding = new Padding(0, 5, 0, 5),
+            ForeColor = Color.Blue,
+            Cursor = Cursors.Hand
+        };
+        rtspLabel.Click += (s, e) =>
+        {
+            Clipboard.SetText(rtspUrl);
+            MessageBox.Show("RTSP URL copied to clipboard!", "Copied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        };
 
         var clearButton = new Button
         {
             Text = "Clear History",
             Width = 120,
+            Height = 30,
             Margin = new Padding(0, 20, 0, 0)
         };
         clearButton.Click += (s, e) => ClearHistory();
+
+        var testButton = new Button
+        {
+            Text = "Test Display",
+            Width = 120,
+            Height = 30,
+            Margin = new Padding(0, 5, 0, 0)
+        };
+        testButton.Click += (s, e) => TestDisplay();
+
+        layout.Controls.Add(rtspLabel);
         layout.Controls.Add(clearButton);
+        layout.Controls.Add(testButton);
 
         panel.Controls.Add(layout);
         return panel;
-    }
-
-    private Label CreateStatLabel(string text)
-    {
-        return new Label
-        {
-            Text = text,
-            AutoSize = true,
-            Font = new Font("Segoe UI", 10F),
-            Padding = new Padding(0, 5, 0, 5)
-        };
     }
 
     private Control CreateHistoryPanel()
@@ -216,7 +250,8 @@ public partial class MonitoringTab : UserControl
         {
             Text = "Reading History (Last 100)",
             Dock = DockStyle.Fill,
-            Padding = new Padding(5)
+            Padding = new Padding(5),
+            Font = new Font("Segoe UI", 10F)
         };
 
         _historyListView = new ListView
@@ -231,9 +266,7 @@ public partial class MonitoringTab : UserControl
         _historyListView.Columns.Add("Time", 100);
         _historyListView.Columns.Add("Weight", 100);
         _historyListView.Columns.Add("Unit", 60);
-        _historyListView.Columns.Add("Status", 100);
-        _historyListView.Columns.Add("Tare", 80);
-        _historyListView.Columns.Add("Gross", 80);
+        _historyListView.Columns.Add("Status", 80);
 
         panel.Controls.Add(_historyListView);
         return panel;
@@ -243,9 +276,10 @@ public partial class MonitoringTab : UserControl
     {
         var panel = new GroupBox
         {
-            Text = "Raw Data Stream",
+            Text = "Debug Log",
             Dock = DockStyle.Fill,
-            Padding = new Padding(5)
+            Padding = new Padding(5),
+            Font = new Font("Segoe UI", 10F)
         };
 
         _rawDataText = new TextBox
@@ -263,22 +297,65 @@ public partial class MonitoringTab : UserControl
         return panel;
     }
 
+    /// <summary>
+    /// Handle incoming weight reading from IPC - called by MainForm
+    /// </summary>
     public void HandleWeightReading(IpcMessage message)
     {
+        // Always log to debug panel first
+        AppendLog($"HandleWeightReading called! Type={message.MessageType}");
+
         try
         {
             if (string.IsNullOrEmpty(message.Payload))
+            {
+                AppendLog("ERROR: Payload is null or empty");
                 return;
+            }
 
+            AppendLog($"Payload[{message.Payload.Length}]: {message.Payload.Substring(0, Math.Min(80, message.Payload.Length))}...");
+
+            // Deserialize the WeightReading from the payload
             var reading = JsonSerializer.Deserialize<WeightReading>(message.Payload);
             if (reading == null)
+            {
+                AppendLog("ERROR: Deserialize returned null");
                 return;
+            }
 
+            AppendLog($"PARSED: {reading.Weight} {reading.Unit}");
             UpdateDisplay(reading);
+        }
+        catch (JsonException jsonEx)
+        {
+            AppendLog($"JSON ERROR: {jsonEx.Message}");
         }
         catch (Exception ex)
         {
-            AppendRawData($"Error: {ex.Message}");
+            AppendLog($"EXCEPTION: {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Update connection status - called by MainForm
+    /// </summary>
+    public void UpdateConnectionStatus(bool connected)
+    {
+        if (InvokeRequired)
+        {
+            Invoke(() => UpdateConnectionStatus(connected));
+            return;
+        }
+
+        if (connected)
+        {
+            _connectionStatusLabel.Text = "● Connected to Service";
+            _connectionStatusLabel.ForeColor = Color.Green;
+        }
+        else
+        {
+            _connectionStatusLabel.Text = "● Disconnected";
+            _connectionStatusLabel.ForeColor = Color.Red;
         }
     }
 
@@ -290,12 +367,14 @@ public partial class MonitoringTab : UserControl
             return;
         }
 
+        _log.Debug("UpdateDisplay: weight={Weight}, unit={Unit}", reading.Weight, reading.Unit);
+
         // Update current weight display
-        _currentWeightLabel.Text = reading.Weight.ToString("F2");
+        _currentWeightLabel.Text = reading.Weight.ToString("F0");
         _unitLabel.Text = reading.Unit;
 
-        // Update status color
-        _statusLabel.Text = reading.Status.ToString();
+        // Update status with color
+        _statusLabel.Text = $"Status: {reading.Status}";
         _statusLabel.ForeColor = reading.Status switch
         {
             ScaleStatus.Stable => Color.Green,
@@ -306,25 +385,23 @@ public partial class MonitoringTab : UserControl
             _ => Color.Gray
         };
 
-        // Update other fields
-        _tareLabel.Text = reading.Tare?.ToString("F2") ?? "-";
-        _grossLabel.Text = reading.Gross?.ToString("F2") ?? "-";
-        _netLabel.Text = reading.Net?.ToString("F2") ?? "-";
-
         // Update statistics
         _readingCount++;
-        var elapsed = (DateTime.Now - _startTime).TotalSeconds;
+        _lastReadingTime = DateTime.Now;
+        var elapsed = (_lastReadingTime - _startTime).TotalSeconds;
         var rate = elapsed > 0 ? _readingCount / elapsed : 0;
-        _readingRateLabel.Text = $"Reading Rate: {rate:F1}/sec";
-        _lastUpdateLabel.Text = $"Last Update: {DateTime.Now:HH:mm:ss.fff}";
+        _readingRateLabel.Text = $"Rate: {rate:F1}/sec";
+        _lastUpdateLabel.Text = $"Last Update: {_lastReadingTime:HH:mm:ss.fff}";
+
+        // Mark as connected
+        _connectionStatusLabel.Text = "● Receiving Data";
+        _connectionStatusLabel.ForeColor = Color.Green;
 
         // Add to history (keep last 100)
         var item = new ListViewItem(reading.Timestamp.ToLocalTime().ToString("HH:mm:ss.fff"));
-        item.SubItems.Add(reading.Weight.ToString("F2"));
+        item.SubItems.Add(reading.Weight.ToString("F0"));
         item.SubItems.Add(reading.Unit);
         item.SubItems.Add(reading.Status.ToString());
-        item.SubItems.Add(reading.Tare?.ToString("F2") ?? "-");
-        item.SubItems.Add(reading.Gross?.ToString("F2") ?? "-");
 
         _historyListView.Items.Insert(0, item);
 
@@ -333,30 +410,38 @@ public partial class MonitoringTab : UserControl
             _historyListView.Items.RemoveAt(100);
         }
 
-        // Show raw data
+        // Show raw data if available
         if (!string.IsNullOrEmpty(reading.RawData))
         {
-            AppendRawData(reading.RawData);
+            AppendLog($"Raw: {reading.RawData}");
         }
     }
 
-    private void AppendRawData(string data)
+    private void AppendLog(string message)
     {
         if (InvokeRequired)
         {
-            Invoke(() => AppendRawData(data));
+            Invoke(() => AppendLog(message));
             return;
         }
 
         var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
-        _rawDataText.AppendText($"[{timestamp}] {data}\r\n");
+        _rawDataText.AppendText($"[{timestamp}] {message}\r\n");
 
-        // Keep only last 1000 lines
+        // Keep only last 500 lines
         var lines = _rawDataText.Lines;
-        if (lines.Length > 1000)
+        if (lines.Length > 500)
         {
-            _rawDataText.Lines = lines.Skip(lines.Length - 1000).ToArray();
+            _rawDataText.Lines = lines.Skip(lines.Length - 500).ToArray();
         }
+    }
+
+    /// <summary>
+    /// Public method for MainForm to log debug messages
+    /// </summary>
+    public void AppendDebugLog(string message)
+    {
+        AppendLog(message);
     }
 
     private void ClearHistory()
@@ -365,7 +450,29 @@ public partial class MonitoringTab : UserControl
         _rawDataText.Clear();
         _readingCount = 0;
         _startTime = DateTime.Now;
-        _readingRateLabel.Text = "Reading Rate: 0.0/sec";
+        _readingRateLabel.Text = "Rate: 0.0/sec";
+        _currentWeightLabel.Text = "---";
+        _statusLabel.Text = "Status: Unknown";
+        _statusLabel.ForeColor = Color.Gray;
+        AppendLog("History cleared");
+    }
+
+    /// <summary>
+    /// Test button to verify display is working
+    /// </summary>
+    private void TestDisplay()
+    {
+        var testReading = new WeightReading
+        {
+            Weight = 1234.5,
+            Unit = "lb",
+            Status = ScaleStatus.Stable,
+            Timestamp = DateTime.UtcNow,
+            RawData = "TEST DATA"
+        };
+
+        AppendLog("Testing display with fake reading...");
+        UpdateDisplay(testReading);
     }
 
     private string GetLocalIPv4Address()

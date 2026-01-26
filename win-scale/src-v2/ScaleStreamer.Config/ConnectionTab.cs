@@ -1,6 +1,8 @@
 using ScaleStreamer.Common.IPC;
 using ScaleStreamer.Common.Models;
+using ScaleStreamer.Common.Settings;
 using System.Text.Json;
+using Serilog;
 
 namespace ScaleStreamer.Config;
 
@@ -10,6 +12,7 @@ namespace ScaleStreamer.Config;
 public partial class ConnectionTab : UserControl
 {
     private readonly IpcClient _ipcClient;
+    private bool _isLoading; // Prevent auto-save during initial load
 
     // Controls
     private ComboBox _marketTypeCombo;
@@ -45,8 +48,12 @@ public partial class ConnectionTab : UserControl
     public ConnectionTab(IpcClient ipcClient)
     {
         _ipcClient = ipcClient;
+        _isLoading = true;
         InitializeComponent();
         LoadDefaults();
+        LoadFromSettings();
+        _isLoading = false;
+        HookAutoSaveEvents();
     }
 
     private void InitializeComponent()
@@ -252,12 +259,12 @@ public partial class ConnectionTab : UserControl
 
         // Host
         AddLabel(layout, "Host/IP Address:", ref row);
-        _hostText = new TextBox { Width = 250 };
+        _hostText = new TextBox { Width = 250, Text = "10.1.10.210" };
         AddControl(layout, _hostText, row++);
 
         // Port
         AddLabel(layout, "Port:", ref row);
-        _portNumeric = new NumericUpDown { Width = 100, Minimum = 1, Maximum = 65535, Value = 502 };
+        _portNumeric = new NumericUpDown { Width = 100, Minimum = 1, Maximum = 65535, Value = 5001 };
         AddControl(layout, _portNumeric, row++);
 
         // Timeout
@@ -367,6 +374,115 @@ public partial class ConnectionTab : UserControl
         panel.Controls.Add(control);
         panel.SetColumn(control, 1);
         panel.SetRow(control, row);
+    }
+
+    /// <summary>
+    /// Load settings from the shared AppSettings
+    /// </summary>
+    private void LoadFromSettings()
+    {
+        try
+        {
+            var settings = AppSettings.Instance.ScaleConnection;
+            Log.Information("Loading connection settings from file: Host={Host}, Port={Port}",
+                settings.Host, settings.Port);
+
+            _scaleIdText.Text = settings.ScaleId;
+            _scaleNameText.Text = settings.ScaleName;
+            _locationText.Text = settings.Location;
+            _hostText.Text = settings.Host;
+            _portNumeric.Value = settings.Port;
+            _timeoutNumeric.Value = settings.TimeoutMs;
+            _autoReconnectCheck.Checked = settings.AutoReconnect;
+            _reconnectIntervalNumeric.Value = settings.ReconnectIntervalSeconds;
+
+            // Set combo boxes
+            SelectComboItem(_marketTypeCombo, settings.MarketType);
+            SelectComboItem(_manufacturerCombo, settings.Manufacturer);
+            SelectComboItem(_connectionTypeCombo, settings.ConnectionType);
+
+            // Update protocol list and select
+            UpdateProtocolList();
+            SelectComboItem(_protocolCombo, settings.Protocol);
+
+            LogMessage($"Settings loaded: {settings.Host}:{settings.Port}");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to load settings");
+        }
+    }
+
+    private void SelectComboItem(ComboBox combo, string value)
+    {
+        for (int i = 0; i < combo.Items.Count; i++)
+        {
+            if (combo.Items[i]?.ToString()?.Contains(value, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                combo.SelectedIndex = i;
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Hook change events to auto-save settings
+    /// </summary>
+    private void HookAutoSaveEvents()
+    {
+        // Text fields - use Leave event for less frequent saves
+        _scaleIdText.Leave += (s, e) => AutoSave();
+        _scaleNameText.Leave += (s, e) => AutoSave();
+        _locationText.Leave += (s, e) => AutoSave();
+        _hostText.Leave += (s, e) => AutoSave();
+
+        // Numeric fields
+        _portNumeric.ValueChanged += (s, e) => AutoSave();
+        _timeoutNumeric.ValueChanged += (s, e) => AutoSave();
+        _reconnectIntervalNumeric.ValueChanged += (s, e) => AutoSave();
+
+        // Checkboxes
+        _autoReconnectCheck.CheckedChanged += (s, e) => AutoSave();
+
+        // Combo boxes
+        _marketTypeCombo.SelectedIndexChanged += (s, e) => AutoSave();
+        _manufacturerCombo.SelectedIndexChanged += (s, e) => AutoSave();
+        _connectionTypeCombo.SelectedIndexChanged += (s, e) => AutoSave();
+        _protocolCombo.SelectedIndexChanged += (s, e) => AutoSave();
+    }
+
+    /// <summary>
+    /// Auto-save settings when any value changes
+    /// </summary>
+    private void AutoSave()
+    {
+        if (_isLoading) return;
+
+        try
+        {
+            var settings = AppSettings.Instance.ScaleConnection;
+
+            settings.ScaleId = _scaleIdText.Text;
+            settings.ScaleName = _scaleNameText.Text;
+            settings.Location = _locationText.Text;
+            settings.Host = _hostText.Text;
+            settings.Port = (int)_portNumeric.Value;
+            settings.TimeoutMs = (int)_timeoutNumeric.Value;
+            settings.AutoReconnect = _autoReconnectCheck.Checked;
+            settings.ReconnectIntervalSeconds = (int)_reconnectIntervalNumeric.Value;
+            settings.MarketType = _marketTypeCombo.SelectedItem?.ToString() ?? "Industrial";
+            settings.Manufacturer = _manufacturerCombo.SelectedItem?.ToString() ?? "Generic";
+            settings.ConnectionType = _connectionTypeCombo.SelectedItem?.ToString() ?? "TcpIp";
+            settings.Protocol = _protocolCombo.SelectedItem?.ToString() ?? "Generic ASCII";
+
+            AppSettings.Instance.Save();
+
+            Log.Debug("Settings auto-saved: Host={Host}, Port={Port}", settings.Host, settings.Port);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to auto-save settings");
+        }
     }
 
     private void LoadDefaults()
