@@ -104,4 +104,19 @@ public class RtspStreamConfig
     /// Update interval for weight overlay (milliseconds)
     /// </summary>
     public int UpdateIntervalMs { get; set; } = 100;
+
+    /// <summary>
+    /// Require HTTP Basic Authentication (for NVR compatibility)
+    /// </summary>
+    public bool RequireAuth { get; set; } = false;
+
+    /// <summary>
+    /// Username for HTTP Basic Auth
+    /// </summary>
+    public string Username { get; set; } = "admin";
+
+    /// <summary>
+    /// Password for HTTP Basic Auth
+    /// </summary>
+    public string Password { get; set; } = "scale123";
 }

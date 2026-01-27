@@ -25,7 +25,7 @@ static class Program
 
         Log.Information("=== Scale Streamer Config Starting ===");
         Log.Information("Log file: {LogPath}", logPath);
-        Log.Information("Version: {Version}", "4.2.1");
+        Log.Information("Version: {Version}", "5.0.0");
 
         try
         {

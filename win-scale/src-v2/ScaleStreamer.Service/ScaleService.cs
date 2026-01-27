@@ -4,6 +4,7 @@ using ScaleStreamer.Common.Database;
 using ScaleStreamer.Common.Models;
 using ScaleStreamer.Common.IPC;
 using ScaleStreamer.Common.Settings;
+using ScaleStreamer.Common.Streaming;
 using System.Text.Json;
 
 namespace ScaleStreamer.Service;
@@ -19,6 +20,7 @@ public class ScaleService : BackgroundService
     private DatabaseService? _database;
     private IpcServer? _ipcServer;
     private IpcCommandHandler? _commandHandler;
+    private WeightRtspServer? _rtspServer;
     private readonly string _databasePath;
     private readonly string _protocolsPath;
     private CancellationTokenSource? _settingsDebounce;
@@ -91,6 +93,17 @@ public class ScaleService : BackgroundService
             // Subscribe to weight readings
             _connectionManager.WeightReceived += OnWeightReceived;
             _connectionManager.ErrorOccurred += OnError;
+
+            // Start RTSP streaming server
+            var rtspSettings = AppSettings.Instance.RtspStream;
+            if (rtspSettings.Enabled)
+            {
+                await StartRtspServerAsync(rtspSettings);
+            }
+            else
+            {
+                _logger.LogInformation("RTSP streaming is disabled in settings");
+            }
 
             _logger.LogInformation("Scale Service running and ready for connections.");
 
@@ -255,7 +268,8 @@ public class ScaleService : BackgroundService
                 await _database.InsertWeightReadingAsync(e.Reading);
             }
 
-            // TODO: Send to RTSP streaming pipeline
+            // Send to RTSP streaming pipeline
+            _rtspServer?.UpdateWeight(e.Reading);
 
             // Send notification to GUI via IPC
             if (_ipcServer != null)
@@ -329,6 +343,46 @@ public class ScaleService : BackgroundService
     private void OnIpcError(object? sender, string error)
     {
         _logger.LogError("IPC Error: {Error}", error);
+    }
+
+    /// <summary>
+    /// Start the RTSP streaming server
+    /// </summary>
+    private async Task StartRtspServerAsync(RtspStreamSettings settings)
+    {
+        try
+        {
+            var config = new RtspStreamConfig
+            {
+                RtspPort = settings.Port,
+                VideoWidth = settings.VideoWidth,
+                VideoHeight = settings.VideoHeight,
+                FrameRate = settings.FrameRate,
+                FontSize = settings.FontSize,
+                ScaleId = AppSettings.Instance.ScaleConnection.ScaleId,
+                RequireAuth = settings.RequireAuth,
+                Username = settings.Username,
+                Password = settings.Password
+            };
+
+            _rtspServer = new WeightRtspServer(config);
+            _rtspServer.StatusChanged += (s, msg) => _logger.LogInformation("RTSP: {Message}", msg);
+            _rtspServer.ErrorOccurred += (s, err) => _logger.LogError("RTSP Error: {Error}", err);
+
+            var started = await _rtspServer.StartAsync();
+            if (started)
+            {
+                _logger.LogInformation("RTSP streaming started: {Url}", _rtspServer.StreamUrl);
+            }
+            else
+            {
+                _logger.LogError("Failed to start RTSP streaming server");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error starting RTSP stream server");
+        }
     }
 
     /// <summary>
@@ -407,6 +461,13 @@ public class ScaleService : BackgroundService
         // Unsubscribe from events
         _connectionManager.WeightReceived -= OnWeightReceived;
         _connectionManager.ErrorOccurred -= OnError;
+
+        // Stop RTSP stream server
+        if (_rtspServer != null)
+        {
+            await _rtspServer.StopAsync();
+            _rtspServer.Dispose();
+        }
 
         // Disconnect all scales
         await _connectionManager.DisconnectAllAsync();

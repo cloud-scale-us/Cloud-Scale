@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <Version>4.2.1</Version>
+    <Version>5.0.0</Version>
     <Company>Cloud-Scale</Company>
     <Product>Scale Streamer Service</Product>
     <Description>Background service for managing scale connections and data streaming</Description>
@@ -20,6 +20,10 @@
     <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="SharpOnvifServer" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifServer.DeviceMgmt" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifServer.Media" Version="0.6.0" />
+    <PackageReference Include="SharpOnvifCommon" Version="0.6.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -10,7 +10,7 @@ namespace ScaleStreamer.Config;
 /// </summary>
 public partial class MainForm : Form
 {
-    private const string APP_VERSION = "4.2.1";
+    private const string APP_VERSION = "5.0.0";
 
     private readonly IpcClient _ipcClient;
     private System.Windows.Forms.Timer _statusTimer;

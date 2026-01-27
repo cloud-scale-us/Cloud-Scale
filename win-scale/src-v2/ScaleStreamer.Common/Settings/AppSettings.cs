@@ -22,11 +22,17 @@ public class AppSettings
     // Scale Connection Settings
     public ScaleConnectionSettings ScaleConnection { get; set; } = new();
 
+    // RTSP Streaming Settings
+    public RtspStreamSettings RtspStream { get; set; } = new();
+
     // Service Settings
     public ServiceSettings Service { get; set; } = new();
 
     // Logging Settings
     public LoggingSettings Logging { get; set; } = new();
+
+    // ONVIF Settings
+    public OnvifSettings Onvif { get; set; } = new();
 
     // Last modified timestamp
     [JsonIgnore]
@@ -149,8 +155,10 @@ public class AppSettings
                     {
                         // Copy values from loaded settings
                         ScaleConnection = newSettings.ScaleConnection;
+                        RtspStream = newSettings.RtspStream;
                         Service = newSettings.Service;
                         Logging = newSettings.Logging;
+                        Onvif = newSettings.Onvif;
                         LastModified = File.GetLastWriteTime(path);
 
                         _log.Information("Settings reloaded. ScaleHost={Host}, ScalePort={Port}",
@@ -279,4 +287,32 @@ public class LoggingSettings
     public int RetentionDays { get; set; } = 7;
     public int MaxFileSizeMb { get; set; } = 10;
     public bool EnableConsoleLogging { get; set; } = false;
+}
+
+/// <summary>
+/// ONVIF settings
+/// </summary>
+public class OnvifSettings
+{
+    public bool Enabled { get; set; } = true;
+    public int HttpPort { get; set; } = 8080;
+    public bool DiscoveryEnabled { get; set; } = true;
+}
+
+/// <summary>
+/// RTSP streaming settings
+/// </summary>
+public class RtspStreamSettings
+{
+    public bool Enabled { get; set; } = true;
+    public int Port { get; set; } = 8554;
+    public int VideoWidth { get; set; } = 1920;
+    public int VideoHeight { get; set; } = 1080;
+    public int FrameRate { get; set; } = 10;
+    public int FontSize { get; set; } = 120;
+
+    // Authentication settings for NVR compatibility
+    public bool RequireAuth { get; set; } = false;
+    public string Username { get; set; } = "admin";
+    public string Password { get; set; } = "scale123";
 }

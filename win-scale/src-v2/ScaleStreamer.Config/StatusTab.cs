@@ -1,4 +1,5 @@
 using ScaleStreamer.Common.IPC;
+using ScaleStreamer.Common.Services;
 using ScaleStreamer.Common.Settings;
 using System.Diagnostics;
 using System.ServiceProcess;
@@ -36,6 +37,8 @@ public partial class StatusTab : UserControl
     private Button _stopServiceButton;
     private Button _restartServiceButton;
     private Button _openLogsButton;
+    private Button _grantPermissionsButton;
+    private Label _permissionStatusLabel;
 
     // Timers
     private System.Windows.Forms.Timer _updateTimer;
@@ -151,6 +154,41 @@ public partial class StatusTab : UserControl
 
         layout.Controls.Add(buttonPanel, 0, row);
         layout.SetColumnSpan(buttonPanel, 2);
+        row++;
+
+        // Permission status and grant button
+        var permissionPanel = new FlowLayoutPanel
+        {
+            FlowDirection = FlowDirection.LeftToRight,
+            AutoSize = true,
+            Margin = new Padding(0, 5, 0, 0)
+        };
+
+        _permissionStatusLabel = new Label
+        {
+            Text = "Checking permissions...",
+            AutoSize = true,
+            Font = new Font("Segoe UI", 8F),
+            ForeColor = Color.Gray,
+            Padding = new Padding(0, 5, 10, 0)
+        };
+
+        _grantPermissionsButton = new Button
+        {
+            Text = "Grant Permissions (One-Time)",
+            Width = 180,
+            Visible = false
+        };
+        _grantPermissionsButton.Click += GrantPermissions_Click;
+
+        permissionPanel.Controls.Add(_permissionStatusLabel);
+        permissionPanel.Controls.Add(_grantPermissionsButton);
+
+        layout.Controls.Add(permissionPanel, 0, row);
+        layout.SetColumnSpan(permissionPanel, 2);
+
+        // Check permissions on load
+        CheckServicePermissions();
 
         panel.Controls.Add(layout);
         return panel;
@@ -483,18 +521,94 @@ public partial class StatusTab : UserControl
         }
     }
 
+    private void CheckServicePermissions()
+    {
+        Task.Run(() =>
+        {
+            var hasPermission = ServiceControlHelper.HasServiceControlPermission();
+            Invoke(() =>
+            {
+                if (hasPermission)
+                {
+                    _permissionStatusLabel.Text = "You can control the service without elevation";
+                    _permissionStatusLabel.ForeColor = Color.Green;
+                    _grantPermissionsButton.Visible = false;
+                }
+                else
+                {
+                    _permissionStatusLabel.Text = "UAC required - click to grant permissions once:";
+                    _permissionStatusLabel.ForeColor = Color.Orange;
+                    _grantPermissionsButton.Visible = true;
+                }
+            });
+        });
+    }
+
+    private async void GrantPermissions_Click(object? sender, EventArgs e)
+    {
+        _grantPermissionsButton.Enabled = false;
+        _permissionStatusLabel.Text = "Granting permissions (UAC prompt)...";
+
+        try
+        {
+            var success = await ServiceControlHelper.GrantServiceControlPermissionAsync();
+            if (success)
+            {
+                _permissionStatusLabel.Text = "Permissions granted! No more UAC prompts needed.";
+                _permissionStatusLabel.ForeColor = Color.Green;
+                _grantPermissionsButton.Visible = false;
+
+                MessageBox.Show(
+                    "Service control permissions granted!\n\nYou can now start, stop, and restart the service without UAC prompts.",
+                    "Success",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            else
+            {
+                _permissionStatusLabel.Text = "Failed to grant permissions";
+                _permissionStatusLabel.ForeColor = Color.Red;
+                _grantPermissionsButton.Enabled = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Error(ex, "Failed to grant permissions");
+            _permissionStatusLabel.Text = "Error granting permissions";
+            _permissionStatusLabel.ForeColor = Color.Red;
+            _grantPermissionsButton.Enabled = true;
+        }
+    }
+
     private async void StartService_Click(object? sender, EventArgs e)
     {
         try
         {
             _startServiceButton.Enabled = false;
-            var psi = new ProcessStartInfo("sc.exe", "start ScaleStreamerService")
+            _startServiceButton.Text = "Starting...";
+
+            var result = await ServiceControlHelper.StartServiceAsync();
+
+            if (!result.Success)
             {
-                UseShellExecute = true,
-                Verb = "runas"
-            };
-            Process.Start(psi)?.WaitForExit();
-            await Task.Delay(2000);
+                MessageBox.Show(result.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else if (result.RequiredElevation)
+            {
+                // Offer to grant permissions
+                var answer = MessageBox.Show(
+                    "The service was started, but UAC was required.\n\nWould you like to grant permissions so UAC isn't needed next time?",
+                    "Grant Permissions?",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (answer == DialogResult.Yes)
+                {
+                    GrantPermissions_Click(null, EventArgs.Empty);
+                }
+            }
+
+            await Task.Delay(1000);
             UpdateServiceStatus();
         }
         catch (Exception ex)
@@ -503,30 +617,47 @@ public partial class StatusTab : UserControl
         }
         finally
         {
+            _startServiceButton.Text = "Start Service";
             _startServiceButton.Enabled = true;
         }
     }
 
     private async void StopService_Click(object? sender, EventArgs e)
     {
-        var result = MessageBox.Show(
+        var confirm = MessageBox.Show(
             "Stop the Scale Streamer Service?\nAll scale connections will be terminated.",
             "Confirm",
             MessageBoxButtons.YesNo,
             MessageBoxIcon.Warning);
 
-        if (result == DialogResult.Yes)
+        if (confirm == DialogResult.Yes)
         {
             try
             {
                 _stopServiceButton.Enabled = false;
-                var psi = new ProcessStartInfo("sc.exe", "stop ScaleStreamerService")
+                _stopServiceButton.Text = "Stopping...";
+
+                var result = await ServiceControlHelper.StopServiceAsync();
+
+                if (!result.Success)
                 {
-                    UseShellExecute = true,
-                    Verb = "runas"
-                };
-                Process.Start(psi)?.WaitForExit();
-                await Task.Delay(2000);
+                    MessageBox.Show(result.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else if (result.RequiredElevation)
+                {
+                    var answer = MessageBox.Show(
+                        "The service was stopped, but UAC was required.\n\nWould you like to grant permissions so UAC isn't needed next time?",
+                        "Grant Permissions?",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
+                    if (answer == DialogResult.Yes)
+                    {
+                        GrantPermissions_Click(null, EventArgs.Empty);
+                    }
+                }
+
+                await Task.Delay(1000);
                 UpdateServiceStatus();
             }
             catch (Exception ex)
@@ -535,6 +666,7 @@ public partial class StatusTab : UserControl
             }
             finally
             {
+                _stopServiceButton.Text = "Stop Service";
                 _stopServiceButton.Enabled = true;
             }
         }
@@ -542,32 +674,40 @@ public partial class StatusTab : UserControl
 
     private async void RestartService_Click(object? sender, EventArgs e)
     {
-        var result = MessageBox.Show(
+        var confirm = MessageBox.Show(
             "Restart the Scale Streamer Service?",
             "Confirm",
             MessageBoxButtons.YesNo,
             MessageBoxIcon.Question);
 
-        if (result == DialogResult.Yes)
+        if (confirm == DialogResult.Yes)
         {
             try
             {
                 _restartServiceButton.Enabled = false;
-                var stopPsi = new ProcessStartInfo("sc.exe", "stop ScaleStreamerService")
-                {
-                    UseShellExecute = true,
-                    Verb = "runas"
-                };
-                Process.Start(stopPsi)?.WaitForExit();
-                await Task.Delay(2000);
+                _restartServiceButton.Text = "Restarting...";
 
-                var startPsi = new ProcessStartInfo("sc.exe", "start ScaleStreamerService")
+                var result = await ServiceControlHelper.RestartServiceAsync();
+
+                if (!result.Success)
                 {
-                    UseShellExecute = true,
-                    Verb = "runas"
-                };
-                Process.Start(startPsi)?.WaitForExit();
-                await Task.Delay(2000);
+                    MessageBox.Show(result.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else if (result.RequiredElevation)
+                {
+                    var answer = MessageBox.Show(
+                        "The service was restarted, but UAC was required.\n\nWould you like to grant permissions so UAC isn't needed next time?",
+                        "Grant Permissions?",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
+                    if (answer == DialogResult.Yes)
+                    {
+                        GrantPermissions_Click(null, EventArgs.Empty);
+                    }
+                }
+
+                await Task.Delay(1000);
                 UpdateServiceStatus();
             }
             catch (Exception ex)
@@ -576,6 +716,7 @@ public partial class StatusTab : UserControl
             }
             finally
             {
+                _restartServiceButton.Text = "Restart";
                 _restartServiceButton.Enabled = true;
             }
         }
