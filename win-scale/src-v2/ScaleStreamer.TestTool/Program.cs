@@ -13,7 +13,7 @@ class Program
     static async Task<int> Main(string[] args)
     {
         Console.WriteLine("═══════════════════════════════════════════════════════");
-        Console.WriteLine("  Scale Connection Test Tool v3.4.4");
+        Console.WriteLine("  Scale Connection Test Tool v5.1.1");
         Console.WriteLine("  Cloud-Scale - https://cloud-scale.us");
         Console.WriteLine("═══════════════════════════════════════════════════════\n");
 

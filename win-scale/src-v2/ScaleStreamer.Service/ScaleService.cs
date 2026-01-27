@@ -180,26 +180,56 @@ public class ScaleService : BackgroundService
         {
             var scaleSettings = AppSettings.Instance.ScaleConnection;
 
-            // Check if we have host/port configured
-            if (string.IsNullOrEmpty(scaleSettings.Host) || scaleSettings.Port <= 0)
+            // Determine if this is a serial or TCP connection
+            var isSerial = scaleSettings.ConnectionType == "RS232" || scaleSettings.ConnectionType == "RS485";
+
+            // Check if we have valid connection configured
+            if (isSerial)
             {
-                _logger.LogInformation("No scale connection configured in settings. Waiting for GUI configuration.");
-                return;
+                if (string.IsNullOrEmpty(scaleSettings.ComPort))
+                {
+                    _logger.LogInformation("No serial COM port configured in settings. Waiting for GUI configuration.");
+                    return;
+                }
+                _logger.LogInformation("Auto-connecting to scale via {Type}: {ComPort} (Protocol: {Protocol})",
+                    scaleSettings.ConnectionType, scaleSettings.ComPort, scaleSettings.Protocol);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(scaleSettings.Host) || scaleSettings.Port <= 0)
+                {
+                    _logger.LogInformation("No scale connection configured in settings. Waiting for GUI configuration.");
+                    return;
+                }
+                _logger.LogInformation("Auto-connecting to scale: {Host}:{Port} (Protocol: {Protocol})",
+                    scaleSettings.Host, scaleSettings.Port, scaleSettings.Protocol);
             }
 
-            _logger.LogInformation("Auto-connecting to scale: {Host}:{Port} (Protocol: {Protocol})",
-                scaleSettings.Host, scaleSettings.Port, scaleSettings.Protocol);
-
             // Register the scale in the database first (required for foreign key constraint)
+            var connectionInfo = isSerial
+                ? $"{scaleSettings.ConnectionType}:{scaleSettings.ComPort}"
+                : $"{scaleSettings.Host}:{scaleSettings.Port}";
+
             if (_database != null)
             {
                 await _database.RegisterScaleAsync(
                     scaleSettings.ScaleId,
-                    scaleSettings.ScaleId,  // Use ID as name for now
-                    $"{scaleSettings.Host}:{scaleSettings.Port}",
+                    scaleSettings.ScaleId,
+                    connectionInfo,
                     scaleSettings.Protocol);
                 _logger.LogInformation("Scale registered in database: {ScaleId}", scaleSettings.ScaleId);
             }
+
+            // Map connection type
+            var connectionType = scaleSettings.ConnectionType switch
+            {
+                "RS232" => ConnectionType.RS232,
+                "RS485" => ConnectionType.RS485,
+                _ => ConnectionType.TcpIp
+            };
+
+            // Try to load parsing config from protocol template
+            var parsing = LoadParsingFromProtocol(scaleSettings.Protocol);
 
             // Create a ProtocolDefinition from settings
             var protocol = new ProtocolDefinition
@@ -210,7 +240,7 @@ public class ScaleService : BackgroundService
                 Mode = DataMode.Continuous,
                 Connection = new ConnectionConfig
                 {
-                    Type = scaleSettings.ConnectionType == "Serial" ? ConnectionType.RS232 : ConnectionType.TcpIp,
+                    Type = connectionType,
                     Host = scaleSettings.Host,
                     Port = scaleSettings.Port,
                     TimeoutMs = scaleSettings.TimeoutMs,
@@ -220,36 +250,94 @@ public class ScaleService : BackgroundService
                     BaudRate = scaleSettings.BaudRate,
                     DataBits = scaleSettings.DataBits,
                     Parity = scaleSettings.Parity,
-                    StopBits = scaleSettings.StopBits
+                    StopBits = scaleSettings.StopBits,
+                    FlowControl = scaleSettings.FlowControl
                 },
-                Parsing = new ParsingConfig
-                {
-                    LineDelimiter = "\r",  // Fairbanks FB6000 uses CR only, not CRLF
-                    FieldSeparator = "\\s+",
-                    Fields = new List<FieldDefinition>
-                    {
-                        new FieldDefinition { Name = "status", DataType = "string", Position = 0 },
-                        new FieldDefinition { Name = "weight", DataType = "float", Position = 1 }
-                    }
-                }
+                Parsing = parsing
             };
 
             var connected = await _connectionManager.AddScaleAsync(scaleSettings.ScaleId, protocol);
 
             if (connected)
             {
-                _logger.LogInformation("Successfully connected to scale: {ScaleId}", scaleSettings.ScaleId);
+                _logger.LogInformation("Successfully connected to scale: {ScaleId} via {Connection}",
+                    scaleSettings.ScaleId, connectionInfo);
             }
             else
             {
-                _logger.LogWarning("Failed to connect to scale: {ScaleId} at {Host}:{Port}",
-                    scaleSettings.ScaleId, scaleSettings.Host, scaleSettings.Port);
+                _logger.LogWarning("Failed to connect to scale: {ScaleId} at {Connection}",
+                    scaleSettings.ScaleId, connectionInfo);
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error auto-connecting to scale from settings");
         }
+    }
+
+    /// <summary>
+    /// Load parsing configuration from protocol template JSON file
+    /// </summary>
+    private ParsingConfig LoadParsingFromProtocol(string? protocolName)
+    {
+        // Default fallback parsing
+        var defaultParsing = new ParsingConfig
+        {
+            LineDelimiter = "\r\n",
+            FieldSeparator = "\\s+",
+            Fields = new List<FieldDefinition>
+            {
+                new FieldDefinition { Name = "status", DataType = "string", Position = 0 },
+                new FieldDefinition { Name = "weight", DataType = "float", Position = 1 }
+            }
+        };
+
+        if (string.IsNullOrEmpty(protocolName))
+            return defaultParsing;
+
+        try
+        {
+            // Look for protocol templates in the protocols directory
+            var basePath = AppContext.BaseDirectory;
+            var protocolDirs = new[]
+            {
+                Path.Combine(basePath, "..", "protocols"),
+                Path.Combine(basePath, "protocols"),
+                @"C:\Program Files\Scale Streamer\protocols"
+            };
+
+            foreach (var protocolDir in protocolDirs)
+            {
+                if (!Directory.Exists(protocolDir)) continue;
+
+                // Search all JSON files for matching protocol name
+                foreach (var file in Directory.GetFiles(protocolDir, "*.json", SearchOption.AllDirectories))
+                {
+                    try
+                    {
+                        var json = File.ReadAllText(file);
+                        var def = System.Text.Json.JsonSerializer.Deserialize<ProtocolDefinition>(json);
+                        if (def?.ProtocolName?.Equals(protocolName, StringComparison.OrdinalIgnoreCase) == true)
+                        {
+                            _logger.LogInformation("Loaded protocol template from {File}", file);
+                            return def.Parsing ?? defaultParsing;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to parse protocol file: {File}", file);
+                    }
+                }
+            }
+
+            _logger.LogInformation("No protocol template found for '{Protocol}', using default parsing", protocolName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error loading protocol templates");
+        }
+
+        return defaultParsing;
     }
 
     /// <summary>

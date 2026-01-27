@@ -1,37 +1,60 @@
 using ScaleStreamer.Common.IPC;
+using ScaleStreamer.Common.Settings;
+using System.IO.Ports;
 using System.Text;
 
 namespace ScaleStreamer.Config;
 
 /// <summary>
-/// Diagnostics tab showing live TCP data, connection status, and debug information
+/// RS232 Diagnostics tab - direct serial port monitor, test, and debug tool
 /// </summary>
 public partial class DiagnosticsTab : UserControl
 {
     private readonly IpcClient _ipcClient;
-    private TextBox _liveDataText;
-    private TextBox _connectionLogText;
-    private TextBox _ipcLogText;
-    private TextBox _errorLogText;
-    private Label _connectionStatusLabel;
-    private Label _lastDataLabel;
-    private Label _dataRateLabel;
-    private Label _totalLinesLabel;
-    private Button _clearButton;
-    private Button _exportButton;
+
+    // Serial port controls
+    private ComboBox _comPortCombo;
+    private ComboBox _baudRateCombo;
+    private ComboBox _dataBitsCombo;
+    private ComboBox _parityCombo;
+    private ComboBox _stopBitsCombo;
+    private Button _openPortButton;
+    private Button _closePortButton;
+    private Button _refreshPortsButton;
+    private Button _sendButton;
+    private TextBox _sendText;
+    private Label _portStatusLabel;
+
+    // Display controls
+    private TextBox _rawDataText;
+    private TextBox _parsedDataText;
+    private TextBox _hexDataText;
     private CheckBox _autoScrollCheck;
     private CheckBox _timestampCheck;
+    private CheckBox _showHexCheck;
+    private Button _clearButton;
+    private Button _exportButton;
 
-    private int _lineCount = 0;
-    private int _dataCount = 0;
+    // Statistics
+    private Label _bytesReceivedLabel;
+    private Label _linesReceivedLabel;
+    private Label _dataRateLabel;
+    private Label _lastDataLabel;
+
+    private SerialPort? _serialPort;
+    private int _bytesReceived;
+    private int _linesReceived;
     private DateTime _startTime = DateTime.Now;
     private DateTime _lastDataTime = DateTime.MinValue;
+    private StringBuilder _lineBuffer = new();
 
     public DiagnosticsTab(IpcClient ipcClient)
     {
         _ipcClient = ipcClient;
         InitializeComponent();
         _ipcClient.MessageReceived += OnIpcMessage;
+        RefreshPorts();
+        LoadSettingsDefaults();
     }
 
     private void InitializeComponent()
@@ -42,217 +65,376 @@ public partial class DiagnosticsTab : UserControl
         {
             Dock = DockStyle.Fill,
             RowCount = 2,
-            ColumnCount = 2
+            ColumnCount = 1
         };
-        mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 100F));
+        mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 140F));
         mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-        mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 
-        // Status Panel (top-left)
-        mainLayout.Controls.Add(CreateStatusPanel(), 0, 0);
+        // Top panel: Serial port config + controls
+        mainLayout.Controls.Add(CreateSerialConfigPanel(), 0, 0);
 
-        // Control Panel (top-right)
-        mainLayout.Controls.Add(CreateControlPanel(), 1, 0);
-
-        // Create tab control for different log views (bottom, spanning both columns)
-        var logTabControl = new TabControl
+        // Bottom: Tabbed data views
+        var dataTabControl = new TabControl
         {
             Dock = DockStyle.Fill,
             Font = new Font("Segoe UI", 9F)
         };
 
-        // Live TCP Data Tab
-        var liveDataPage = new TabPage("Live TCP Data")
-        {
-            UseVisualStyleBackColor = true
-        };
-        _liveDataText = new TextBox
+        // Raw ASCII Data
+        var rawPage = new TabPage("Raw Serial Data") { UseVisualStyleBackColor = true };
+        _rawDataText = new TextBox
         {
             Dock = DockStyle.Fill,
             Multiline = true,
             ScrollBars = ScrollBars.Both,
             ReadOnly = true,
-            Font = new Font("Consolas", 9F),
+            Font = new Font("Consolas", 10F),
             BackColor = Color.Black,
             ForeColor = Color.LimeGreen,
             WordWrap = false
         };
-        liveDataPage.Controls.Add(_liveDataText);
-        logTabControl.TabPages.Add(liveDataPage);
+        rawPage.Controls.Add(_rawDataText);
+        dataTabControl.TabPages.Add(rawPage);
 
-        // Connection Log Tab
-        var connectionLogPage = new TabPage("Connection Log")
-        {
-            UseVisualStyleBackColor = true
-        };
-        _connectionLogText = new TextBox
+        // Parsed Data
+        var parsedPage = new TabPage("Parsed Readings") { UseVisualStyleBackColor = true };
+        _parsedDataText = new TextBox
         {
             Dock = DockStyle.Fill,
             Multiline = true,
             ScrollBars = ScrollBars.Both,
             ReadOnly = true,
-            Font = new Font("Consolas", 9F),
-            BackColor = Color.FromArgb(30, 30, 30),
-            ForeColor = Color.Cyan
-        };
-        connectionLogPage.Controls.Add(_connectionLogText);
-        logTabControl.TabPages.Add(connectionLogPage);
-
-        // IPC Messages Tab
-        var ipcLogPage = new TabPage("IPC Messages")
-        {
-            UseVisualStyleBackColor = true
-        };
-        _ipcLogText = new TextBox
-        {
-            Dock = DockStyle.Fill,
-            Multiline = true,
-            ScrollBars = ScrollBars.Both,
-            ReadOnly = true,
-            Font = new Font("Consolas", 9F),
+            Font = new Font("Consolas", 10F),
             BackColor = Color.FromArgb(20, 20, 40),
-            ForeColor = Color.Yellow
+            ForeColor = Color.Cyan,
+            WordWrap = false
         };
-        ipcLogPage.Controls.Add(_ipcLogText);
-        logTabControl.TabPages.Add(ipcLogPage);
+        parsedPage.Controls.Add(_parsedDataText);
+        dataTabControl.TabPages.Add(parsedPage);
 
-        // Error Log Tab
-        var errorLogPage = new TabPage("Errors")
-        {
-            UseVisualStyleBackColor = true
-        };
-        _errorLogText = new TextBox
+        // Hex View
+        var hexPage = new TabPage("Hex View") { UseVisualStyleBackColor = true };
+        _hexDataText = new TextBox
         {
             Dock = DockStyle.Fill,
             Multiline = true,
             ScrollBars = ScrollBars.Both,
             ReadOnly = true,
-            Font = new Font("Consolas", 9F),
-            BackColor = Color.FromArgb(40, 20, 20),
-            ForeColor = Color.OrangeRed
+            Font = new Font("Consolas", 10F),
+            BackColor = Color.FromArgb(30, 30, 30),
+            ForeColor = Color.Yellow,
+            WordWrap = false
         };
-        errorLogPage.Controls.Add(_errorLogText);
-        logTabControl.TabPages.Add(errorLogPage);
+        hexPage.Controls.Add(_hexDataText);
+        dataTabControl.TabPages.Add(hexPage);
 
-        mainLayout.Controls.Add(logTabControl, 0, 1);
-        mainLayout.SetColumnSpan(logTabControl, 2);
-
+        mainLayout.Controls.Add(dataTabControl, 0, 1);
         this.Controls.Add(mainLayout);
-
-        // Start logging connection status
-        LogConnection("Diagnostics tab initialized. Waiting for scale data...");
     }
 
-    private Control CreateStatusPanel()
+    private Control CreateSerialConfigPanel()
     {
-        var panel = new GroupBox
+        var outerPanel = new Panel { Dock = DockStyle.Fill };
+
+        var leftGroup = new GroupBox
         {
-            Text = "Connection Status",
-            Dock = DockStyle.Fill,
-            Padding = new Padding(10)
+            Text = "RS232 Port Configuration",
+            Location = new Point(0, 0),
+            Size = new Size(460, 130),
+            Padding = new Padding(8)
         };
 
-        var layout = new FlowLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            FlowDirection = FlowDirection.TopDown
-        };
+        var y = 20;
+        // Row 1: COM Port + Baud Rate + Refresh
+        leftGroup.Controls.Add(new Label { Text = "Port:", Location = new Point(10, y + 3), AutoSize = true });
+        _comPortCombo = new ComboBox { Location = new Point(60, y), Width = 80, DropDownStyle = ComboBoxStyle.DropDownList };
+        leftGroup.Controls.Add(_comPortCombo);
 
-        _connectionStatusLabel = new Label
+        leftGroup.Controls.Add(new Label { Text = "Baud:", Location = new Point(150, y + 3), AutoSize = true });
+        _baudRateCombo = new ComboBox { Location = new Point(195, y), Width = 80, DropDownStyle = ComboBoxStyle.DropDownList };
+        _baudRateCombo.Items.AddRange(new object[] { "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200" });
+        _baudRateCombo.SelectedItem = "9600";
+        leftGroup.Controls.Add(_baudRateCombo);
+
+        _refreshPortsButton = new Button { Text = "Refresh", Location = new Point(285, y - 1), Width = 65 };
+        _refreshPortsButton.Click += (s, e) => RefreshPorts();
+        leftGroup.Controls.Add(_refreshPortsButton);
+
+        _portStatusLabel = new Label
         {
-            Text = "Status: Waiting for connection...",
-            Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-            ForeColor = Color.Gray,
+            Text = "Closed",
+            Location = new Point(360, y + 3),
             AutoSize = true,
-            Padding = new Padding(0, 5, 0, 5)
+            Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+            ForeColor = Color.Gray
         };
+        leftGroup.Controls.Add(_portStatusLabel);
 
-        _lastDataLabel = new Label
+        // Row 2: Data Bits, Parity, Stop Bits
+        y += 30;
+        leftGroup.Controls.Add(new Label { Text = "Data:", Location = new Point(10, y + 3), AutoSize = true });
+        _dataBitsCombo = new ComboBox { Location = new Point(60, y), Width = 50, DropDownStyle = ComboBoxStyle.DropDownList };
+        _dataBitsCombo.Items.AddRange(new object[] { "7", "8" });
+        _dataBitsCombo.SelectedItem = "8";
+        leftGroup.Controls.Add(_dataBitsCombo);
+
+        leftGroup.Controls.Add(new Label { Text = "Parity:", Location = new Point(120, y + 3), AutoSize = true });
+        _parityCombo = new ComboBox { Location = new Point(170, y), Width = 70, DropDownStyle = ComboBoxStyle.DropDownList };
+        _parityCombo.Items.AddRange(new object[] { "None", "Odd", "Even" });
+        _parityCombo.SelectedItem = "None";
+        leftGroup.Controls.Add(_parityCombo);
+
+        leftGroup.Controls.Add(new Label { Text = "Stop:", Location = new Point(250, y + 3), AutoSize = true });
+        _stopBitsCombo = new ComboBox { Location = new Point(290, y), Width = 55, DropDownStyle = ComboBoxStyle.DropDownList };
+        _stopBitsCombo.Items.AddRange(new object[] { "One", "Two" });
+        _stopBitsCombo.SelectedItem = "One";
+        leftGroup.Controls.Add(_stopBitsCombo);
+
+        // Row 3: Open/Close buttons + Send
+        y += 30;
+        _openPortButton = new Button { Text = "Open Port", Location = new Point(10, y), Width = 85, BackColor = Color.FromArgb(40, 167, 69), ForeColor = Color.White };
+        _openPortButton.Click += OpenPort_Click;
+        leftGroup.Controls.Add(_openPortButton);
+
+        _closePortButton = new Button { Text = "Close Port", Location = new Point(100, y), Width = 85, Enabled = false };
+        _closePortButton.Click += ClosePort_Click;
+        leftGroup.Controls.Add(_closePortButton);
+
+        leftGroup.Controls.Add(new Label { Text = "Send:", Location = new Point(195, y + 3), AutoSize = true });
+        _sendText = new TextBox { Location = new Point(235, y), Width = 120, Text = "" };
+        leftGroup.Controls.Add(_sendText);
+
+        _sendButton = new Button { Text = "Send", Location = new Point(360, y), Width = 55, Enabled = false };
+        _sendButton.Click += SendData_Click;
+        leftGroup.Controls.Add(_sendButton);
+
+        outerPanel.Controls.Add(leftGroup);
+
+        // Right side: Statistics + Controls
+        var rightGroup = new GroupBox
         {
-            Text = "Last Data: Never",
-            Font = new Font("Segoe UI", 9F),
-            AutoSize = true,
-            Padding = new Padding(0, 3, 0, 3)
+            Text = "Statistics & Controls",
+            Location = new Point(470, 0),
+            Size = new Size(350, 130),
+            Padding = new Padding(8)
         };
 
-        _dataRateLabel = new Label
-        {
-            Text = "Data Rate: 0.0 lines/sec",
-            Font = new Font("Segoe UI", 9F),
-            AutoSize = true,
-            Padding = new Padding(0, 3, 0, 3)
-        };
+        var ry = 20;
+        _bytesReceivedLabel = new Label { Text = "Bytes: 0", Location = new Point(10, ry), AutoSize = true };
+        rightGroup.Controls.Add(_bytesReceivedLabel);
+        _linesReceivedLabel = new Label { Text = "Lines: 0", Location = new Point(120, ry), AutoSize = true };
+        rightGroup.Controls.Add(_linesReceivedLabel);
 
-        _totalLinesLabel = new Label
-        {
-            Text = "Total Lines: 0",
-            Font = new Font("Segoe UI", 9F),
-            AutoSize = true,
-            Padding = new Padding(0, 3, 0, 3)
-        };
+        ry += 22;
+        _dataRateLabel = new Label { Text = "Rate: 0.0 lines/sec", Location = new Point(10, ry), AutoSize = true };
+        rightGroup.Controls.Add(_dataRateLabel);
+        _lastDataLabel = new Label { Text = "Last: Never", Location = new Point(170, ry), AutoSize = true };
+        rightGroup.Controls.Add(_lastDataLabel);
 
-        layout.Controls.Add(_connectionStatusLabel);
-        layout.Controls.Add(_lastDataLabel);
-        layout.Controls.Add(_dataRateLabel);
-        layout.Controls.Add(_totalLinesLabel);
+        ry += 25;
+        _autoScrollCheck = new CheckBox { Text = "Auto-scroll", Checked = true, Location = new Point(10, ry), AutoSize = true };
+        rightGroup.Controls.Add(_autoScrollCheck);
+        _timestampCheck = new CheckBox { Text = "Timestamps", Checked = true, Location = new Point(110, ry), AutoSize = true };
+        rightGroup.Controls.Add(_timestampCheck);
+        _showHexCheck = new CheckBox { Text = "Log Hex", Checked = true, Location = new Point(220, ry), AutoSize = true };
+        rightGroup.Controls.Add(_showHexCheck);
 
-        panel.Controls.Add(layout);
-        return panel;
-    }
+        ry += 25;
+        _clearButton = new Button { Text = "Clear", Location = new Point(10, ry), Width = 70 };
+        _clearButton.Click += (s, e) => ClearAll();
+        rightGroup.Controls.Add(_clearButton);
 
-    private Control CreateControlPanel()
-    {
-        var panel = new GroupBox
-        {
-            Text = "Controls",
-            Dock = DockStyle.Fill,
-            Padding = new Padding(10)
-        };
-
-        var layout = new FlowLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            FlowDirection = FlowDirection.TopDown
-        };
-
-        _autoScrollCheck = new CheckBox
-        {
-            Text = "Auto-scroll",
-            Checked = true,
-            AutoSize = true
-        };
-
-        _timestampCheck = new CheckBox
-        {
-            Text = "Show timestamps",
-            Checked = true,
-            AutoSize = true
-        };
-
-        _clearButton = new Button
-        {
-            Text = "Clear All Logs",
-            Width = 120,
-            Margin = new Padding(0, 10, 0, 0)
-        };
-        _clearButton.Click += (s, e) => ClearLogs();
-
-        _exportButton = new Button
-        {
-            Text = "Export to File",
-            Width = 120,
-            Margin = new Padding(0, 5, 0, 0)
-        };
+        _exportButton = new Button { Text = "Export", Location = new Point(90, ry), Width = 70 };
         _exportButton.Click += ExportButton_Click;
+        rightGroup.Controls.Add(_exportButton);
 
-        layout.Controls.Add(_autoScrollCheck);
-        layout.Controls.Add(_timestampCheck);
-        layout.Controls.Add(_clearButton);
-        layout.Controls.Add(_exportButton);
+        outerPanel.Controls.Add(rightGroup);
+        return outerPanel;
+    }
 
-        panel.Controls.Add(layout);
-        return panel;
+    private void LoadSettingsDefaults()
+    {
+        try
+        {
+            var settings = AppSettings.Instance.ScaleConnection;
+            if (!string.IsNullOrEmpty(settings.ComPort) && _comPortCombo.Items.Contains(settings.ComPort))
+                _comPortCombo.SelectedItem = settings.ComPort;
+            if (_baudRateCombo.Items.Contains(settings.BaudRate.ToString()))
+                _baudRateCombo.SelectedItem = settings.BaudRate.ToString();
+            if (_dataBitsCombo.Items.Contains(settings.DataBits.ToString()))
+                _dataBitsCombo.SelectedItem = settings.DataBits.ToString();
+            if (_parityCombo.Items.Contains(settings.Parity))
+                _parityCombo.SelectedItem = settings.Parity;
+            if (_stopBitsCombo.Items.Contains(settings.StopBits))
+                _stopBitsCombo.SelectedItem = settings.StopBits;
+        }
+        catch { }
+    }
+
+    private void RefreshPorts()
+    {
+        _comPortCombo.Items.Clear();
+        try
+        {
+            var ports = SerialPort.GetPortNames();
+            foreach (var port in ports.OrderBy(p => p))
+                _comPortCombo.Items.Add(port);
+            if (_comPortCombo.Items.Count > 0)
+                _comPortCombo.SelectedIndex = 0;
+        }
+        catch { }
+    }
+
+    private void OpenPort_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            var comPort = _comPortCombo.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(comPort))
+            {
+                LogRaw("ERROR: No COM port selected.");
+                return;
+            }
+
+            var baudRate = int.Parse(_baudRateCombo.SelectedItem?.ToString() ?? "9600");
+            var dataBits = int.Parse(_dataBitsCombo.SelectedItem?.ToString() ?? "8");
+            var parity = Enum.Parse<Parity>(_parityCombo.SelectedItem?.ToString() ?? "None");
+            var stopBits = _stopBitsCombo.SelectedItem?.ToString() == "Two" ? StopBits.Two : StopBits.One;
+
+            _serialPort = new SerialPort(comPort, baudRate, parity, dataBits, stopBits);
+            _serialPort.ReadTimeout = 1000;
+            _serialPort.DataReceived += SerialPort_DataReceived;
+            _serialPort.ErrorReceived += SerialPort_ErrorReceived;
+            _serialPort.Open();
+
+            _portStatusLabel.Text = $"Open: {comPort}";
+            _portStatusLabel.ForeColor = Color.Green;
+            _openPortButton.Enabled = false;
+            _closePortButton.Enabled = true;
+            _sendButton.Enabled = true;
+
+            _bytesReceived = 0;
+            _linesReceived = 0;
+            _startTime = DateTime.Now;
+
+            LogRaw($"=== Port {comPort} opened: {baudRate} baud, {dataBits}{parity.ToString()[0]}{(stopBits == StopBits.Two ? "2" : "1")} ===");
+            LogParsed("Waiting for serial data...");
+        }
+        catch (Exception ex)
+        {
+            _portStatusLabel.Text = "Error";
+            _portStatusLabel.ForeColor = Color.Red;
+            LogRaw($"ERROR opening port: {ex.Message}");
+        }
+    }
+
+    private void ClosePort_Click(object? sender, EventArgs e)
+    {
+        CloseSerialPort();
+    }
+
+    private void CloseSerialPort()
+    {
+        try
+        {
+            if (_serialPort?.IsOpen == true)
+            {
+                _serialPort.DataReceived -= SerialPort_DataReceived;
+                _serialPort.ErrorReceived -= SerialPort_ErrorReceived;
+                _serialPort.Close();
+                _serialPort.Dispose();
+            }
+        }
+        catch { }
+
+        _serialPort = null;
+        _portStatusLabel.Text = "Closed";
+        _portStatusLabel.ForeColor = Color.Gray;
+        _openPortButton.Enabled = true;
+        _closePortButton.Enabled = false;
+        _sendButton.Enabled = false;
+        LogRaw("=== Port closed ===");
+    }
+
+    private void SendData_Click(object? sender, EventArgs e)
+    {
+        if (_serialPort?.IsOpen != true) return;
+        try
+        {
+            var text = _sendText.Text;
+            // Replace escape sequences
+            text = text.Replace("\\r", "\r").Replace("\\n", "\n");
+            _serialPort.Write(text);
+            LogRaw($"SENT: {_sendText.Text}");
+        }
+        catch (Exception ex)
+        {
+            LogRaw($"SEND ERROR: {ex.Message}");
+        }
+    }
+
+    private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+    {
+        try
+        {
+            if (_serialPort == null || !_serialPort.IsOpen) return;
+
+            var bytes = new byte[_serialPort.BytesToRead];
+            var count = _serialPort.Read(bytes, 0, bytes.Length);
+            if (count == 0) return;
+
+            _bytesReceived += count;
+            _lastDataTime = DateTime.Now;
+
+            var text = Encoding.ASCII.GetString(bytes, 0, count);
+            var hex = BitConverter.ToString(bytes, 0, count).Replace("-", " ");
+
+            Invoke(() =>
+            {
+                var ts = _timestampCheck.Checked ? $"[{DateTime.Now:HH:mm:ss.fff}] " : "";
+
+                // Raw data display
+                LogRaw($"{ts}{text.Replace("\r", "\\r").Replace("\n", "\\n")}");
+
+                // Hex display
+                if (_showHexCheck.Checked)
+                    LogHex($"{ts}{hex}  |  {text.Replace("\r", "<CR>").Replace("\n", "<LF>")}");
+
+                // Line buffering for parsed data
+                _lineBuffer.Append(text);
+                var bufferStr = _lineBuffer.ToString();
+                int idx;
+                while ((idx = bufferStr.IndexOfAny(new[] { '\r', '\n' })) >= 0)
+                {
+                    var line = bufferStr.Substring(0, idx).Trim();
+                    // Skip past delimiter(s)
+                    if (idx + 1 < bufferStr.Length && bufferStr[idx] == '\r' && bufferStr[idx + 1] == '\n')
+                        bufferStr = bufferStr.Substring(idx + 2);
+                    else
+                        bufferStr = bufferStr.Substring(idx + 1);
+
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        _linesReceived++;
+                        LogParsed($"{ts}LINE {_linesReceived}: {line}");
+                    }
+                }
+                _lineBuffer.Clear();
+                _lineBuffer.Append(bufferStr);
+
+                UpdateStatistics();
+            });
+        }
+        catch { }
+    }
+
+    private void SerialPort_ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
+    {
+        try
+        {
+            Invoke(() => LogRaw($"SERIAL ERROR: {e.EventType}"));
+        }
+        catch { }
     }
 
     private void OnIpcMessage(object? sender, IpcMessage message)
@@ -263,121 +445,35 @@ public partial class DiagnosticsTab : UserControl
             return;
         }
 
-        var timestamp = _timestampCheck.Checked ? $"[{DateTime.Now:HH:mm:ss.fff}] " : "";
+        var ts = _timestampCheck?.Checked == true ? $"[{DateTime.Now:HH:mm:ss.fff}] " : "";
 
-        // Log IPC message
-        LogIpc($"{timestamp}IPC: {message.MessageType} - {message.Payload?.Substring(0, Math.Min(100, message.Payload?.Length ?? 0))}");
-
-        // Route to appropriate handler
         switch (message.MessageType)
         {
             case IpcMessageType.WeightReading:
-                HandleWeightReading(message, timestamp);
+                LogParsed($"{ts}SERVICE WEIGHT: {message.Payload}");
                 break;
-
-            case IpcMessageType.ConnectionStatus:
-                HandleConnectionStatus(message, timestamp);
-                break;
-
-            case IpcMessageType.Error:
-                HandleError(message, timestamp);
-                break;
-
             case IpcMessageType.RawData:
-                HandleRawData(message, timestamp);
+                LogRaw($"{ts}SERVICE RAW: {message.Payload}");
+                break;
+            case IpcMessageType.Error:
+                LogRaw($"{ts}SERVICE ERROR: {message.Payload}");
                 break;
         }
-    }
-
-    private void HandleWeightReading(IpcMessage message, string timestamp)
-    {
-        _dataCount++;
-        _lastDataTime = DateTime.Now;
-        _lineCount++;
-
-        UpdateStatistics();
-
-        // Log to live data view
-        LogLiveData($"{timestamp}WEIGHT: {message.Payload}");
-
-        // Update connection status
-        if (_connectionStatusLabel.ForeColor != Color.Green)
-        {
-            _connectionStatusLabel.Text = "Status: Connected - Receiving Data";
-            _connectionStatusLabel.ForeColor = Color.Green;
-            LogConnection($"{timestamp}Scale connected and sending weight data");
-        }
-    }
-
-    private void HandleConnectionStatus(IpcMessage message, string timestamp)
-    {
-        LogConnection($"{timestamp}CONNECTION: {message.Payload}");
-
-        if (message.Payload?.Contains("Connected") == true)
-        {
-            _connectionStatusLabel.Text = "Status: Connected";
-            _connectionStatusLabel.ForeColor = Color.Blue;
-        }
-        else if (message.Payload?.Contains("Disconnect") == true)
-        {
-            _connectionStatusLabel.Text = "Status: Disconnected";
-            _connectionStatusLabel.ForeColor = Color.Orange;
-        }
-        else if (message.Payload?.Contains("Error") == true || message.Payload?.Contains("Failed") == true)
-        {
-            _connectionStatusLabel.Text = "Status: Connection Error";
-            _connectionStatusLabel.ForeColor = Color.Red;
-            LogError($"{timestamp}CONNECTION ERROR: {message.Payload}");
-        }
-    }
-
-    private void HandleError(IpcMessage message, string timestamp)
-    {
-        LogError($"{timestamp}ERROR: {message.Payload}");
-        _connectionStatusLabel.Text = "Status: Error";
-        _connectionStatusLabel.ForeColor = Color.Red;
-    }
-
-    private void HandleRawData(IpcMessage message, string timestamp)
-    {
-        _lineCount++;
-        _lastDataTime = DateTime.Now;
-        UpdateStatistics();
-
-        // Log raw TCP data
-        LogLiveData($"{timestamp}RAW: {message.Payload}");
     }
 
     private void UpdateStatistics()
     {
-        _lastDataLabel.Text = $"Last Data: {_lastDataTime:HH:mm:ss.fff}";
+        _bytesReceivedLabel.Text = $"Bytes: {_bytesReceived:N0}";
+        _linesReceivedLabel.Text = $"Lines: {_linesReceived}";
+        _lastDataLabel.Text = $"Last: {_lastDataTime:HH:mm:ss.fff}";
 
         var elapsed = (DateTime.Now - _startTime).TotalSeconds;
-        var rate = elapsed > 0 ? _lineCount / elapsed : 0;
-        _dataRateLabel.Text = $"Data Rate: {rate:F1} lines/sec";
-
-        _totalLinesLabel.Text = $"Total Lines: {_lineCount}";
+        _dataRateLabel.Text = elapsed > 0 ? $"Rate: {_linesReceived / elapsed:F1} lines/sec" : "Rate: 0.0 lines/sec";
     }
 
-    private void LogLiveData(string message)
-    {
-        AppendToTextBox(_liveDataText, message);
-    }
-
-    private void LogConnection(string message)
-    {
-        AppendToTextBox(_connectionLogText, message);
-    }
-
-    private void LogIpc(string message)
-    {
-        AppendToTextBox(_ipcLogText, message);
-    }
-
-    private void LogError(string message)
-    {
-        AppendToTextBox(_errorLogText, message);
-    }
+    private void LogRaw(string message) => AppendToTextBox(_rawDataText, message);
+    private void LogParsed(string message) => AppendToTextBox(_parsedDataText, message);
+    private void LogHex(string message) => AppendToTextBox(_hexDataText, message);
 
     private void AppendToTextBox(TextBox textBox, string message)
     {
@@ -389,33 +485,28 @@ public partial class DiagnosticsTab : UserControl
 
         textBox.AppendText(message + Environment.NewLine);
 
-        // Auto-scroll to bottom if enabled
         if (_autoScrollCheck.Checked)
         {
             textBox.SelectionStart = textBox.Text.Length;
             textBox.ScrollToCaret();
         }
 
-        // Keep only last 1000 lines
         var lines = textBox.Lines;
-        if (lines.Length > 1000)
+        if (lines.Length > 2000)
         {
-            textBox.Lines = lines.Skip(lines.Length - 1000).ToArray();
+            textBox.Lines = lines.Skip(lines.Length - 2000).ToArray();
         }
     }
 
-    private void ClearLogs()
+    private void ClearAll()
     {
-        _liveDataText.Clear();
-        _connectionLogText.Clear();
-        _ipcLogText.Clear();
-        _errorLogText.Clear();
-        _lineCount = 0;
-        _dataCount = 0;
+        _rawDataText.Clear();
+        _parsedDataText.Clear();
+        _hexDataText.Clear();
+        _bytesReceived = 0;
+        _linesReceived = 0;
         _startTime = DateTime.Now;
-        _lastDataTime = DateTime.MinValue;
         UpdateStatistics();
-        LogConnection("Logs cleared. Waiting for new data...");
     }
 
     private void ExportButton_Click(object? sender, EventArgs e)
@@ -424,7 +515,7 @@ public partial class DiagnosticsTab : UserControl
         {
             Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
             DefaultExt = "txt",
-            FileName = $"diagnostics-{DateTime.Now:yyyyMMdd-HHmmss}.txt"
+            FileName = $"rs232-diagnostics-{DateTime.Now:yyyyMMdd-HHmmss}.txt"
         };
 
         if (dialog.ShowDialog() == DialogResult.OK)
@@ -432,37 +523,42 @@ public partial class DiagnosticsTab : UserControl
             try
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("=== Scale Streamer Diagnostics Export ===");
+                sb.AppendLine("=== Scale Streamer RS232 Diagnostics Export ===");
                 sb.AppendLine($"Exported: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-                sb.AppendLine($"Total Lines: {_lineCount}");
-                sb.AppendLine($"Data Rate: {(_lineCount / (DateTime.Now - _startTime).TotalSeconds):F1} lines/sec");
+                sb.AppendLine($"Bytes Received: {_bytesReceived:N0}");
+                sb.AppendLine($"Lines Received: {_linesReceived}");
                 sb.AppendLine();
-                sb.AppendLine("=== LIVE TCP DATA ===");
-                sb.AppendLine(_liveDataText.Text);
+                sb.AppendLine("=== RAW SERIAL DATA ===");
+                sb.AppendLine(_rawDataText.Text);
                 sb.AppendLine();
-                sb.AppendLine("=== CONNECTION LOG ===");
-                sb.AppendLine(_connectionLogText.Text);
+                sb.AppendLine("=== PARSED READINGS ===");
+                sb.AppendLine(_parsedDataText.Text);
                 sb.AppendLine();
-                sb.AppendLine("=== IPC MESSAGES ===");
-                sb.AppendLine(_ipcLogText.Text);
-                sb.AppendLine();
-                sb.AppendLine("=== ERRORS ===");
-                sb.AppendLine(_errorLogText.Text);
+                sb.AppendLine("=== HEX VIEW ===");
+                sb.AppendLine(_hexDataText.Text);
 
                 File.WriteAllText(dialog.FileName, sb.ToString());
-
-                MessageBox.Show($"Diagnostics exported to:\n{dialog.FileName}", "Export Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Exported to:\n{dialog.FileName}", "Export Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to export diagnostics:\n{ex.Message}", "Export Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Export failed:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
 
     public void LogDebug(string message)
     {
-        var timestamp = _timestampCheck?.Checked == true ? $"[{DateTime.Now:HH:mm:ss.fff}] " : "";
-        LogConnection($"{timestamp}DEBUG: {message}");
+        var ts = _timestampCheck?.Checked == true ? $"[{DateTime.Now:HH:mm:ss.fff}] " : "";
+        LogRaw($"{ts}DEBUG: {message}");
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            CloseSerialPort();
+        }
+        base.Dispose(disposing);
     }
 }

@@ -720,12 +720,90 @@ public partial class ConnectionTab : UserControl
             _connectionStatusLabel.Text = "Testing...";
             _connectionStatusLabel.ForeColor = Color.Orange;
 
-            // TODO: Send test connection command to service via IPC
-            await Task.Delay(2000); // Simulate test
+            var connType = _connectionTypeCombo.SelectedItem?.ToString() ?? "TCP/IP";
 
-            _connectionStatusLabel.Text = "Connection Successful";
-            _connectionStatusLabel.ForeColor = Color.Green;
-            LogMessage("Connection test successful!");
+            if (connType == "RS232" || connType == "RS485")
+            {
+                // Direct serial port test
+                var comPort = _comPortCombo.SelectedItem?.ToString();
+                if (string.IsNullOrEmpty(comPort))
+                {
+                    _connectionStatusLabel.Text = "No COM Port Selected";
+                    _connectionStatusLabel.ForeColor = Color.Red;
+                    LogMessage("Test failed: No COM port selected.");
+                    return;
+                }
+
+                var baudRate = int.Parse(_baudRateCombo.SelectedItem?.ToString() ?? "9600");
+                var dataBits = int.Parse(_dataBitsCombo.SelectedItem?.ToString() ?? "8");
+                var parity = Enum.Parse<System.IO.Ports.Parity>(_parityCombo.SelectedItem?.ToString() ?? "None");
+                var stopBits = _stopBitsCombo.SelectedItem?.ToString() == "Two"
+                    ? System.IO.Ports.StopBits.Two
+                    : System.IO.Ports.StopBits.One;
+
+                LogMessage($"Opening {comPort} at {baudRate} baud, {dataBits}{parity.ToString()[0]}{(stopBits == System.IO.Ports.StopBits.Two ? "2" : "1")}...");
+
+                await Task.Run(() =>
+                {
+                    using var port = new SerialPort(comPort, baudRate, parity, dataBits, stopBits);
+                    port.ReadTimeout = 3000;
+                    port.Open();
+
+                    // Try to read any available data for 2 seconds
+                    var startTime = DateTime.Now;
+                    var dataReceived = false;
+                    while ((DateTime.Now - startTime).TotalSeconds < 2)
+                    {
+                        if (port.BytesToRead > 0)
+                        {
+                            var data = port.ReadExisting();
+                            Invoke(() => LogMessage($"Received data: {data.Replace("\r", "\\r").Replace("\n", "\\n")}"));
+                            dataReceived = true;
+                            break;
+                        }
+                        Thread.Sleep(100);
+                    }
+
+                    if (!dataReceived)
+                    {
+                        Invoke(() => LogMessage("Port opened successfully. No data received (scale may need to send data)."));
+                    }
+
+                    port.Close();
+                });
+
+                _connectionStatusLabel.Text = "Serial Port OK";
+                _connectionStatusLabel.ForeColor = Color.Green;
+                LogMessage($"Serial test successful! {comPort} is accessible.");
+            }
+            else
+            {
+                // TCP/IP test via IPC
+                var host = _hostText.Text;
+                var port = (int)_portNumeric.Value;
+
+                if (string.IsNullOrEmpty(host) || port <= 0)
+                {
+                    _connectionStatusLabel.Text = "Invalid Host/Port";
+                    _connectionStatusLabel.ForeColor = Color.Red;
+                    LogMessage("Test failed: Invalid host or port.");
+                    return;
+                }
+
+                LogMessage($"Testing TCP connection to {host}:{port}...");
+
+                await Task.Run(() =>
+                {
+                    using var client = new System.Net.Sockets.TcpClient();
+                    client.Connect(host, port);
+                    Invoke(() => LogMessage($"TCP connection established to {host}:{port}"));
+                    client.Close();
+                });
+
+                _connectionStatusLabel.Text = "Connection Successful";
+                _connectionStatusLabel.ForeColor = Color.Green;
+                LogMessage("TCP connection test successful!");
+            }
         }
         catch (Exception ex)
         {

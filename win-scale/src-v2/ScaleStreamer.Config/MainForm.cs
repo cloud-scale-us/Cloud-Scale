@@ -10,7 +10,7 @@ namespace ScaleStreamer.Config;
 /// </summary>
 public partial class MainForm : Form
 {
-    private const string APP_VERSION = "5.0.0";
+    private const string APP_VERSION = "5.1.1";
 
     private readonly IpcClient _ipcClient;
     private System.Windows.Forms.Timer _statusTimer;
@@ -257,8 +257,8 @@ public partial class MainForm : Form
         settingsPage.Controls.Add(_settingsTab);
         _mainTabControl.TabPages.Add(settingsPage);
 
-        // Diagnostics Tab
-        var diagnosticsPage = new TabPage("Diagnostics")
+        // RS232 Diagnostics Tab
+        var diagnosticsPage = new TabPage("RS232 Diagnostics")
         {
             UseVisualStyleBackColor = true
         };
