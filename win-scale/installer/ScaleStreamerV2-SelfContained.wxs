@@ -3,13 +3,13 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
      xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
-    <Package Name="Scale Streamer v4.1.2 (Self-Contained)"
+    <Package Name="Scale Streamer v4.2.1 (Self-Contained)"
              Manufacturer="Cloud-Scale"
-             Version="4.1.2"
+             Version="4.2.1"
              UpgradeCode="B2C3D4E5-F6A7-8901-BCDE-FA2345678902"
              Scope="perMachine">
 
-        <SummaryInformation Description="Scale Streamer v4.1.2 - IPC Broadcast Fix"
+        <SummaryInformation Description="Scale Streamer v4.2.1 - GUI Optimization and Stability"
                             Manufacturer="Cloud-Scale" />
 
         <MajorUpgrade DowngradeErrorMessage="A newer version of Scale Streamer is already installed."
