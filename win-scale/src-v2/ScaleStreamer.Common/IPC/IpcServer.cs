@@ -31,6 +31,9 @@ public class IpcServer : IDisposable
         public int ConnectionId { get; set; }
         public StreamWriter Writer { get; set; } = null!;
         public bool IsConnected { get; set; } = true;
+        public SemaphoreSlim WriteLock { get; } = new(1, 1);
+        public int ConsecutiveWriteErrors { get; set; }
+        public const int MaxWriteErrors = 3;
     }
 
     public IpcServer(string pipeName = "ScaleStreamerPipe")
@@ -137,8 +140,8 @@ public class IpcServer : IDisposable
                     NamedPipeServerStream.MaxAllowedServerInstances,
                     PipeTransmissionMode.Byte,
                     PipeOptions.Asynchronous,
-                    0, // inBufferSize (0 = default)
-                    0, // outBufferSize (0 = default)
+                    65536, // inBufferSize - 64KB for incoming commands
+                    262144, // outBufferSize - 256KB for high-frequency weight broadcasts
                     pipeSecurity);
 
                 _log.Debug("Waiting for client connection...");
@@ -315,28 +318,46 @@ public class IpcServer : IDisposable
         var json = JsonSerializer.Serialize<IpcMessage>(response);
         _log.Debug("Broadcasting {MessageType} to {ClientCount} clients", response.MessageType, clientsCopy.Count);
 
-        // Fire-and-forget broadcast to each client
-        // This prevents slow clients from blocking the broadcast to others
+        // Fire-and-forget broadcast to each client with write serialization
+        // WriteLock prevents concurrent writes from corrupting the pipe stream
         foreach (var client in clientsCopy)
         {
             var capturedClient = client; // Capture for closure
             _ = Task.Run(async () =>
             {
+                // Skip if write lock is busy (another message is being written)
+                // This prevents message backlog when client is slow
+                if (!await capturedClient.WriteLock.WaitAsync(100))
+                {
+                    _log.Verbose("[Conn#{ConnectionId}] Skipping broadcast - write lock busy", capturedClient.ConnectionId);
+                    return;
+                }
+
                 try
                 {
                     await capturedClient.Writer.WriteLineAsync(json);
                     await capturedClient.Writer.FlushAsync();
+                    capturedClient.ConsecutiveWriteErrors = 0;
                 }
                 catch (Exception ex)
                 {
-                    _log.Warning(ex, "[Conn#{ConnectionId}] Failed to send message: {Error}", capturedClient.ConnectionId, ex.Message);
-                    capturedClient.IsConnected = false;
+                    capturedClient.ConsecutiveWriteErrors++;
+                    _log.Warning("[Conn#{ConnectionId}] Write error ({ErrorCount}/{MaxErrors}): {Error}",
+                        capturedClient.ConnectionId, capturedClient.ConsecutiveWriteErrors, ConnectedClient.MaxWriteErrors, ex.Message);
 
-                    // Remove failed client
-                    lock (_clientsLock)
+                    if (capturedClient.ConsecutiveWriteErrors >= ConnectedClient.MaxWriteErrors)
                     {
-                        _connectedClients.Remove(capturedClient);
+                        _log.Warning("[Conn#{ConnectionId}] Max write errors reached, disconnecting client", capturedClient.ConnectionId);
+                        capturedClient.IsConnected = false;
+                        lock (_clientsLock)
+                        {
+                            _connectedClients.Remove(capturedClient);
+                        }
                     }
+                }
+                finally
+                {
+                    capturedClient.WriteLock.Release();
                 }
             });
         }
