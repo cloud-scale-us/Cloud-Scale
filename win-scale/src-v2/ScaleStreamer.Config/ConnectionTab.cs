@@ -823,10 +823,71 @@ public partial class ConnectionTab : UserControl
         {
             LogMessage("Saving configuration...");
 
-            // TODO: Build configuration and send to service via IPC
+            // Explicitly save settings (triggers FileSystemWatcher in service → auto-reconnect)
+            AutoSave();
 
-            MessageBox.Show("Configuration saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            LogMessage("Configuration saved.");
+            LogMessage("Settings saved to disk. Service will auto-reconnect with new settings.");
+
+            // Also send AddScale command via IPC for immediate reconnection
+            if (_ipcClient.IsConnected)
+            {
+                LogMessage("Sending reconnect command to service...");
+                var settings = AppSettings.Instance.ScaleConnection;
+                var config = new
+                {
+                    ScaleId = settings.ScaleId,
+                    Name = settings.ScaleName,
+                    Location = settings.Location,
+                    MarketType = settings.MarketType,
+                    ProtocolName = settings.Protocol,
+                    Connection = new
+                    {
+                        Type = settings.ConnectionType switch
+                        {
+                            "RS232" => "RS232",
+                            "RS485" => "RS485",
+                            _ => "TcpIp"
+                        },
+                        Host = settings.Host,
+                        Port = settings.Port,
+                        TimeoutMs = settings.TimeoutMs,
+                        AutoReconnect = settings.AutoReconnect,
+                        ReconnectIntervalSeconds = settings.ReconnectIntervalSeconds,
+                        ComPort = settings.ComPort,
+                        BaudRate = settings.BaudRate,
+                        DataBits = settings.DataBits,
+                        Parity = settings.Parity,
+                        StopBits = settings.StopBits,
+                        FlowControl = settings.FlowControl
+                    }
+                };
+
+                var command = new IpcCommand
+                {
+                    MessageType = IpcMessageType.AddScale,
+                    Payload = System.Text.Json.JsonSerializer.Serialize(config)
+                };
+
+                var response = await _ipcClient.SendCommandWithResponseAsync(command, timeoutMs: 5000);
+                if (response?.Success == true)
+                {
+                    LogMessage("Service confirmed: scale connection started.");
+                    _connectionStatusLabel.Text = "Connected - Waiting for data";
+                    _connectionStatusLabel.ForeColor = Color.Green;
+                }
+                else
+                {
+                    LogMessage($"Service response: {response?.ErrorMessage ?? "No response (service may reconnect via settings watcher)"}");
+                }
+            }
+            else
+            {
+                LogMessage("IPC not connected - service will pick up settings on next restart.");
+            }
+
+            MessageBox.Show(
+                "Configuration saved!\n\nThe service will automatically connect with the new settings.",
+                "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {

@@ -1,19 +1,18 @@
-$env:PATH = "C:\Program Files\Git\bin;C:\Program Files\Git\cmd;" + $env:PATH
-cd "C:\Users\Windfield\Cloud-Scale\win-scale"
+$env:Path = 'C:\Program Files\Git\bin;' + $env:Path
+cd 'C:\Users\Windfield\Cloud-Scale'
+$gh = 'C:\Program Files\GitHub CLI\gh.exe'
+$msi = Get-ChildItem 'win-scale\installer\bin\*.msi' | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+Write-Host "MSI: $($msi.FullName)"
 
 $notes = @"
-## Scale Streamer v5.1.2
+v5.2.0: Fix RS232 serial ingestion bugs, version bump, auto-restore on power loss
 
-Version bump release with all v5.1.1 features:
-
-- **Full RS232/RS485 serial support** - Service correctly maps connection types, includes FlowControl, loads protocol templates
-- **Real serial Test Connection** - Opens COM port to verify connectivity before saving
-- **RS232 Diagnostics tab** - Live serial terminal with raw data, parsed readings, hex view, send capability, and export
-- **Auto-start from saved config** - Service reconnects automatically on startup using saved settings
-- **All versions unified to 5.1.2** across all assemblies and installer
-
-### Installer
-Self-contained MSI (72 MB) - no .NET runtime required on target system.
+Changes:
+- Fixed RS232 serial port data ingestion (3 bugs)
+- Auto-reconnect to last data stream on service restart
+- Auto-start ONVIF service on startup
+- System restores previous state after power loss
+- Version bumped to 5.2.0 across all components
 "@
 
-& "C:\Program Files\GitHub CLI\gh.exe" release create v5.1.2 "C:\Users\Windfield\Cloud-Scale\win-scale\installer\bin\ScaleStreamer-v5.1.2-20260127-163206.msi" --title "Scale Streamer v5.1.2" --notes $notes
+& $gh release create v5.2.0 $msi.FullName --title 'Scale Streamer v5.2.0' --notes $notes

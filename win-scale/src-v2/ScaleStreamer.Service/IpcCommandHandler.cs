@@ -74,6 +74,14 @@ public class IpcCommandHandler
             // Update connection settings from config
             protocol.Connection = config.Connection;
 
+            // Disconnect existing scale if present (reconnect scenario)
+            var existing = _connectionManager.GetScale(config.ScaleId);
+            if (existing != null)
+            {
+                _logger.LogInformation("Disconnecting existing scale {ScaleId} before reconnecting", config.ScaleId);
+                await _connectionManager.RemoveScaleAsync(config.ScaleId);
+            }
+
             // Add scale to connection manager
             var success = await _connectionManager.AddScaleAsync(config.ScaleId, protocol);
 

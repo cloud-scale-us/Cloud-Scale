@@ -56,8 +56,8 @@
     }
   },
   "validation": {
-    "min_weight": -50000,
-    "max_weight": 50000,
+    "min_weight": -200000,
+    "max_weight": 200000,
     "require_stable": false,
     "allow_negative": true
   },

@@ -26,6 +26,7 @@ public partial class MainForm : Form
     private LoggingTab? _loggingTab;
     private SettingsTab? _settingsTab;
     private DiagnosticsTab? _diagnosticsTab;
+    private OnvifMonitorTab? _onvifMonitorTab;
 
     // Update notification
     private Panel? _updateNotificationPanel;
@@ -266,6 +267,16 @@ public partial class MainForm : Form
         _diagnosticsTab.Dock = DockStyle.Fill;
         diagnosticsPage.Controls.Add(_diagnosticsTab);
         _mainTabControl.TabPages.Add(diagnosticsPage);
+
+        // ONVIF Server Monitor Tab
+        var onvifPage = new TabPage("ONVIF Server")
+        {
+            UseVisualStyleBackColor = true
+        };
+        _onvifMonitorTab = new OnvifMonitorTab(_ipcClient);
+        _onvifMonitorTab.Dock = DockStyle.Fill;
+        onvifPage.Controls.Add(_onvifMonitorTab);
+        _mainTabControl.TabPages.Add(onvifPage);
 
         _mainTabControl.ResumeLayout(true);
         _mainTabControl.SelectedIndex = 0; // Select first tab
