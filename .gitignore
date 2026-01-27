@@ -79,3 +79,14 @@ TestResults/
 
 # Null/empty files
 null
+
+# Large binaries
+ffmpeg/ffmpeg.zip
+ffmpeg/ffmpeg-master-latest-win64-gpl/bin/
+mediamtx/mediamtx.exe
+mediamtx.zip
+win-scale/installer/bin/
+win-scale/src-v2/*/bin/
+win-scale/src-v2/*/obj/
+win-scale/find-large-files.ps1
+win-scale/fix-large-files.ps1

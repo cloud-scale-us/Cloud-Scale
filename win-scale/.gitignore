@@ -23,3 +23,11 @@ installer/*.wixpdb
 # OS files
 Thumbs.db
 .DS_Store
+# Large binary files
+ffmpeg/*.zip
+ffmpeg/*.exe
+mediamtx/*.zip
+mediamtx/*.exe
+installer/bin/*.msi
+*.zip
+*.msi

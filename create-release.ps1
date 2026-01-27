@@ -1,54 +1,19 @@
-# Add Git to PATH
-$env:Path = "C:\Program Files\Git\bin;$env:Path"
+$env:PATH = "C:\Program Files\Git\bin;C:\Program Files\Git\cmd;" + $env:PATH
+cd "C:\Users\Windfield\Cloud-Scale\win-scale"
 
-$releaseNotes = @"
-## v4.2.0 - GUI Optimization and Stability Release
+$notes = @"
+## Scale Streamer v5.1.2
 
-### Major Improvements
+Version bump release with all v5.1.1 features:
 
-**UI Stability**
-- Fixed GUI freeze issue when receiving continuous scale data
-- Limited UI updates to 4/second max (throttling)
-- Non-blocking UI updates using BeginInvoke
-- Batch UI updates with SuspendLayout/ResumeLayout
-- ListView optimization with BeginUpdate/EndUpdate
-- Reduced log buffer from 500 to 200 lines
+- **Full RS232/RS485 serial support** - Service correctly maps connection types, includes FlowControl, loads protocol templates
+- **Real serial Test Connection** - Opens COM port to verify connectivity before saving
+- **RS232 Diagnostics tab** - Live serial terminal with raw data, parsed readings, hex view, send capability, and export
+- **Auto-start from saved config** - Service reconnects automatically on startup using saved settings
+- **All versions unified to 5.1.2** across all assemblies and installer
 
-**Status Tab Rewrite**
-- Real Windows service status monitoring via ServiceController
-- Shows actual IPC connection status
-- Shows scale connection with data flow indicator
-- Working Start/Stop/Restart service buttons with UAC elevation
-- Open Logs button for quick access to service logs
-
-**Connection Improvements**
-- Removed hardcoded default IP address (requires explicit configuration)
-- Settings changes now trigger actual scale reconnection
-- Added debouncing to prevent reconnection floods (500ms delay)
-
-**IPC Improvements**
-- Reduced verbose logging to prevent log floods
-- Better error handling in client connections
-
-### Installation
-- Self-contained installer (58 MB) - no .NET runtime required
-- Supports Windows 10/11 and Windows Server 2019+
-
-### Upgrade Notes
-This release supersedes v4.1.2. Simply run the new installer to upgrade.
+### Installer
+Self-contained MSI (72 MB) - no .NET runtime required on target system.
 "@
 
-$msiFile = Get-ChildItem "C:\Users\Windfield\Cloud-Scale\win-scale\installer\bin\ScaleStreamer-v4.2.0-*.msi" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-
-Write-Host "Creating GitHub release v4.2.0..." -ForegroundColor Cyan
-Write-Host "MSI file: $($msiFile.FullName)" -ForegroundColor Yellow
-
-cd "C:\Users\Windfield\Cloud-Scale"
-
-& "C:\Program Files\GitHub CLI\gh.exe" release create v4.2.0 --title "Scale Streamer v4.2.0 - GUI Optimization and Stability" --notes $releaseNotes $msiFile.FullName
-
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "Release created successfully!" -ForegroundColor Green
-} else {
-    Write-Host "Release creation failed with exit code $LASTEXITCODE" -ForegroundColor Red
-}
+& "C:\Program Files\GitHub CLI\gh.exe" release create v5.1.2 "C:\Users\Windfield\Cloud-Scale\win-scale\installer\bin\ScaleStreamer-v5.1.2-20260127-163206.msi" --title "Scale Streamer v5.1.2" --notes $notes

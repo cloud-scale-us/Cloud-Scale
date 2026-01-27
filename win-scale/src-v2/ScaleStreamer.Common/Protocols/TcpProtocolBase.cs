@@ -73,29 +73,37 @@ public abstract class TcpProtocolBase : BaseScaleProtocol
         await _connectionLock.WaitAsync();
         try
         {
-            await StopContinuousReadingAsync();
-
-            if (_stream != null)
-            {
-                _stream.Close();
-                _stream.Dispose();
-                _stream = null;
-            }
-
-            if (_client != null)
-            {
-                _client.Close();
-                _client.Dispose();
-                _client = null;
-            }
-
-            _buffer.Clear();
-            UpdateStatus(ConnectionStatus.Disconnected);
+            DisconnectInternal();
         }
         finally
         {
             _connectionLock.Release();
         }
+    }
+
+    /// <summary>
+    /// Internal disconnect without lock (for use when lock is already held, e.g. reconnect)
+    /// </summary>
+    protected void DisconnectInternal()
+    {
+        StopContinuousReadingAsync().GetAwaiter().GetResult();
+
+        if (_stream != null)
+        {
+            _stream.Close();
+            _stream.Dispose();
+            _stream = null;
+        }
+
+        if (_client != null)
+        {
+            _client.Close();
+            _client.Dispose();
+            _client = null;
+        }
+
+        _buffer.Clear();
+        UpdateStatus(ConnectionStatus.Disconnected);
     }
 
     /// <summary>

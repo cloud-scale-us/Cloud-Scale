@@ -496,14 +496,27 @@ public class ScaleService : BackgroundService
                 await Task.Delay(500, token);
 
                 var settings = AppSettings.Instance.ScaleConnection;
-                self._logger.LogInformation("Settings changed! Reconnecting with: Host={Host}, Port={Port}, AutoReconnect={AutoReconnect}",
-                    settings.Host, settings.Port, settings.AutoReconnect);
+                var isSerial = settings.ConnectionType == "RS232" || settings.ConnectionType == "RS485";
 
-                // Skip if no host configured
-                if (string.IsNullOrEmpty(settings.Host))
+                self._logger.LogInformation("Settings changed! ConnectionType={Type}, Host={Host}, Port={Port}, ComPort={ComPort}, AutoReconnect={AutoReconnect}",
+                    settings.ConnectionType, settings.Host, settings.Port, settings.ComPort, settings.AutoReconnect);
+
+                // Skip if no connection configured
+                if (isSerial)
                 {
-                    self._logger.LogWarning("No scale host configured, skipping reconnection");
-                    return;
+                    if (string.IsNullOrEmpty(settings.ComPort))
+                    {
+                        self._logger.LogWarning("No COM port configured, skipping reconnection");
+                        return;
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(settings.Host))
+                    {
+                        self._logger.LogWarning("No scale host configured, skipping reconnection");
+                        return;
+                    }
                 }
 
                 // Disconnect existing scale if any

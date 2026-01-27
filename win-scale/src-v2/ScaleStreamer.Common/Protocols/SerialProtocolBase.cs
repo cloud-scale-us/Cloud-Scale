@@ -49,7 +49,7 @@ public abstract class SerialProtocolBase : BaseScaleProtocol
             if (_serialPort.IsOpen)
             {
                 UpdateStatus(ConnectionStatus.Connected);
-                OnErrorOccurred($"Connected to {config.ComPort}");
+                OnRawDataReceived($"Connected to {config.ComPort}");
                 return true;
             }
 
@@ -73,28 +73,36 @@ public abstract class SerialProtocolBase : BaseScaleProtocol
         await _connectionLock.WaitAsync();
         try
         {
-            await StopContinuousReadingAsync();
-
-            if (_serialPort != null)
-            {
-                if (_serialPort.IsOpen)
-                {
-                    _serialPort.Close();
-                }
-
-                _serialPort.DataReceived -= SerialPort_DataReceived;
-                _serialPort.ErrorReceived -= SerialPort_ErrorReceived;
-                _serialPort.Dispose();
-                _serialPort = null;
-            }
-
-            _buffer.Clear();
-            UpdateStatus(ConnectionStatus.Disconnected);
+            DisconnectInternal();
         }
         finally
         {
             _connectionLock.Release();
         }
+    }
+
+    /// <summary>
+    /// Internal disconnect without lock (for use when lock is already held, e.g. reconnect)
+    /// </summary>
+    protected void DisconnectInternal()
+    {
+        StopContinuousReadingAsync().GetAwaiter().GetResult();
+
+        if (_serialPort != null)
+        {
+            if (_serialPort.IsOpen)
+            {
+                _serialPort.Close();
+            }
+
+            _serialPort.DataReceived -= SerialPort_DataReceived;
+            _serialPort.ErrorReceived -= SerialPort_ErrorReceived;
+            _serialPort.Dispose();
+            _serialPort = null;
+        }
+
+        _buffer.Clear();
+        UpdateStatus(ConnectionStatus.Disconnected);
     }
 
     /// <summary>

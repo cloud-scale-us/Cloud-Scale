@@ -164,11 +164,11 @@ public abstract class BaseScaleProtocol : IScaleProtocol, IDisposable
         if (_config == null)
             return;
 
-        await _connectionLock.WaitAsync(cancellationToken);
         try
         {
             UpdateStatus(ConnectionStatus.Reconnecting);
 
+            // Use public DisconnectAsync (which acquires its own lock)
             await DisconnectAsync();
             await Task.Delay(_config.ReconnectIntervalSeconds * 1000, cancellationToken);
 
@@ -188,10 +188,6 @@ public abstract class BaseScaleProtocol : IScaleProtocol, IDisposable
         {
             UpdateStatus(ConnectionStatus.Error);
             OnErrorOccurred(ex);
-        }
-        finally
-        {
-            _connectionLock.Release();
         }
     }
 

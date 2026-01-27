@@ -99,7 +99,7 @@ Write-Host "[3/4] Building MSI installer..." -ForegroundColor Yellow
 
 $wixFile = Join-Path $InstallerDir "ScaleStreamerV2-SelfContained.wxs"
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-$outputMsi = Join-Path $OutputDir "ScaleStreamer-v5.1.2-$timestamp.msi"
+$outputMsi = Join-Path $OutputDir "ScaleStreamer-v5.2.0-$timestamp.msi"
 
 # Install extensions if not already present
 & wix extension add -g WixToolset.UI.wixext 2>$null
