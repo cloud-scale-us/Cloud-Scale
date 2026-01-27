@@ -1,0 +1,45 @@
+{
+  "protocol_name": "Generic Serial ASCII",
+  "manufacturer": "Generic",
+  "version": "1.0",
+  "description": "Generic ASCII protocol over RS-232 serial connection",
+  "connection": {
+    "type": "RS232",
+    "com_port": "COM1",
+    "baud_rate": 9600,
+    "data_bits": 8,
+    "parity": "None",
+    "stop_bits": "One",
+    "flow_control": "None",
+    "timeout_ms": 5000,
+    "auto_reconnect": true
+  },
+  "data_format": "ASCII",
+  "mode": "Continuous",
+  "parsing": {
+    "line_delimiter": "\r\n",
+    "regex": "(?<status>[A-Z])\\s+(?<weight>[0-9.]+)\\s+(?<unit>[A-Z]+)",
+    "fields": [
+      {
+        "name": "status",
+        "regex_group": "status",
+        "data_type": "string",
+        "mapping": {
+          "S": "stable",
+          "M": "motion",
+          "O": "overload"
+        }
+      },
+      {
+        "name": "weight",
+        "regex_group": "weight",
+        "data_type": "float"
+      },
+      {
+        "name": "unit",
+        "regex_group": "unit",
+        "data_type": "string"
+      }
+    ]
+  }
+}

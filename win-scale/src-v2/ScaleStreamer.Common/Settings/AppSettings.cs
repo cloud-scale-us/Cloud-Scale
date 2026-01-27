@@ -265,6 +265,7 @@ public class ScaleConnectionSettings
     public int DataBits { get; set; } = 8;
     public string Parity { get; set; } = "None";
     public string StopBits { get; set; } = "One";
+    public string FlowControl { get; set; } = "None";
 }
 
 /// <summary>

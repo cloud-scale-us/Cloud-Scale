@@ -1,6 +1,7 @@
 using ScaleStreamer.Common.IPC;
 using ScaleStreamer.Common.Models;
 using ScaleStreamer.Common.Settings;
+using System.IO.Ports;
 using System.Text.Json;
 using Serilog;
 
@@ -401,6 +402,15 @@ public partial class ConnectionTab : UserControl
             SelectComboItem(_manufacturerCombo, settings.Manufacturer);
             SelectComboItem(_connectionTypeCombo, settings.ConnectionType);
 
+            // Serial port settings
+            if (!string.IsNullOrEmpty(settings.ComPort))
+                SelectComboItem(_comPortCombo, settings.ComPort);
+            SelectComboItem(_baudRateCombo, settings.BaudRate.ToString());
+            SelectComboItem(_dataBitsCombo, settings.DataBits.ToString());
+            SelectComboItem(_parityCombo, settings.Parity);
+            SelectComboItem(_stopBitsCombo, settings.StopBits);
+            SelectComboItem(_flowControlCombo, settings.FlowControl);
+
             // Update protocol list and select
             UpdateProtocolList();
             SelectComboItem(_protocolCombo, settings.Protocol);
@@ -449,6 +459,14 @@ public partial class ConnectionTab : UserControl
         _manufacturerCombo.SelectedIndexChanged += (s, e) => AutoSave();
         _connectionTypeCombo.SelectedIndexChanged += (s, e) => AutoSave();
         _protocolCombo.SelectedIndexChanged += (s, e) => AutoSave();
+
+        // Serial port combos
+        _comPortCombo.SelectedIndexChanged += (s, e) => AutoSave();
+        _baudRateCombo.SelectedIndexChanged += (s, e) => AutoSave();
+        _dataBitsCombo.SelectedIndexChanged += (s, e) => AutoSave();
+        _parityCombo.SelectedIndexChanged += (s, e) => AutoSave();
+        _stopBitsCombo.SelectedIndexChanged += (s, e) => AutoSave();
+        _flowControlCombo.SelectedIndexChanged += (s, e) => AutoSave();
     }
 
     /// <summary>
@@ -474,6 +492,16 @@ public partial class ConnectionTab : UserControl
             settings.Manufacturer = _manufacturerCombo.SelectedItem?.ToString() ?? "Generic";
             settings.ConnectionType = _connectionTypeCombo.SelectedItem?.ToString() ?? "TcpIp";
             settings.Protocol = _protocolCombo.SelectedItem?.ToString() ?? "Generic ASCII";
+
+            // Serial port settings
+            settings.ComPort = _comPortCombo.SelectedItem?.ToString();
+            if (int.TryParse(_baudRateCombo.SelectedItem?.ToString(), out var baud))
+                settings.BaudRate = baud;
+            if (int.TryParse(_dataBitsCombo.SelectedItem?.ToString(), out var dataBits))
+                settings.DataBits = dataBits;
+            settings.Parity = _parityCombo.SelectedItem?.ToString() ?? "None";
+            settings.StopBits = _stopBitsCombo.SelectedItem?.ToString() ?? "One";
+            settings.FlowControl = _flowControlCombo.SelectedItem?.ToString() ?? "None";
 
             AppSettings.Instance.Save();
 
@@ -530,8 +558,12 @@ public partial class ConnectionTab : UserControl
         _connectionTypeCombo.Items.AddRange(Enum.GetNames(typeof(ConnectionType)));
         _connectionTypeCombo.SelectedIndex = 0;
 
-        // Serial Port Settings
-        _comPortCombo.Items.AddRange(new object[] { "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8" });
+        // Serial Port Settings - detect available COM ports
+        var ports = SerialPort.GetPortNames();
+        if (ports.Length > 0)
+            _comPortCombo.Items.AddRange(ports.OrderBy(p => p).ToArray());
+        else
+            _comPortCombo.Items.AddRange(new object[] { "COM1", "COM2", "COM3", "COM4" });
         _baudRateCombo.Items.AddRange(new object[] { "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200" });
         _baudRateCombo.SelectedItem = "9600";
 
@@ -590,6 +622,10 @@ public partial class ConnectionTab : UserControl
             else if (protocolName.Contains("Generic ASCII"))
             {
                 templatePath = Path.Combine(installPath, "generic", "generic-ascii.json");
+            }
+            else if (protocolName.Contains("Generic Serial ASCII"))
+            {
+                templatePath = Path.Combine(installPath, "generic", "generic-serial-ascii.json");
             }
             else if (protocolName.Contains("Modbus TCP"))
             {

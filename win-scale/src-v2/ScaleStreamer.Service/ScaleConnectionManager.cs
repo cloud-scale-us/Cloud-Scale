@@ -37,8 +37,8 @@ public class ScaleConnectionManager
             IScaleProtocol? protocolAdapter = protocol.Connection.Type switch
             {
                 ConnectionType.TcpIp => new UniversalProtocolAdapter(protocol),
-                ConnectionType.RS232 => throw new NotImplementedException("RS232 not yet implemented"),
-                ConnectionType.RS485 => throw new NotImplementedException("RS485 not yet implemented"),
+                ConnectionType.RS232 => new UniversalSerialAdapter(protocol),
+                ConnectionType.RS485 => new UniversalSerialAdapter(protocol),
                 ConnectionType.USB => throw new NotImplementedException("USB not yet implemented"),
                 ConnectionType.Http => throw new NotImplementedException("HTTP not yet implemented"),
                 ConnectionType.ModbusRTU => throw new NotImplementedException("Modbus RTU not yet implemented"),
