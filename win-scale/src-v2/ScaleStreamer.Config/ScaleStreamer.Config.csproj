@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>5.1.1</Version>
+    <Version>5.1.2</Version>
     <Company>Cloud-Scale</Company>
     <Product>Scale Streamer Configuration</Product>
     <Description>Configuration GUI for Scale Streamer Service</Description>
