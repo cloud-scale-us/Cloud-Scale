@@ -323,30 +323,42 @@ public class IpcCommandHandler
         if (template != null)
             return template;
 
-        // Try to load from JSON file
-        var protocolsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "protocols");
-        var jsonFiles = Directory.GetFiles(protocolsPath, "*.json", SearchOption.AllDirectories);
-
-        foreach (var file in jsonFiles)
+        // Try to load from JSON files - search multiple locations
+        var basePath = AppDomain.CurrentDomain.BaseDirectory;
+        var protocolDirs = new[]
         {
-            try
-            {
-                var json = await File.ReadAllTextAsync(file);
+            Path.Combine(basePath, "..", "protocols"),
+            Path.Combine(basePath, "protocols"),
+            @"C:\Program Files\Scale Streamer\protocols"
+        };
 
-                var options = new JsonSerializerOptions
+        foreach (var protocolDir in protocolDirs)
+        {
+            if (!Directory.Exists(protocolDir)) continue;
+
+            var jsonFiles = Directory.GetFiles(protocolDir, "*.json", SearchOption.AllDirectories);
+
+            foreach (var file in jsonFiles)
+            {
+                try
                 {
-                    PropertyNameCaseInsensitive = true,
-                    UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Skip
-                };
+                    var json = await File.ReadAllTextAsync(file);
 
-                var protocol = JsonSerializer.Deserialize<ProtocolDefinition>(json, options);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Skip
+                    };
 
-                if (protocol != null && protocol.ProtocolName == protocolName)
-                    return protocol;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to load protocol from: {File}. Error: {Message}", file, ex.Message);
+                    var protocol = JsonSerializer.Deserialize<ProtocolDefinition>(json, options);
+
+                    if (protocol != null && protocol.ProtocolName == protocolName)
+                        return protocol;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to load protocol from: {File}. Error: {Message}", file, ex.Message);
+                }
             }
         }
 
