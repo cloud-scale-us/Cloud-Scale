@@ -90,9 +90,10 @@ public class ScaleService : BackgroundService
             _ipcServer.Start();
             _logger.LogInformation("IPC Server started on pipe: ScaleStreamerPipe");
 
-            // Subscribe to weight readings
+            // Subscribe to weight readings and status changes
             _connectionManager.WeightReceived += OnWeightReceived;
             _connectionManager.ErrorOccurred += OnError;
+            _connectionManager.StatusChanged += OnStatusChanged;
 
             // Start RTSP streaming server
             var rtspSettings = AppSettings.Instance.RtspStream;
@@ -397,6 +398,37 @@ public class ScaleService : BackgroundService
             await _database.LogEventAsync("ERROR", "ScaleConnection", e.Error, scaleId: e.ScaleId);
         }
 
+    }
+
+    /// <summary>
+    /// Handle scale connection status changes and broadcast to GUI
+    /// </summary>
+    private async void OnStatusChanged(object? sender, (string ScaleId, ConnectionStatus Status) e)
+    {
+        try
+        {
+            _logger.LogInformation("Scale {ScaleId} connection status changed to: {Status}", e.ScaleId, e.Status);
+
+            if (_ipcServer != null)
+            {
+                await _ipcServer.SendResponseAsync(new IpcResponse
+                {
+                    MessageType = IpcMessageType.ConnectionStatus,
+                    Success = true,
+                    Payload = JsonSerializer.Serialize(new
+                    {
+                        ScaleId = e.ScaleId,
+                        Status = e.Status.ToString(),
+                        Connected = e.Status == ConnectionStatus.Connected,
+                        Timestamp = DateTime.UtcNow
+                    })
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error broadcasting status change for {ScaleId}", e.ScaleId);
+        }
     }
 
     /// <summary>

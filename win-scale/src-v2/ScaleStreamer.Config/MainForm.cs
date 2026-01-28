@@ -672,6 +672,9 @@ public partial class MainForm : Form
 
             case IpcMessageType.ConnectionStatus:
                 _statusTab?.HandleConnectionStatus(message);
+                _monitoringTab?.UpdateConnectionStatus(
+                    message.Payload?.Contains("Connected") == true &&
+                    message.Payload?.Contains("Disconnected") != true);
                 break;
 
             case IpcMessageType.Error:
