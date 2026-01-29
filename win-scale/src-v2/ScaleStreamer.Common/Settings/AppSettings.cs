@@ -34,6 +34,9 @@ public class AppSettings
     // ONVIF Settings
     public OnvifSettings Onvif { get; set; } = new();
 
+    // Dahua Private Protocol Settings
+    public DahuaSettings Dahua { get; set; } = new();
+
     // Last modified timestamp
     [JsonIgnore]
     public DateTime LastModified { get; private set; } = DateTime.Now;
@@ -298,6 +301,15 @@ public class OnvifSettings
     public bool Enabled { get; set; } = true;
     public int HttpPort { get; set; } = 8080;
     public bool DiscoveryEnabled { get; set; } = true;
+}
+
+/// <summary>
+/// Dahua Private Protocol settings (port 37777 emulation)
+/// </summary>
+public class DahuaSettings
+{
+    public bool Enabled { get; set; } = false;
+    public int Port { get; set; } = 37777;
 }
 
 /// <summary>

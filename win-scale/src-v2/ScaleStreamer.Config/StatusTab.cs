@@ -427,7 +427,12 @@ public partial class StatusTab : UserControl
     {
         var settings = AppSettings.Instance.ScaleConnection;
 
-        if (string.IsNullOrEmpty(settings.Host))
+        var isSerial = settings.ConnectionType == "RS232" || settings.ConnectionType == "RS485" || settings.ConnectionType == "ModbusRTU";
+        var isConfigured = isSerial
+            ? !string.IsNullOrEmpty(settings.ComPort)
+            : !string.IsNullOrEmpty(settings.Host);
+
+        if (!isConfigured)
         {
             _scaleHostLabel.Text = "Not configured - use Connection tab";
             _scaleHostLabel.ForeColor = Color.Orange;
@@ -436,7 +441,9 @@ public partial class StatusTab : UserControl
         }
         else
         {
-            _scaleHostLabel.Text = $"{settings.Host}:{settings.Port}";
+            _scaleHostLabel.Text = isSerial
+                ? $"{settings.ComPort} @ {settings.BaudRate} baud ({settings.ConnectionType})"
+                : $"{settings.Host}:{settings.Port} ({settings.ConnectionType})";
             _scaleHostLabel.ForeColor = Color.Black;
 
             // If we haven't received data recently, show as waiting

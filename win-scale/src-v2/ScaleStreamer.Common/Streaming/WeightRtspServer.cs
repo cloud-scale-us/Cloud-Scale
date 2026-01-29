@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 using ScaleStreamer.Common.Models;
 using Serilog;
@@ -10,8 +12,9 @@ using Serilog;
 namespace ScaleStreamer.Common.Streaming;
 
 /// <summary>
-/// Native RTSP server for streaming weight display video
-/// Uses MJPEG format for maximum compatibility (VLC, browsers, etc.)
+/// Native RTSP server for streaming weight display video.
+/// Supports H.264 encoding via FFmpeg (preferred for NVR compatibility)
+/// with MJPEG fallback.
 /// </summary>
 public class WeightRtspServer : IDisposable
 {
@@ -24,16 +27,66 @@ public class WeightRtspServer : IDisposable
     private CancellationTokenSource? _cts;
     private Task? _acceptTask;
     private Task? _streamTask;
+    private Task? _h264ForwardTask;
     private WeightReading? _currentReading;
     private readonly object _readingLock = new();
     private bool _isRunning;
     private int _sessionCounter = 1000;
+    private int _frameCount;
+
+    // FFmpeg H.264 encoding
+    private Process? _ffmpegProcess;
+    private byte[]? _spsNalu;
+    private byte[]? _ppsNalu;
+    private string? _spsBase64;
+    private string? _ppsBase64;
+    private string? _profileLevelId;
+    private bool _useH264;
+    private readonly List<byte[]> _pendingNalus = new();
+    private readonly object _naluLock = new();
+
+    // Pre-allocated rendering objects (reused every frame to avoid GC pressure)
+    private Bitmap? _frameBitmap;
+    private Graphics? _frameGraphics;
+    private byte[]? _rawFrameBuffer;
+    private Font? _weightFont;
+    private Font? _statusFont;
+    private Font? _labelFont;
+    private Font? _liveFont;
+    private SolidBrush? _redBrush;
+    private SolidBrush? _dimBrush;
+    private SolidBrush? _liveBrush;
+    private StringFormat? _centerFormat;
+    private StringFormat? _rightFormat;
 
     public event EventHandler<string>? StatusChanged;
     public event EventHandler<string>? ErrorOccurred;
 
     public bool IsRunning => _isRunning;
-    public string StreamUrl => $"rtsp://localhost:{_config.RtspPort}/{_config.StreamName}";
+    public string StreamUrl => $"rtsp://{LocalIpAddress}:{_config.RtspPort}/{_config.StreamName}";
+
+    private static string LocalIpAddress
+    {
+        get
+        {
+            try
+            {
+                var nic = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
+                    .FirstOrDefault(i =>
+                        i.NetworkInterfaceType != System.Net.NetworkInformation.NetworkInterfaceType.Loopback &&
+                        i.NetworkInterfaceType != System.Net.NetworkInformation.NetworkInterfaceType.Tunnel &&
+                        i.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up);
+                if (nic != null)
+                {
+                    var addr = nic.GetIPProperties().UnicastAddresses
+                        .FirstOrDefault(a => a.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                    if (addr != null) return addr.Address.ToString();
+                }
+            }
+            catch { }
+            return "0.0.0.0";
+        }
+    }
 
     public WeightRtspServer(RtspStreamConfig config)
     {
@@ -55,13 +108,33 @@ public class WeightRtspServer : IDisposable
             _listener.Start();
 
             _isRunning = true;
+
+            // Try to start FFmpeg for H.264 encoding
+            try
+            {
+                _useH264 = await StartFfmpegH264Async();
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex, "Failed to start FFmpeg H.264");
+                _useH264 = false;
+            }
+            if (_useH264)
+            {
+                OnStatus("Using H.264 encoding via FFmpeg");
+            }
+            else
+            {
+                OnStatus("FFmpeg not available, falling back to MJPEG");
+            }
+
             OnStatus($"RTSP server started on port {_config.RtspPort}");
             OnStatus($"Stream URL: {StreamUrl}");
 
             // Start accepting connections
             _acceptTask = AcceptConnectionsAsync(_cts.Token);
 
-            // Start frame streaming loop
+            // Start frame streaming loop (generates frames and pipes to FFmpeg when H.264)
             _streamTask = StreamFramesAsync(_cts.Token);
 
             return true;
@@ -84,6 +157,9 @@ public class WeightRtspServer : IDisposable
         _cts?.Cancel();
         _listener?.Stop();
 
+        // Stop FFmpeg
+        StopFfmpeg();
+
         // Disconnect all clients
         lock (_clientsLock)
         {
@@ -100,12 +176,484 @@ public class WeightRtspServer : IDisposable
                 await _acceptTask.WaitAsync(TimeSpan.FromSeconds(2));
             if (_streamTask != null)
                 await _streamTask.WaitAsync(TimeSpan.FromSeconds(2));
+            if (_h264ForwardTask != null)
+                await _h264ForwardTask.WaitAsync(TimeSpan.FromSeconds(2));
         }
         catch (TimeoutException) { }
         catch (OperationCanceledException) { }
 
         _isRunning = false;
         OnStatus("RTSP server stopped");
+    }
+
+    private async Task<bool> StartFfmpegH264Async()
+    {
+        try
+        {
+            var ffmpegPath = FindFfmpeg();
+            if (ffmpegPath == null)
+            {
+                _log.Warning("FFmpeg not found, will use MJPEG");
+                return false;
+            }
+            _log.Information("Found FFmpeg at {Path}", ffmpegPath);
+
+            // FFmpeg: read raw BGR24 from stdin, encode H.264 Annex B to stdout
+            // Using baseline profile with zerolatency for fast startup (required for RTSP)
+            var args = $"-f rawvideo -pix_fmt bgr24 -s {_config.VideoWidth}x{_config.VideoHeight} -r {_config.FrameRate} -i pipe:0 " +
+                       $"-c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline -level 3.1 " +
+                       $"-b:v 1024k -maxrate 1024k -bufsize 1024k -g 1 -keyint_min 1 -intra " +
+                       $"-pix_fmt yuv420p -bsf:v dump_extra -f h264 pipe:1";
+
+            _log.Information("Starting FFmpeg: {Args}", args);
+
+            _ffmpegProcess = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    Arguments = args,
+                    UseShellExecute = false,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                }
+            };
+
+            _ffmpegProcess.ErrorDataReceived += (s, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                    _log.Debug("FFmpeg: {Line}", e.Data);
+            };
+
+            _ffmpegProcess.Start();
+            _ffmpegProcess.BeginErrorReadLine();
+
+            // Start reading H.264 NAL units from FFmpeg stdout in background
+            _h264ForwardTask = ReadH264StreamAsync(_cts!.Token);
+
+            // Write primer frames so FFmpeg initializes and outputs SPS/PPS
+            _log.Information("Writing primer frames to FFmpeg...");
+            for (int i = 0; i < 3; i++)
+            {
+                var frame = GenerateRawFrame();
+                await _ffmpegProcess.StandardInput.BaseStream.WriteAsync(frame, 0, frame.Length);
+                await _ffmpegProcess.StandardInput.BaseStream.FlushAsync();
+            }
+
+            // Wait for SPS/PPS to be extracted from the H.264 stream
+            for (int i = 0; i < 30; i++)
+            {
+                await Task.Delay(100);
+                if (_spsBase64 != null && _ppsBase64 != null) break;
+            }
+
+            if (_spsBase64 == null)
+            {
+                _log.Warning("Could not extract SPS/PPS from H.264 stream, using defaults");
+                _profileLevelId = "42C01F";
+            }
+
+            _log.Information("FFmpeg H.264 encoder started, profile-level-id={Profile}, SPS={Sps}",
+                _profileLevelId ?? "42C01F", _spsBase64 ?? "none");
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _log.Warning("Failed to start FFmpeg H.264: {Error}", ex.Message);
+            StopFfmpeg();
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Read H.264 Annex B stream from FFmpeg stdout, parse NAL units,
+    /// and send them as RTP packets to all playing clients.
+    /// </summary>
+    private async Task ReadH264StreamAsync(CancellationToken ct)
+    {
+        _log.Information("H.264 stream reader started");
+        var buffer = new byte[1024 * 1024]; // 1MB read buffer
+        var annexBStream = new MemoryStream();
+        uint rtpTimestamp = (uint)Random.Shared.Next();
+        uint timestampIncrement = 90000 / (uint)_config.FrameRate;
+        long naluCount = 0;
+
+        try
+        {
+            var stdout = _ffmpegProcess!.StandardOutput.BaseStream;
+
+            while (!ct.IsCancellationRequested)
+            {
+                int bytesRead;
+                try
+                {
+                    bytesRead = await stdout.ReadAsync(buffer, 0, buffer.Length, ct);
+                }
+                catch (OperationCanceledException) { break; }
+                catch { break; }
+
+                if (bytesRead == 0) break; // EOF
+
+                // Append to our Annex B buffer
+                annexBStream.Write(buffer, 0, bytesRead);
+
+                // Parse complete NAL units from the buffer
+                var data = annexBStream.ToArray();
+                int lastNaluEnd = 0;
+
+                var nalus = new List<(int offset, int length)>();
+                int i = 0;
+                while (i < data.Length - 3)
+                {
+                    // Look for start codes: 00 00 00 01 or 00 00 01
+                    bool found3 = (data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 1);
+                    bool found4 = (i < data.Length - 3 && data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 0 && data[i + 3] == 1);
+
+                    if (found4 || found3)
+                    {
+                        int startCodeLen = found4 ? 4 : 3;
+                        int naluStart = i + startCodeLen;
+
+                        if (nalus.Count > 0)
+                        {
+                            // Previous NALU ends here
+                            var prev = nalus[nalus.Count - 1];
+                            nalus[nalus.Count - 1] = (prev.offset, i - prev.offset);
+                        }
+
+                        nalus.Add((naluStart, 0)); // length unknown yet
+                        lastNaluEnd = i;
+                        i = naluStart;
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+
+                // Process all complete NAL units (all except the last which may be incomplete)
+                if (nalus.Count > 1)
+                {
+                    for (int n = 0; n < nalus.Count - 1; n++)
+                    {
+                        var (offset, length) = nalus[n];
+                        if (length <= 0) continue;
+
+                        var nalu = new byte[length];
+                        Array.Copy(data, offset, nalu, 0, length);
+
+                        int naluType = nalu[0] & 0x1F;
+
+                        // Extract SPS/PPS
+                        if (naluType == 7) // SPS
+                        {
+                            _spsNalu = nalu;
+                            _spsBase64 = Convert.ToBase64String(nalu);
+                            if (nalu.Length >= 4)
+                                _profileLevelId = $"{nalu[1]:X2}{nalu[2]:X2}{nalu[3]:X2}";
+                            if (naluCount == 0)
+                                _log.Information("H.264 SPS: {Sps}, profile={Profile}", _spsBase64, _profileLevelId);
+                        }
+                        else if (naluType == 8) // PPS
+                        {
+                            if (_ppsNalu == null)
+                                _log.Information("H.264 PPS: {Pps}", Convert.ToBase64String(nalu));
+                            _ppsNalu = nalu;
+                            _ppsBase64 = Convert.ToBase64String(nalu);
+                        }
+
+                        // Send NAL unit as RTP to all playing clients
+                        bool isLastNaluInFrame = (naluType == 5 || naluType == 1); // IDR or non-IDR slice
+                        await SendNaluToClients(nalu, rtpTimestamp, isLastNaluInFrame, ct);
+
+                        if (isLastNaluInFrame)
+                            rtpTimestamp += timestampIncrement;
+
+                        naluCount++;
+                        if (naluCount % 300 == 0)
+                        {
+                            List<RtspClientConnection> pc;
+                            lock (_clientsLock) { pc = _clients.Where(c => c.IsPlaying).ToList(); }
+                            if (pc.Count > 0)
+                                _log.Information("H.264: Sent {Count} NALUs, {Clients} client(s)", naluCount, pc.Count);
+                        }
+                    }
+
+                    // Keep only the incomplete last NALU in the buffer
+                    var lastNalu = nalus[nalus.Count - 1];
+                    var remaining = data.Length - lastNaluEnd;
+                    annexBStream = new MemoryStream();
+                    annexBStream.Write(data, lastNaluEnd, remaining);
+                }
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            _log.Error("H.264 stream reader error: {Error}", ex.Message);
+        }
+
+        _log.Information("H.264 stream reader stopped after {Count} NALUs", naluCount);
+    }
+
+    /// <summary>
+    /// Send a single H.264 NAL unit to all playing clients via RTP (RFC 6184)
+    /// </summary>
+    private async Task SendNaluToClients(byte[] nalu, uint timestamp, bool marker, CancellationToken ct)
+    {
+        const int MAX_RTP_PAYLOAD = 1400;
+        int naluType = nalu[0] & 0x1F;
+        bool isIdr = naluType == 5;
+
+        List<RtspClientConnection> playingClients;
+        lock (_clientsLock)
+        {
+            playingClients = _clients.Where(c => c.IsPlaying && c.TcpClient.Connected).ToList();
+        }
+
+        if (playingClients.Count == 0) return;
+
+        foreach (var client in playingClients)
+        {
+            try
+            {
+                // New clients must wait for an IDR frame before receiving anything
+                if (!client.SentSps)
+                {
+                    if (!isIdr) continue; // Skip non-IDR NALUs until we get a keyframe
+
+                    // Send SPS/PPS immediately before the IDR frame
+                    if (_spsNalu != null && _ppsNalu != null)
+                    {
+                        _log.Information("H.264: Sending SPS ({SpsLen} bytes) + PPS ({PpsLen} bytes) + IDR ({IdrLen} bytes) to {Client}",
+                            _spsNalu.Length, _ppsNalu.Length, nalu.Length, client.TcpClient.Client.RemoteEndPoint);
+                        await SendSingleNaluRtp(client, _spsNalu, timestamp, false, ct);
+                        await SendSingleNaluRtp(client, _ppsNalu, timestamp, false, ct);
+                        client.SentSps = true;
+                    }
+                    else
+                    {
+                        continue; // No SPS/PPS available yet
+                    }
+                }
+
+                if (nalu.Length <= MAX_RTP_PAYLOAD)
+                {
+                    await SendSingleNaluRtp(client, nalu, timestamp, marker, ct);
+                }
+                else
+                {
+                    await SendFuaNaluRtp(client, nalu, timestamp, marker, ct);
+                }
+
+                client.LastActivity = DateTime.UtcNow;
+            }
+            catch (Exception ex)
+            {
+                _log.Debug("Error sending H.264 to {Client}: {Error}",
+                    client.TcpClient.Client.RemoteEndPoint, ex.Message);
+                client.IsPlaying = false;
+            }
+        }
+    }
+
+    private async Task SendSingleNaluRtp(RtspClientConnection client, byte[] nalu, uint timestamp, bool marker, CancellationToken ct)
+    {
+        // RTP header (12 bytes) + NAL unit
+        var packet = new byte[12 + nalu.Length];
+
+        // RTP header
+        packet[0] = 0x80; // V=2
+        packet[1] = (byte)((marker ? 0x80 : 0) | 96); // PT=96
+        packet[2] = (byte)(client.RtpSequenceNumber >> 8);
+        packet[3] = (byte)(client.RtpSequenceNumber);
+        client.RtpSequenceNumber++;
+        packet[4] = (byte)(timestamp >> 24);
+        packet[5] = (byte)(timestamp >> 16);
+        packet[6] = (byte)(timestamp >> 8);
+        packet[7] = (byte)(timestamp);
+        packet[8] = (byte)(client.RtpSsrc >> 24);
+        packet[9] = (byte)(client.RtpSsrc >> 16);
+        packet[10] = (byte)(client.RtpSsrc >> 8);
+        packet[11] = (byte)(client.RtpSsrc);
+
+        Array.Copy(nalu, 0, packet, 12, nalu.Length);
+
+        await WriteRtpToClient(client, packet, ct);
+    }
+
+    private async Task SendFuaNaluRtp(RtspClientConnection client, byte[] nalu, uint timestamp, bool marker, CancellationToken ct)
+    {
+        const int MAX_RTP_PAYLOAD = 1400;
+        byte naluHeader = nalu[0];
+        byte fnri = (byte)(naluHeader & 0xE0); // F + NRI bits
+        byte naluType = (byte)(naluHeader & 0x1F);
+
+        int offset = 1; // skip original NAL header
+        bool first = true;
+
+        while (offset < nalu.Length)
+        {
+            int payloadSize = Math.Min(MAX_RTP_PAYLOAD - 2, nalu.Length - offset); // -2 for FU indicator + FU header
+            bool last = (offset + payloadSize >= nalu.Length);
+
+            // RTP header (12) + FU indicator (1) + FU header (1) + payload
+            var packet = new byte[12 + 2 + payloadSize];
+
+            // RTP header
+            packet[0] = 0x80;
+            packet[1] = (byte)(((last && marker) ? 0x80 : 0) | 96);
+            packet[2] = (byte)(client.RtpSequenceNumber >> 8);
+            packet[3] = (byte)(client.RtpSequenceNumber);
+            client.RtpSequenceNumber++;
+            packet[4] = (byte)(timestamp >> 24);
+            packet[5] = (byte)(timestamp >> 16);
+            packet[6] = (byte)(timestamp >> 8);
+            packet[7] = (byte)(timestamp);
+            packet[8] = (byte)(client.RtpSsrc >> 24);
+            packet[9] = (byte)(client.RtpSsrc >> 16);
+            packet[10] = (byte)(client.RtpSsrc >> 8);
+            packet[11] = (byte)(client.RtpSsrc);
+
+            // FU indicator: F+NRI from original header, type=28 (FU-A)
+            packet[12] = (byte)(fnri | 28);
+            // FU header: S/E/R bits + original NAL type
+            packet[13] = (byte)((first ? 0x80 : 0) | (last ? 0x40 : 0) | naluType);
+
+            Array.Copy(nalu, offset, packet, 14, payloadSize);
+
+            await WriteRtpToClient(client, packet, ct);
+
+            offset += payloadSize;
+            first = false;
+        }
+    }
+
+    private async Task WriteRtpToClient(RtspClientConnection client, byte[] rtpPacket, CancellationToken ct)
+    {
+        if (client.UseTcp)
+        {
+            var interleaved = new byte[4 + rtpPacket.Length];
+            interleaved[0] = 0x24; // '$'
+            interleaved[1] = (byte)client.RtpChannel;
+            interleaved[2] = (byte)(rtpPacket.Length >> 8);
+            interleaved[3] = (byte)(rtpPacket.Length & 0xFF);
+            Array.Copy(rtpPacket, 0, interleaved, 4, rtpPacket.Length);
+
+            await client.WriteLock.WaitAsync(ct);
+            try
+            {
+                await client.TcpClient.GetStream().WriteAsync(interleaved, ct);
+            }
+            finally
+            {
+                client.WriteLock.Release();
+            }
+        }
+        else if (client.UdpClient != null && client.ClientRtpEndpoint != null)
+        {
+            await client.UdpClient.SendAsync(rtpPacket, rtpPacket.Length, client.ClientRtpEndpoint);
+        }
+    }
+
+    private static string? FindFfmpeg()
+    {
+        // Check common Windows paths
+        var candidates = new[]
+        {
+            @"C:\ffmpeg\bin\ffmpeg.exe",
+            @"C:\Program Files\FFmpeg\bin\ffmpeg.exe",
+            @"C:\ProgramData\chocolatey\bin\ffmpeg.exe",
+        };
+
+        foreach (var path in candidates)
+        {
+            if (File.Exists(path)) return path;
+        }
+
+        // Search winget packages in all user profiles and current user
+        var searchRoots = new List<string>();
+
+        // Current user's AppData
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (!string.IsNullOrEmpty(localAppData))
+            searchRoots.Add(Path.Combine(localAppData, @"Microsoft\WinGet\Packages"));
+
+        // All user profiles (service runs as SYSTEM, so check all users)
+        try
+        {
+            var usersDir = @"C:\Users";
+            if (Directory.Exists(usersDir))
+            {
+                foreach (var userDir in Directory.GetDirectories(usersDir))
+                {
+                    searchRoots.Add(Path.Combine(userDir, @"AppData\Local\Microsoft\WinGet\Packages"));
+                }
+            }
+        }
+        catch { }
+
+        foreach (var wingetPkgs in searchRoots)
+        {
+            try
+            {
+                if (!Directory.Exists(wingetPkgs)) continue;
+                foreach (var dir in Directory.GetDirectories(wingetPkgs, "Gyan.FFmpeg*"))
+                {
+                    var binDirs = Directory.GetDirectories(dir, "bin", SearchOption.AllDirectories);
+                    foreach (var binDir in binDirs)
+                    {
+                        var ffmpeg = Path.Combine(binDir, "ffmpeg.exe");
+                        if (File.Exists(ffmpeg)) return ffmpeg;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        // Try PATH
+        try
+        {
+            var proc = Process.Start(new ProcessStartInfo
+            {
+                FileName = "where",
+                Arguments = "ffmpeg",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+            });
+            if (proc != null)
+            {
+                var output = proc.StandardOutput.ReadToEnd().Trim();
+                proc.WaitForExit(3000);
+                if (proc.ExitCode == 0 && !string.IsNullOrEmpty(output))
+                {
+                    return output.Split('\n')[0].Trim();
+                }
+            }
+        }
+        catch { }
+
+        return null;
+    }
+
+    private void StopFfmpeg()
+    {
+        try
+        {
+            if (_ffmpegProcess != null && !_ffmpegProcess.HasExited)
+            {
+                try { _ffmpegProcess.StandardInput.Close(); } catch { }
+                if (!_ffmpegProcess.WaitForExit(3000))
+                    _ffmpegProcess.Kill();
+                _ffmpegProcess.Dispose();
+            }
+        }
+        catch { }
+        _ffmpegProcess = null;
     }
 
     public void UpdateWeight(WeightReading reading)
@@ -153,14 +701,49 @@ public class WeightRtspServer : IDisposable
 
             while (!ct.IsCancellationRequested && client.TcpClient.Connected)
             {
-                // Check for incoming RTSP request
+                // Check for incoming data
                 if (stream.DataAvailable)
                 {
+                    // Peek at first byte to detect interleaved RTP/RTCP ($-framed)
                     var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct);
                     if (bytesRead == 0) break;
 
-                    var request = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                    await ProcessRtspRequestAsync(client, request, ct);
+                    int pos = 0;
+                    while (pos < bytesRead)
+                    {
+                        if (buffer[pos] == 0x24 && pos + 4 <= bytesRead) // '$' interleaved frame
+                        {
+                            // Skip interleaved RTP/RTCP data from NVR (e.g. RTCP receiver reports)
+                            int channel = buffer[pos + 1];
+                            int frameLen = (buffer[pos + 2] << 8) | buffer[pos + 3];
+                            int totalLen = 4 + frameLen;
+                            if (pos + totalLen <= bytesRead)
+                            {
+                                pos += totalLen;
+                            }
+                            else
+                            {
+                                // Frame spans beyond current read — discard remaining bytes
+                                int remaining = totalLen - (bytesRead - pos);
+                                pos = bytesRead;
+                                // Drain the rest of the interleaved frame
+                                while (remaining > 0)
+                                {
+                                    var drain = new byte[Math.Min(remaining, 4096)];
+                                    var read = await stream.ReadAsync(drain, 0, drain.Length, ct);
+                                    if (read == 0) break;
+                                    remaining -= read;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // RTSP text request — find the end (\r\n\r\n)
+                            var request = Encoding.ASCII.GetString(buffer, pos, bytesRead - pos);
+                            await ProcessRtspRequestAsync(client, request, ct);
+                            break;
+                        }
+                    }
                 }
                 else
                 {
@@ -190,7 +773,7 @@ public class WeightRtspServer : IDisposable
         var method = requestLine[0];
         var cseq = ExtractCSeq(lines);
 
-        _log.Debug("RTSP Request: {Method} CSeq={CSeq}", method, cseq);
+        _log.Information("RTSP Request: {Method} CSeq={CSeq} from {Client}", method, cseq, client.TcpClient.Client.RemoteEndPoint);
 
         // Check authentication if required (except for OPTIONS which is used for discovery)
         if (_config.RequireAuth && method != "OPTIONS")
@@ -226,6 +809,8 @@ public class WeightRtspServer : IDisposable
                 break;
             case "DESCRIBE":
                 response = BuildDescribeResponse(cseq);
+                _log.Information("RTSP DESCRIBE response SDP (H264={H264}, SPS={Sps}, PPS={Pps})",
+                    _useH264, _spsBase64 != null, _ppsBase64 != null);
                 break;
             case "SETUP":
                 response = BuildSetupResponse(client, cseq, lines);
@@ -340,28 +925,58 @@ public class WeightRtspServer : IDisposable
 
     private string BuildDescribeResponse(string cseq)
     {
-        // SDP for MJPEG video stream - optimized for low latency
-        var sdp = $"v=0\r\n" +
-                  $"o=- {DateTimeOffset.UtcNow.ToUnixTimeSeconds()} 1 IN IP4 0.0.0.0\r\n" +
+        var ip = LocalIpAddress;
+        string sdp;
+
+        if (_useH264)
+        {
+            // H.264 SDP
+            var profileLevelId = _profileLevelId ?? "42C01F";
+            var spropParams = (_spsBase64 != null && _ppsBase64 != null)
+                ? $"{_spsBase64},{_ppsBase64}" : "";
+
+            sdp = $"v=0\r\n" +
+                  $"o=- {DateTimeOffset.UtcNow.ToUnixTimeSeconds()} 1 IN IP4 {ip}\r\n" +
                   $"s=Scale Streamer\r\n" +
                   $"i=Weight Display Stream\r\n" +
-                  $"c=IN IP4 0.0.0.0\r\n" +
+                  $"c=IN IP4 {ip}\r\n" +
                   $"t=0 0\r\n" +
                   $"a=tool:ScaleStreamer\r\n" +
                   $"a=type:broadcast\r\n" +
-                  $"a=range:npt=now-\r\n" +  // Live stream
+                  $"a=range:npt=now-\r\n" +
+                  $"m=video 0 RTP/AVP 96\r\n" +
+                  $"a=rtpmap:96 H264/90000\r\n" +
+                  $"a=fmtp:96 packetization-mode=1;profile-level-id={profileLevelId}" +
+                  (spropParams.Length > 0 ? $";sprop-parameter-sets={spropParams}" : "") + "\r\n" +
+                  $"a=framerate:{_config.FrameRate}\r\n" +
+                  $"a=control:trackID=0\r\n" +
+                  $"a=recvonly\r\n";
+        }
+        else
+        {
+            // MJPEG SDP
+            sdp = $"v=0\r\n" +
+                  $"o=- {DateTimeOffset.UtcNow.ToUnixTimeSeconds()} 1 IN IP4 {ip}\r\n" +
+                  $"s=Scale Streamer\r\n" +
+                  $"i=Weight Display Stream\r\n" +
+                  $"c=IN IP4 {ip}\r\n" +
+                  $"t=0 0\r\n" +
+                  $"a=tool:ScaleStreamer\r\n" +
+                  $"a=type:broadcast\r\n" +
+                  $"a=range:npt=now-\r\n" +
                   $"a=x-qt-text-nam:Scale Weight Stream\r\n" +
-                  $"m=video 0 RTP/AVP 26\r\n" +  // 26 = JPEG
+                  $"m=video 0 RTP/AVP 26\r\n" +
                   $"a=rtpmap:26 JPEG/90000\r\n" +
                   $"a=framerate:{_config.FrameRate}\r\n" +
                   $"a=framesize:26 {_config.VideoWidth}-{_config.VideoHeight}\r\n" +
                   $"a=control:trackID=0\r\n" +
                   $"a=recvonly\r\n";
+        }
 
         return $"RTSP/1.0 200 OK\r\n" +
                $"CSeq: {cseq}\r\n" +
                "Content-Type: application/sdp\r\n" +
-               "Content-Base: rtsp://0.0.0.0/scale/\r\n" +
+               $"Content-Base: rtsp://{ip}:{_config.RtspPort}/{_config.StreamName}/\r\n" +
                $"Content-Length: {sdp.Length}\r\n\r\n" +
                sdp;
     }
@@ -370,6 +985,7 @@ public class WeightRtspServer : IDisposable
     {
         // Parse transport line
         var transportLine = lines.FirstOrDefault(l => l.StartsWith("Transport:", StringComparison.OrdinalIgnoreCase));
+        _log.Information("RTSP SETUP transport: {Transport}", transportLine ?? "(none)");
 
         string transportResponse;
 
@@ -458,10 +1074,12 @@ public class WeightRtspServer : IDisposable
 
     private string BuildPlayResponse(RtspClientConnection client, string cseq)
     {
+        // Note: RTP-Info omitted because we can't know the exact timestamp until first packet is sent
+        // Most decoders handle this fine; some servers include placeholder values but that can confuse strict decoders
         return $"RTSP/1.0 200 OK\r\n" +
                $"CSeq: {cseq}\r\n" +
                $"Session: {client.SessionId}\r\n" +
-               "Range: npt=0.000-\r\n\r\n";
+               "Range: npt=now-\r\n\r\n";
     }
 
     private string BuildTeardownResponse(string cseq)
@@ -480,34 +1098,94 @@ public class WeightRtspServer : IDisposable
     {
         var frameInterval = TimeSpan.FromMilliseconds(1000.0 / _config.FrameRate);
         uint timestampIncrement = (uint)(90000 / _config.FrameRate); // RTP timestamp units (90kHz clock)
+        var rawFrameSize = _config.VideoWidth * _config.VideoHeight * 3; // BGR24
 
         while (!ct.IsCancellationRequested)
         {
             try
             {
-                // Generate frame with current weight
-                var jpegData = GenerateWeightFrame();
-
-                // Send to all playing clients
-                List<RtspClientConnection> playingClients;
-                lock (_clientsLock)
+                if (_useH264)
                 {
-                    playingClients = _clients.Where(c => c.IsPlaying && c.TcpClient.Connected).ToList();
-                }
-
-                foreach (var client in playingClients)
-                {
+                    // H.264 mode: generate raw frame and pipe to FFmpeg
+                    byte[] rawFrame;
                     try
                     {
-                        // Each client has its own sequence number, timestamp, and SSRC
-                        await SendJpegFrameAsync(client, jpegData, ct);
-                        // Increment client's timestamp after each frame
-                        client.RtpTimestamp += timestampIncrement;
+                        rawFrame = GenerateRawFrame();
                     }
                     catch (Exception ex)
                     {
-                        _log.Debug("Error sending to client: {Error}", ex.Message);
-                        client.IsPlaying = false;
+                        _log.Error(ex, "Raw frame generation failed");
+                        await Task.Delay(1000, ct);
+                        continue;
+                    }
+
+                    if (_ffmpegProcess != null && !_ffmpegProcess.HasExited)
+                    {
+                        try
+                        {
+                            await _ffmpegProcess.StandardInput.BaseStream.WriteAsync(rawFrame, 0, rawFrame.Length, ct);
+                            await _ffmpegProcess.StandardInput.BaseStream.FlushAsync(ct);
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.Error("Error writing to FFmpeg: {Error}", ex.Message);
+                            _useH264 = false;
+                            StopFfmpeg();
+                            OnStatus("FFmpeg crashed, falling back to MJPEG");
+                            continue;
+                        }
+                    }
+
+                    if (_frameCount % 300 == 0)
+                    {
+                        List<RtspClientConnection> pc;
+                        lock (_clientsLock) { pc = _clients.Where(c => c.IsPlaying).ToList(); }
+                        if (pc.Count > 0)
+                            _log.Information("H.264: Frame {Frame}, {Count} client(s)", _frameCount, pc.Count);
+                    }
+                    _frameCount++;
+                }
+                else
+                {
+                    // MJPEG mode: generate JPEG and send directly
+                    byte[] jpegData;
+                    try
+                    {
+                        jpegData = GenerateWeightFrame();
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Error("Frame generation failed: {Error}", ex.Message);
+                        await Task.Delay(1000, ct);
+                        continue;
+                    }
+
+                    List<RtspClientConnection> playingClients;
+                    lock (_clientsLock)
+                    {
+                        playingClients = _clients.Where(c => c.IsPlaying && c.TcpClient.Connected).ToList();
+                    }
+
+                    if (playingClients.Count > 0 && _frameCount % 100 == 0)
+                    {
+                        _log.Information("MJPEG: Sending frame {Frame} ({Size} bytes) to {Count} client(s)",
+                            _frameCount, jpegData.Length, playingClients.Count);
+                    }
+                    _frameCount++;
+
+                    foreach (var client in playingClients)
+                    {
+                        try
+                        {
+                            await SendJpegFrameAsync(client, jpegData, ct);
+                            client.RtpTimestamp += timestampIncrement;
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.Error("Error sending frame to client {Client}: {Error}",
+                                client.TcpClient.Client.RemoteEndPoint, ex.Message);
+                            client.IsPlaying = false;
+                        }
                     }
                 }
 
@@ -522,6 +1200,81 @@ public class WeightRtspServer : IDisposable
         }
     }
 
+    private void EnsureRenderingResources()
+    {
+        if (_frameBitmap == null || _frameBitmap.Width != _config.VideoWidth || _frameBitmap.Height != _config.VideoHeight)
+        {
+            _frameGraphics?.Dispose();
+            _frameBitmap?.Dispose();
+            _frameBitmap = new Bitmap(_config.VideoWidth, _config.VideoHeight, PixelFormat.Format24bppRgb);
+            _frameGraphics = Graphics.FromImage(_frameBitmap);
+            _frameGraphics.SmoothingMode = SmoothingMode.HighSpeed;
+            _frameGraphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
+            _frameGraphics.InterpolationMode = InterpolationMode.Low;
+            _frameGraphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+            _frameGraphics.CompositingQuality = CompositingQuality.HighSpeed;
+            _rawFrameBuffer = new byte[_config.VideoWidth * _config.VideoHeight * 3];
+        }
+
+        if (_weightFont == null)
+        {
+            _weightFont = new Font("Consolas", _config.FontSize, FontStyle.Bold);
+            _statusFont = new Font("Arial", _config.FontSize / 3, FontStyle.Bold);
+            _labelFont = new Font("Arial", 24, FontStyle.Regular);
+            _liveFont = new Font("Arial", 16, FontStyle.Bold);
+            _redBrush = new SolidBrush(Color.FromArgb(255, 0, 0));
+            _dimBrush = new SolidBrush(Color.FromArgb(100, 100, 100));
+            _liveBrush = new SolidBrush(Color.FromArgb(255, 0, 0));
+            _centerFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
+            _rightFormat = new StringFormat { Alignment = StringAlignment.Far };
+        }
+    }
+
+    /// <summary>
+    /// Generate a raw BGR24 frame (no JPEG encoding) for FFmpeg input.
+    /// Reuses pre-allocated bitmap, graphics, fonts and pixel buffer.
+    /// </summary>
+    private byte[] GenerateRawFrame()
+    {
+        EnsureRenderingResources();
+
+        _frameGraphics!.Clear(Color.Black);
+        DrawWeightContent(_frameGraphics);
+
+        // Extract raw BGR24 pixel data
+        var rect = new Rectangle(0, 0, _frameBitmap!.Width, _frameBitmap.Height);
+        var bmpData = _frameBitmap.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+        try
+        {
+            var stride = bmpData.Stride;
+            var rawSize = _config.VideoWidth * 3;
+
+            if (stride == rawSize)
+            {
+                Marshal.Copy(bmpData.Scan0, _rawFrameBuffer!, 0, _rawFrameBuffer!.Length);
+            }
+            else
+            {
+                for (int y = 0; y < _config.VideoHeight; y++)
+                {
+                    Marshal.Copy(bmpData.Scan0 + y * stride, _rawFrameBuffer!, y * rawSize, rawSize);
+                }
+            }
+            return _rawFrameBuffer!;
+        }
+        finally
+        {
+            _frameBitmap.UnlockBits(bmpData);
+        }
+    }
+
+    /// <summary>
+    /// Forward H.264 RTP packets from FFmpeg's UDP output to all playing RTSP clients
+    /// </summary>
     private async Task SendJpegFrameAsync(RtspClientConnection client, byte[] jpegData, CancellationToken ct)
     {
         // JPEG RTP packetization (RFC 2435)
@@ -743,22 +1496,8 @@ public class WeightRtspServer : IDisposable
         return packet;
     }
 
-    private byte[] GenerateWeightFrame()
+    private void DrawWeightContent(Graphics graphics)
     {
-        using var bitmap = new Bitmap(_config.VideoWidth, _config.VideoHeight, PixelFormat.Format24bppRgb);
-        using var graphics = Graphics.FromImage(bitmap);
-
-        // AntiAliasGridFit produces clean text for video encoding (ClearType adds subpixel color fringing)
-        graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-        graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-        graphics.CompositingQuality = CompositingQuality.HighQuality;
-
-        // Pure black background
-        graphics.Clear(Color.Black);
-
-        // Get current weight reading
         string weightText;
         string statusText;
         Color statusColor;
@@ -787,56 +1526,43 @@ public class WeightRtspServer : IDisposable
             }
         }
 
-        // Draw weight display - use StringFormat for precise centering
-        using var weightFont = new Font("Consolas", _config.FontSize, FontStyle.Bold);
-        using var unitFont = new Font("Arial", _config.FontSize / 2, FontStyle.Bold);
-        using var statusFont = new Font("Arial", _config.FontSize / 3, FontStyle.Bold);
-        using var labelFont = new Font("Arial", 24, FontStyle.Regular);
-
-        // Get unit
         string unit = _currentReading?.Unit ?? "lb";
-
-        // Combine weight and unit into one string for true centering
         string displayText = $"{weightText} {unit}";
 
-        // Use StringFormat for precise centering
-        using var centerFormat = new StringFormat
-        {
-            Alignment = StringAlignment.Center,
-            LineAlignment = StringAlignment.Center
-        };
-
-        // Draw weight+unit centered on screen
-        using var redBrush = new SolidBrush(Color.FromArgb(255, 0, 0));
         var centerRect = new RectangleF(0, 0, _config.VideoWidth, _config.VideoHeight);
-        graphics.DrawString(displayText, weightFont, redBrush, centerRect, centerFormat);
+        graphics.DrawString(displayText, _weightFont!, _redBrush!, centerRect, _centerFormat!);
 
-        // Status indicator below center
         var statusY = (_config.VideoHeight / 2) + (_config.FontSize / 2) + 30;
         using var statusBrush = new SolidBrush(statusColor);
         var statusRect = new RectangleF(0, statusY, _config.VideoWidth, 50);
-        graphics.DrawString(statusText, statusFont, statusBrush, statusRect, centerFormat);
+        graphics.DrawString(statusText, _statusFont!, statusBrush, statusRect, _centerFormat!);
 
-        // Scale ID label - top left
         string scaleLabel = $"Scale: {_config.ScaleId ?? "Default"}";
-        using var dimBrush = new SolidBrush(Color.FromArgb(100, 100, 100));
-        graphics.DrawString(scaleLabel, labelFont, dimBrush, 20, 20);
+        graphics.DrawString(scaleLabel, _labelFont!, _dimBrush!, 20, 20);
 
-        // Timestamp - top right
         string timeLabel = DateTime.Now.ToString("HH:mm:ss");
-        using var rightFormat = new StringFormat { Alignment = StringAlignment.Far };
-        graphics.DrawString(timeLabel, labelFont, dimBrush, _config.VideoWidth - 20, 20, rightFormat);
+        graphics.DrawString(timeLabel, _labelFont!, _dimBrush!, _config.VideoWidth - 20, 20, _rightFormat!);
 
-        // Bright red LIVE indicator - bottom right
-        using var liveBrush = new SolidBrush(Color.FromArgb(255, 0, 0));
-        graphics.FillEllipse(liveBrush, _config.VideoWidth - 95, _config.VideoHeight - 40, 16, 16);
-        using var liveFont = new Font("Arial", 16, FontStyle.Bold);
-        graphics.DrawString("LIVE", liveFont, Brushes.White, _config.VideoWidth - 75, _config.VideoHeight - 42);
+        graphics.FillEllipse(_liveBrush!, _config.VideoWidth - 95, _config.VideoHeight - 40, 16, 16);
+        graphics.DrawString("LIVE", _liveFont!, Brushes.White, _config.VideoWidth - 75, _config.VideoHeight - 42);
 
-        // Company branding - bottom left
-        graphics.DrawString("Cloud-Scale", labelFont, dimBrush, 20, _config.VideoHeight - 40);
+        graphics.DrawString("Cloud-Scale", _labelFont!, _dimBrush!, 20, _config.VideoHeight - 40);
+    }
 
-        // Encode to JPEG with maximum quality for crisp image
+    private byte[] GenerateWeightFrame()
+    {
+        using var bitmap = new Bitmap(_config.VideoWidth, _config.VideoHeight, PixelFormat.Format24bppRgb);
+        using var graphics = Graphics.FromImage(bitmap);
+
+        graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+        graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        graphics.CompositingQuality = CompositingQuality.HighQuality;
+        graphics.Clear(Color.Black);
+
+        DrawWeightContent(graphics);
+
         using var ms = new MemoryStream();
         var encoder = ImageCodecInfo.GetImageEncoders().First(e => e.FormatID == ImageFormat.Jpeg.Guid);
         var encoderParams = new EncoderParameters(1);
@@ -872,6 +1598,17 @@ public class WeightRtspServer : IDisposable
     {
         StopAsync().GetAwaiter().GetResult();
         _cts?.Dispose();
+        _frameGraphics?.Dispose();
+        _frameBitmap?.Dispose();
+        _weightFont?.Dispose();
+        _statusFont?.Dispose();
+        _labelFont?.Dispose();
+        _liveFont?.Dispose();
+        _redBrush?.Dispose();
+        _dimBrush?.Dispose();
+        _liveBrush?.Dispose();
+        _centerFormat?.Dispose();
+        _rightFormat?.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -899,6 +1636,7 @@ public class WeightRtspServer : IDisposable
         public int ClientRtcpPort { get; set; }
         public int ServerRtpPort { get; set; }
         public int ServerRtcpPort { get; set; }
+        public bool SentSps { get; set; }
 
         public RtspClientConnection(TcpClient tcpClient, int sessionId)
         {

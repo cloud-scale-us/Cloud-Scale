@@ -8,9 +8,9 @@ namespace ScaleStreamer.Common.Onvif;
 
 public class ScaleMediaService : MediaBase
 {
-    private const string PROFILE_TOKEN = "ScaleStream";
-    private const string VIDEO_SOURCE_TOKEN = "VideoSource_1";
-    private const string VIDEO_ENCODER_TOKEN = "VideoEncoder_1";
+    private const string PROFILE_TOKEN = "profile_1_h264";
+    private const string VIDEO_SOURCE_TOKEN = "video_source_0";
+    private const string VIDEO_ENCODER_TOKEN = "encoder_h264_0";
 
     private readonly IServer _server;
     private readonly ILogger<ScaleMediaService> _logger;
@@ -128,14 +128,16 @@ public class ScaleMediaService : MediaBase
     {
         return new VideoEncoderConfigurationOptions
         {
-            JPEG = new JpegOptions
+            H264 = new H264Options
             {
                 EncodingIntervalRange = new IntRange { Min = 1, Max = 100 },
                 FrameRateRange = new IntRange { Min = 1, Max = 30 },
+                GovLengthRange = new IntRange { Min = 1, Max = 300 },
+                H264ProfilesSupported = new[] { H264Profile.Baseline },
                 ResolutionsAvailable = new[]
                 {
                     new VideoResolution { Width = Rtsp.VideoWidth, Height = Rtsp.VideoHeight }
-                }
+                },
             },
             QualityRange = new IntRange { Min = 1, Max = 100 },
         };
@@ -223,6 +225,40 @@ public class ScaleMediaService : MediaBase
         _logger.LogInformation("ONVIF Media: AddAudioDecoderConfiguration (no-op)");
     }
 
+    public override void SetSynchronizationPoint(string ProfileToken)
+    {
+        _logger.LogInformation("ONVIF Media: SetSynchronizationPoint for {Profile} (IDR sent at GOP interval)", ProfileToken);
+    }
+
+    public override GetOSDOptionsResponse GetOSDOptions(GetOSDOptionsRequest request)
+    {
+        return new GetOSDOptionsResponse();
+    }
+
+    public override GetCompatibleVideoAnalyticsConfigurationsResponse GetCompatibleVideoAnalyticsConfigurations(
+        GetCompatibleVideoAnalyticsConfigurationsRequest request)
+    {
+        return new GetCompatibleVideoAnalyticsConfigurationsResponse
+        {
+            Configurations = Array.Empty<VideoAnalyticsConfiguration>()
+        };
+    }
+
+    public override GetOSDsResponse GetOSDs(GetOSDsRequest request)
+    {
+        return new GetOSDsResponse(Array.Empty<OSDConfiguration>());
+    }
+
+    public override GetMetadataConfigurationsResponse GetMetadataConfigurations(GetMetadataConfigurationsRequest request)
+    {
+        return new GetMetadataConfigurationsResponse { Configurations = Array.Empty<MetadataConfiguration>() };
+    }
+
+    public override GetVideoAnalyticsConfigurationsResponse GetVideoAnalyticsConfigurations(GetVideoAnalyticsConfigurationsRequest request)
+    {
+        return new GetVideoAnalyticsConfigurationsResponse { Configurations = Array.Empty<VideoAnalyticsConfiguration>() };
+    }
+
     #region Private Helpers
 
     private Profile CreateProfile()
@@ -230,7 +266,7 @@ public class ScaleMediaService : MediaBase
         return new Profile
         {
             token = PROFILE_TOKEN,
-            Name = "Weight Display Stream",
+            Name = "profile_1_h264",
             VideoSourceConfiguration = GetVideoSourceConfig(),
             VideoEncoderConfiguration = GetVideoEncoderConfig(),
         };
@@ -260,18 +296,23 @@ public class ScaleMediaService : MediaBase
             token = VIDEO_ENCODER_TOKEN,
             Name = VIDEO_ENCODER_TOKEN,
             UseCount = 1,
-            Encoding = VideoEncoding.JPEG,
+            Encoding = VideoEncoding.H264,
             Resolution = new VideoResolution
             {
                 Width = Rtsp.VideoWidth,
                 Height = Rtsp.VideoHeight,
             },
-            Quality = 100.0f,
+            Quality = 50.0f,
             RateControl = new VideoRateControl
             {
                 FrameRateLimit = Rtsp.FrameRate,
-                BitrateLimit = 8192,
+                BitrateLimit = 256,
                 EncodingInterval = 1,
+            },
+            H264 = new H264Configuration
+            {
+                GovLength = 10,
+                H264Profile = H264Profile.Baseline,
             },
         };
     }

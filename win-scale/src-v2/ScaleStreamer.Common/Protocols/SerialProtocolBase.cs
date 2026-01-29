@@ -12,6 +12,7 @@ public abstract class SerialProtocolBase : BaseScaleProtocol
     protected SerialPort? _serialPort;
     protected StringBuilder _buffer = new();
     protected string _lineDelimiter = "\r\n";
+    protected string[]? _alternateDelimiters;
 
     public override async Task<bool> ConnectAsync(ConnectionConfig config, CancellationToken cancellationToken = default)
     {
@@ -144,27 +145,52 @@ public abstract class SerialProtocolBase : BaseScaleProtocol
     }
 
     /// <summary>
-    /// Process received data and extract complete lines
+    /// Process received data and extract complete lines.
+    /// Supports primary delimiter and alternate delimiters (e.g., CR-only or LF-only
+    /// when the primary is CRLF) to handle scales that use non-standard line endings.
     /// </summary>
     protected virtual void ProcessReceivedData(string data)
     {
         _buffer.Append(data);
 
-        // Extract complete lines
+        // Extract complete lines — try primary delimiter first, then alternates
         while (true)
         {
-            var delimiterIndex = _buffer.ToString().IndexOf(_lineDelimiter);
+            var bufferStr = _buffer.ToString();
+            var delimiterIndex = bufferStr.IndexOf(_lineDelimiter);
+            var delimiterLength = _lineDelimiter.Length;
+
+            // If primary delimiter not found, try alternates
+            if (delimiterIndex < 0 && _alternateDelimiters != null)
+            {
+                foreach (var alt in _alternateDelimiters)
+                {
+                    delimiterIndex = bufferStr.IndexOf(alt);
+                    if (delimiterIndex >= 0)
+                    {
+                        delimiterLength = alt.Length;
+                        break;
+                    }
+                }
+            }
+
             if (delimiterIndex < 0)
                 break;
 
             var line = _buffer.ToString(0, delimiterIndex);
-            _buffer.Remove(0, delimiterIndex + _lineDelimiter.Length);
+            _buffer.Remove(0, delimiterIndex + delimiterLength);
 
             if (!string.IsNullOrWhiteSpace(line))
             {
                 OnRawDataReceived(line);
                 ProcessLine(line);
             }
+        }
+
+        // Prevent buffer from growing unbounded if no delimiter is found
+        if (_buffer.Length > 4096)
+        {
+            _buffer.Clear();
         }
     }
 

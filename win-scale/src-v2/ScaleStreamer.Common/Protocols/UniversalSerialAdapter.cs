@@ -27,6 +27,14 @@ public class UniversalSerialAdapter : SerialProtocolBase
                 .Replace("\\n", "\n")
                 .Replace("\\t", "\t");
         }
+
+        // Set alternate delimiters (e.g., some scales send CR-only instead of CRLF)
+        if (protocolDefinition.Parsing?.AlternateDelimiters is { Count: > 0 })
+        {
+            _alternateDelimiters = protocolDefinition.Parsing.AlternateDelimiters
+                .Select(d => d.Replace("\\r", "\r").Replace("\\n", "\n").Replace("\\t", "\t"))
+                .ToArray();
+        }
     }
 
     public override async Task<WeightReading?> ReadWeightAsync(CancellationToken cancellationToken = default)

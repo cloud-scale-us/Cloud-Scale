@@ -107,6 +107,12 @@ public class ParsingConfig
     public string? EndDelimiter { get; set; }
 
     /// <summary>
+    /// Alternate line delimiters (e.g., some scales send CR-only instead of CRLF)
+    /// </summary>
+    [JsonPropertyName("alternate_delimiters")]
+    public List<string>? AlternateDelimiters { get; set; }
+
+    /// <summary>
     /// Regular expression pattern for extraction
     /// </summary>
     [JsonPropertyName("regex")]

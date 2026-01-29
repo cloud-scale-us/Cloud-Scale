@@ -21,6 +21,7 @@ public class ScaleService : BackgroundService
     private IpcServer? _ipcServer;
     private IpcCommandHandler? _commandHandler;
     private WeightRtspServer? _rtspServer;
+    private DahuaProtocolServer? _dahuaServer;
     private readonly string _databasePath;
     private readonly string _protocolsPath;
     private CancellationTokenSource? _settingsDebounce;
@@ -104,6 +105,17 @@ public class ScaleService : BackgroundService
             else
             {
                 _logger.LogInformation("RTSP streaming is disabled in settings");
+            }
+
+            // Start Dahua Private Protocol server
+            var dahuaSettings = AppSettings.Instance.Dahua;
+            if (dahuaSettings.Enabled)
+            {
+                await StartDahuaServerAsync(rtspSettings, dahuaSettings);
+            }
+            else
+            {
+                _logger.LogInformation("Dahua protocol server is disabled in settings");
             }
 
             _logger.LogInformation("Scale Service running and ready for connections.");
@@ -357,8 +369,9 @@ public class ScaleService : BackgroundService
                 await _database.InsertWeightReadingAsync(e.Reading);
             }
 
-            // Send to RTSP streaming pipeline
+            // Send to streaming pipelines
             _rtspServer?.UpdateWeight(e.Reading);
+            _dahuaServer?.UpdateWeight(e.Reading);
 
             // Send notification to GUI via IPC
             if (_ipcServer != null)
@@ -502,6 +515,43 @@ public class ScaleService : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error starting RTSP stream server");
+        }
+    }
+
+    /// <summary>
+    /// Start the Dahua Private Protocol server
+    /// </summary>
+    private async Task StartDahuaServerAsync(RtspStreamSettings rtspSettings, DahuaSettings dahuaSettings)
+    {
+        try
+        {
+            var config = new RtspStreamConfig
+            {
+                VideoWidth = rtspSettings.VideoWidth,
+                VideoHeight = rtspSettings.VideoHeight,
+                FrameRate = rtspSettings.FrameRate,
+                FontSize = rtspSettings.FontSize,
+                ScaleId = AppSettings.Instance.ScaleConnection.ScaleId,
+                RequireAuth = rtspSettings.RequireAuth,
+                Username = rtspSettings.Username,
+                Password = rtspSettings.Password
+            };
+
+            _dahuaServer = new DahuaProtocolServer(dahuaSettings.Port, config);
+
+            var started = await _dahuaServer.StartAsync();
+            if (started)
+            {
+                _logger.LogInformation("Dahua protocol server started on port {Port}", dahuaSettings.Port);
+            }
+            else
+            {
+                _logger.LogError("Failed to start Dahua protocol server");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error starting Dahua protocol server");
         }
     }
 

@@ -88,7 +88,7 @@ static class Program
     private static void LaunchConfigurationGUI()
     {
         // Get the directory where this launcher is running from
-        var launcherDir = AppDomain.CurrentDomain.BaseDirectory;
+        var launcherDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
         // Config GUI is in the parent directory's Config folder
         var installRoot = Directory.GetParent(launcherDir)?.FullName;

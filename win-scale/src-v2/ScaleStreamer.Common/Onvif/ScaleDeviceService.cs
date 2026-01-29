@@ -38,10 +38,10 @@ public class ScaleDeviceService : DeviceBase
     {
         return new GetDeviceInformationResponse
         {
-            FirmwareVersion = "5.0.0",
-            HardwareId = "1.0",
-            Manufacturer = "Cloud-Scale",
-            Model = "Scale Streamer",
+            FirmwareVersion = "9.80.3.1",
+            HardwareId = "7D2",
+            Manufacturer = "AXIS",
+            Model = "AXIS M1065-LW",
             SerialNumber = AppSettings.Instance.ScaleConnection.ScaleId,
         };
     }
@@ -111,17 +111,22 @@ public class ScaleDeviceService : DeviceBase
                 new Scope
                 {
                     ScopeDef = ScopeDefinition.Fixed,
+                    ScopeItem = "onvif://www.onvif.org/type/Network_Video_Transmitter"
+                },
+                new Scope
+                {
+                    ScopeDef = ScopeDefinition.Fixed,
                     ScopeItem = "onvif://www.onvif.org/Profile/Streaming"
                 },
                 new Scope
                 {
                     ScopeDef = ScopeDefinition.Fixed,
-                    ScopeItem = "onvif://www.onvif.org/name/ScaleStreamer"
+                    ScopeItem = "onvif://www.onvif.org/name/AXIS%20M1065-LW"
                 },
                 new Scope
                 {
                     ScopeDef = ScopeDefinition.Fixed,
-                    ScopeItem = "onvif://www.onvif.org/hardware/CloudScale"
+                    ScopeItem = "onvif://www.onvif.org/hardware/AXIS%20M1065-LW"
                 },
             }
         };

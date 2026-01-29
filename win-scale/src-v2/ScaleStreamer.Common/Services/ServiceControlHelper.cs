@@ -31,7 +31,10 @@ public static class ServiceControlHelper
     }
 
     /// <summary>
-    /// Grant the current user permission to control the service (requires elevation)
+    /// Grant the current user permission to control the service (requires elevation).
+    /// Uses a single elevated PowerShell process to read the current SDDL, modify it,
+    /// and apply it — avoiding the issue where elevated processes can't capture output
+    /// through UseShellExecute + runas.
     /// </summary>
     public static async Task<bool> GrantServiceControlPermissionAsync()
     {
@@ -49,47 +52,87 @@ public static class ServiceControlHelper
 
             _log.Information("Granting service control permission to SID: {UserSid}", userSid);
 
-            // Get current SDDL
-            var sddlResult = RunSc("sdshow", captureOutput: true, elevated: true);
-            if (sddlResult.ExitCode != 0 || string.IsNullOrEmpty(sddlResult.Output))
+            // ACE: Allow Start (RP), Stop (WP), Query Status (LC), Query Config (CC), Interrogate (CR)
+            var newAce = $"(A;;RPWPLCCCCR;;;{userSid})";
+
+            // Build a PowerShell script that runs elevated to:
+            // 1. Read current SDDL via sc.exe sdshow
+            // 2. Insert the new ACE
+            // 3. Apply via sc.exe sdset
+            // Using a temp file to pass the result back since elevated process stdout isn't capturable
+            var resultFile = Path.Combine(Path.GetTempPath(), $"ss_perm_{Guid.NewGuid():N}.txt");
+
+            var psScript = $@"
+$ErrorActionPreference = 'Stop'
+try {{
+    $output = & sc.exe sdshow {SERVICE_NAME} 2>&1
+    $sddl = ($output | Where-Object {{ $_ -match '^D:' }}) -join ''
+    $sddl = $sddl.Trim()
+    if (-not $sddl.StartsWith('D:')) {{
+        'FAIL:Could not read SDDL: ' + $sddl | Out-File '{resultFile}'
+        exit 1
+    }}
+    $newSddl = 'D:{newAce}' + $sddl.Substring(2)
+    $setOutput = & sc.exe sdset {SERVICE_NAME} $newSddl 2>&1
+    if ($LASTEXITCODE -eq 0) {{
+        'OK' | Out-File '{resultFile}'
+    }} else {{
+        ('FAIL:' + ($setOutput -join ' ')) | Out-File '{resultFile}'
+    }}
+}} catch {{
+    ('FAIL:' + $_.Exception.Message) | Out-File '{resultFile}'
+}}";
+
+            // Encode script as base64 for safe passing
+            var encodedScript = Convert.ToBase64String(
+                System.Text.Encoding.Unicode.GetBytes(psScript));
+
+            var psi = new ProcessStartInfo
             {
-                _log.Error("Failed to get current SDDL: {Output}", sddlResult.Output);
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy Bypass -EncodedCommand {encodedScript}",
+                UseShellExecute = true,
+                Verb = "runas",
+                CreateNoWindow = false,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+
+            using var process = Process.Start(psi);
+            if (process == null)
+            {
+                _log.Error("Failed to start elevated PowerShell process");
                 return false;
             }
 
-            var currentSddl = sddlResult.Output.Trim();
-            _log.Debug("Current SDDL: {Sddl}", currentSddl);
+            process.WaitForExit(30000);
 
-            // Create ACE for user: Allow Start (RP), Stop (WP), Query Status (LC), Query Config (CC)
-            var newAce = $"(A;;RPWPLCCC;;;{userSid})";
-
-            // Insert new ACE after D:
-            string newSddl;
-            if (currentSddl.StartsWith("D:"))
+            // Read result from temp file
+            if (File.Exists(resultFile))
             {
-                newSddl = "D:" + newAce + currentSddl.Substring(2);
+                var result = File.ReadAllText(resultFile).Trim();
+                File.Delete(resultFile);
+
+                if (result == "OK")
+                {
+                    _log.Information("Successfully granted service control permission");
+                    return true;
+                }
+                else
+                {
+                    _log.Error("Failed to grant permission: {Result}", result);
+                    return false;
+                }
             }
             else
             {
-                _log.Error("SDDL format unexpected: {Sddl}", currentSddl);
+                _log.Error("Permission grant: no result file found (user may have cancelled UAC)");
                 return false;
             }
-
-            _log.Debug("New SDDL: {Sddl}", newSddl);
-
-            // Apply new SDDL
-            var setResult = RunSc($"sdset {SERVICE_NAME} {newSddl}", captureOutput: true, elevated: true);
-
-            if (setResult.ExitCode == 0)
-            {
-                _log.Information("Successfully granted service control permission");
-                return true;
-            }
-            else
-            {
-                _log.Error("Failed to set SDDL: {Output}", setResult.Output);
-                return false;
-            }
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            _log.Warning("User cancelled UAC prompt");
+            return false;
         }
         catch (Exception ex)
         {
@@ -191,8 +234,11 @@ public static class ServiceControlHelper
     {
         try
         {
-            var fullArgs = arguments.StartsWith("start") || arguments.StartsWith("stop") || arguments.StartsWith("query")
-                ? $"{arguments.Split(' ')[0]} {SERVICE_NAME}"
+            // Commands that need the service name appended
+            var cmd = arguments.Split(' ')[0];
+            var needsServiceName = cmd is "start" or "stop" or "query" or "sdshow";
+            var fullArgs = needsServiceName
+                ? $"{cmd} {SERVICE_NAME}"
                 : arguments;
 
             var psi = new ProcessStartInfo("sc.exe", fullArgs)
