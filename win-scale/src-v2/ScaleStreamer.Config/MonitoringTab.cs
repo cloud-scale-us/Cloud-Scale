@@ -204,23 +204,6 @@ public partial class MonitoringTab : UserControl
             WrapContents = false
         };
 
-        // RTSP URL
-        var rtspUrl = $"rtsp://{GetLocalIPv4Address()}:8554/scale1";
-        var rtspLabel = new Label
-        {
-            Text = $"RTSP: {rtspUrl}",
-            Font = new Font("Segoe UI", 9F),
-            AutoSize = true,
-            Padding = new Padding(0, 5, 0, 5),
-            ForeColor = Color.Blue,
-            Cursor = Cursors.Hand
-        };
-        rtspLabel.Click += (s, e) =>
-        {
-            Clipboard.SetText(rtspUrl);
-            MessageBox.Show("RTSP URL copied to clipboard!", "Copied", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        };
-
         var clearButton = new Button
         {
             Text = "Clear History",
@@ -239,7 +222,6 @@ public partial class MonitoringTab : UserControl
         };
         testButton.Click += (s, e) => TestDisplay();
 
-        layout.Controls.Add(rtspLabel);
         layout.Controls.Add(clearButton);
         layout.Controls.Add(testButton);
 
